@@ -4,6 +4,8 @@
     using Rendering.Wave;
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Windows;
 
     public static partial class Library
     {
@@ -28,6 +30,14 @@
         /// </summary>
         public static LegacyAudioDeviceInfo DefaultLegacyAudioDevice { get; } = new LegacyAudioDeviceInfo(
             -1, nameof(DefaultLegacyAudioDevice), nameof(LegacyAudioPlayer), true, Guid.Empty.ToString());
+
+        /// <summary>
+        /// Determines if the control library is currently in design-time mode (as opposed to run-time)
+        /// </summary>
+        internal static bool IsInDesignMode =>
+            (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue ||
+            Application.Current == null ||
+            Application.Current.Dispatcher == null;
 
         /// <summary>
         /// Enumerates the DirectSound devices.

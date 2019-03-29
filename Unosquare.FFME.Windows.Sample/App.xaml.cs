@@ -2,6 +2,7 @@
 {
     using FFmpeg.AutoGen;
     using System;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
     using System.Threading;
@@ -35,6 +36,12 @@
         /// Provides access to the root-level, application-wide VM.
         /// </summary>
         public static RootViewModel ViewModel => Current.Resources[nameof(ViewModel)] as RootViewModel;
+
+        /// <summary>
+        /// Determines if the Application is in design mode.
+        /// </summary>
+        public static bool IsInDesignMode => !(Current is App) ||
+            (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue;
 
         /// <summary>
         /// Gets a full file path for a screen capture or stream recording.

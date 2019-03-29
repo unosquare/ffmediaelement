@@ -5,7 +5,6 @@
     using Engine;
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
@@ -134,7 +133,7 @@
             }
 
             // Show some preview of the text
-            if (!DesignerProperties.GetIsInDesignMode(this))
+            if (!Library.IsInDesignMode)
                 return;
 
             // Line 11 (index 10) preview

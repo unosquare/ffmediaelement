@@ -21,7 +21,7 @@
             InitializeComponent();
 
             // Prevent binding to the events
-            if (DesignerProperties.GetIsInDesignMode(this))
+            if (App.IsInDesignMode)
                 return;
 
             // Bind the Enter key to the command

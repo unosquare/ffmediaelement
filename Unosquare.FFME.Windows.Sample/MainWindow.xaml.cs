@@ -4,7 +4,6 @@
     using Common;
     using Foundation;
     using System;
-    using System.ComponentModel;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows;
@@ -19,7 +18,7 @@
     /// <summary>
     /// Interaction logic for MainWindow.xaml.
     /// </summary>
-    public partial class MainWindow
+    public partial class MainWindow : Window
     {
         #region Fields
 
@@ -44,7 +43,7 @@
         {
             // During runtime, let's hide the window. The loaded event handler will
             // compute the final placement of our window.
-            if (!DesignerProperties.GetIsInDesignMode(this))
+            if (!App.IsInDesignMode)
             {
                 Left = int.MinValue;
                 Top = int.MinValue;

@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
     using Foundation;
-    using Platform;
     using System;
     using System.Diagnostics;
     using System.IO;
@@ -14,9 +13,9 @@
     public sealed class RootViewModel : ViewModelBase
     {
         private string m_WindowTitle = string.Empty;
-        private bool m_IsPlaylistPanelOpen = GuiContext.Current.IsInDesignTime;
-        private bool m_IsPropertiesPanelOpen = GuiContext.Current.IsInDesignTime;
-        private bool m_IsApplicationLoaded = GuiContext.Current.IsInDesignTime;
+        private bool m_IsPlaylistPanelOpen = App.IsInDesignMode;
+        private bool m_IsPropertiesPanelOpen = App.IsInDesignMode;
+        private bool m_IsApplicationLoaded = App.IsInDesignMode;
         private MediaElement m_MediaElement;
 
         /// <summary>

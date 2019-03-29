@@ -1,24 +1,14 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using Primitives;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
-
-#if WINDOWS_UWP
-    using Windows.ApplicationModel;
-    using Application = Windows.ApplicationModel.Core.CoreApplication;
-    using Dispatcher = Windows.UI.Core.CoreDispatcher;
-    using DispatcherPriority = Windows.UI.Core.CoreDispatcherPriority;
-#else
-    using Primitives;
-    using System.ComponentModel;
-    using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Threading;
     using Application = System.Windows.Application;
-#endif
 
     /// <summary>
     /// Provides properties and methods for the
@@ -42,20 +32,6 @@
             Thread = Thread.CurrentThread;
             ThreadContext = SynchronizationContext.Current;
 
-#if WINDOWS_UWP
-            try
-            {
-                GuiDispatcher = Application.GetCurrentView().Dispatcher;
-                Type = GuiContextType.UWP;
-            }
-            catch
-            {
-                GuiDispatcher = null;
-                Type = GuiContextType.None;
-            }
-
-            IsInDesignTime = DesignMode.DesignModeEnabled;
-#else
             try { GuiDispatcher = Application.Current.Dispatcher; }
             catch { /* Ignore error as app might not be available or context is not WPF */ }
 
@@ -63,17 +39,6 @@
             if (GuiDispatcher != null) Type = GuiContextType.WPF;
             else if (ThreadContext is WindowsFormsSynchronizationContext) Type = GuiContextType.WinForms;
 
-            // Design-time detection
-            try
-            {
-                IsInDesignTime = (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(
-                    typeof(DependencyObject)).DefaultValue;
-            }
-            catch
-            {
-                IsInDesignTime = false;
-            }
-#endif
             IsValid = Type != GuiContextType.None;
         }
 
@@ -91,11 +56,6 @@
         /// Gets the thread on which this context was created.
         /// </summary>
         public Thread Thread { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the context is in design time.
-        /// </summary>
-        public bool IsInDesignTime { get; }
 
         /// <summary>
         /// Returns true if this context is valid.

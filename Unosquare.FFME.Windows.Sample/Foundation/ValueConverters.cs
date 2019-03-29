@@ -3,7 +3,6 @@
 namespace Unosquare.FFME.Windows.Sample.Foundation
 {
     using ClosedCaptions;
-    using Platform;
     using System;
     using System.Globalization;
     using System.Windows;
@@ -182,7 +181,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         /// <inheritdoc />
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
-            if (value is string thumbnailFilename && GuiContext.Current.IsInDesignTime == false)
+            if (value is string thumbnailFilename && !App.IsInDesignMode)
             {
                 return ThumbnailGenerator.GetThumbnail(
                     App.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);

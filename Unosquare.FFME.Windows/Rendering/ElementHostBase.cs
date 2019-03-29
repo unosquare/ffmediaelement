@@ -3,7 +3,6 @@
     using Primitives;
     using System;
     using System.Collections;
-    using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -36,7 +35,7 @@
         /// <param name="hasOwnDispatcher">if set to <c>true</c>, it creates its own separate thread and associated dispatcher.</param>
         protected ElementHostBase(bool hasOwnDispatcher)
         {
-            var isInDesignMode = DesignerProperties.GetIsInDesignMode(this);
+            var isInDesignMode = Library.IsInDesignMode;
             HasOwnDispatcher = !isInDesignMode && hasOwnDispatcher;
         }
 

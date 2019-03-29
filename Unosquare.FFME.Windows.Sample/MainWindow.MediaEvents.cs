@@ -119,6 +119,9 @@
         /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpening(object sender, MediaOpeningEventArgs e)
         {
+            // the event sender is the MediaElement itself
+            var media = sender as MediaElement;
+
             // You can start off by adjusting subtitles delay
             // This defaults to 0 but you can delay (or advance with a negative delay)
             // the subtitle timestamps.
@@ -140,17 +143,17 @@
             // A few WMV files I have tested don't have continuous enough audio packets to support
             // perfect synchronization between audio and video so we simply disable it.
             // Also if time synchronization is disabled, the recommendation is to also disable audio synchronization.
-            Media.RendererOptions.AudioDisableSync =
+            media.RendererOptions.AudioDisableSync =
                 e.Options.IsTimeSyncDisabled ||
                 e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
 
             // Legacy audio out is the use of the WinMM api as opposed to using DirectSound
             // Enable legacy audio out if you are having issues with the DirectSound driver.
-            Media.RendererOptions.UseLegacyAudioOut = e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
+            media.RendererOptions.UseLegacyAudioOut = e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
 
             // You can limit how often the video renderer updates the picture.
             // We keep it as 0 to refresh the video according to the native stream specification.
-            Media.RendererOptions.VideoRefreshRateLimit = 0;
+            media.RendererOptions.VideoRefreshRateLimit = 0;
 
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;
@@ -262,9 +265,9 @@
                 // Since the MediaElement control belongs to the GUI thread
                 // and the closed captions channel property is a dependency
                 // property, we need to set it on the GUI thread.
-                Media.Dispatcher?.InvokeAsync(() =>
+                media.Dispatcher?.InvokeAsync(() =>
                 {
-                    Media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
+                    media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
                         CaptionsChannel.CC1 : CaptionsChannel.CCP;
                 });
             }
@@ -393,7 +396,8 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private async void OnAudioDeviceStopped(object sender, EventArgs e)
         {
-            if (Media != null) await Media.ChangeMedia();
+            if (sender is MediaElement media)
+                await media.ChangeMedia();
         }
 
         #endregion

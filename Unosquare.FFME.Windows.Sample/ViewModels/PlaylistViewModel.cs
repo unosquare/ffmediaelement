@@ -2,7 +2,6 @@
 {
     using Common;
     using Foundation;
-    using Platform;
     using System;
     using System.ComponentModel;
     using System.IO;
@@ -26,7 +25,7 @@
         private string FilterString = string.Empty;
 
         // Property Backing
-        private bool m_IsInOpenMode = GuiContext.Current.IsInDesignTime;
+        private bool m_IsInOpenMode = App.IsInDesignMode;
         private bool m_IsPlaylistEnabled = true;
         private string m_OpenMediaSource = string.Empty;
         private string m_PlaylistSearchString = string.Empty;

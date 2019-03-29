@@ -100,13 +100,6 @@
 
         #region Properties
 
-        /// <summary>
-        /// Determines if the control is currently in design-time mode (as opposed to run-time)
-        /// </summary>
-        public bool IsInDesignTime => DesignerProperties.GetIsInDesignMode(this) ||
-            Application.Current == null ||
-            Dispatcher == null;
-
         /// <inheritdoc />
         Uri IUriContext.BaseUri { get; set; }
 
@@ -318,7 +311,7 @@
             ContentGrid.Children.Add(CaptionsView);
 
             // Display the control (or not)
-            if (!IsInDesignTime)
+            if (!Library.IsInDesignMode)
             {
                 // Setup the media engine and associated property updates worker
                 MediaCore = new MediaEngine(this, new MediaConnector(this));
@@ -368,7 +361,7 @@
                     return;
                 }
 
-                if (HasVideo || IsInDesignTime)
+                if (HasVideo || Library.IsInDesignMode)
                 {
                     // Position and Size the Captions View
                     CaptionsView.Width = Math.Floor(videoSize.Width);
