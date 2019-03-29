@@ -7,6 +7,50 @@ references:
   commentId: N:Unosquare.FFME
   fullName: Unosquare.FFME
   nameWithType: Unosquare.FFME
+- uid: Unosquare.FFME.Library
+  name: Library
+  href: api/Unosquare.FFME.Library.html
+  commentId: T:Unosquare.FFME.Library
+  fullName: Unosquare.FFME.Library
+  nameWithType: Library
+- uid: Unosquare.FFME.Library.DefaultDirectSoundDevice
+  name: DefaultDirectSoundDevice
+  href: api/Unosquare.FFME.Library.html#Unosquare_FFME_Library_DefaultDirectSoundDevice
+  commentId: F:Unosquare.FFME.Library.DefaultDirectSoundDevice
+  fullName: Unosquare.FFME.Library.DefaultDirectSoundDevice
+  nameWithType: Library.DefaultDirectSoundDevice
+- uid: Unosquare.FFME.Library.DefaultLegacyAudioDevice
+  name: DefaultLegacyAudioDevice
+  href: api/Unosquare.FFME.Library.html#Unosquare_FFME_Library_DefaultLegacyAudioDevice
+  commentId: F:Unosquare.FFME.Library.DefaultLegacyAudioDevice
+  fullName: Unosquare.FFME.Library.DefaultLegacyAudioDevice
+  nameWithType: Library.DefaultLegacyAudioDevice
+- uid: Unosquare.FFME.Library.EnumerateDirectSoundDevices
+  name: EnumerateDirectSoundDevices()
+  href: api/Unosquare.FFME.Library.html#Unosquare_FFME_Library_EnumerateDirectSoundDevices
+  commentId: M:Unosquare.FFME.Library.EnumerateDirectSoundDevices
+  fullName: Unosquare.FFME.Library.EnumerateDirectSoundDevices()
+  nameWithType: Library.EnumerateDirectSoundDevices()
+- uid: Unosquare.FFME.Library.EnumerateDirectSoundDevices*
+  name: EnumerateDirectSoundDevices
+  href: api/Unosquare.FFME.Library.html#Unosquare_FFME_Library_EnumerateDirectSoundDevices_
+  commentId: Overload:Unosquare.FFME.Library.EnumerateDirectSoundDevices
+  isSpec: "True"
+  fullName: Unosquare.FFME.Library.EnumerateDirectSoundDevices
+  nameWithType: Library.EnumerateDirectSoundDevices
+- uid: Unosquare.FFME.Library.EnumerateLegacyAudioDevices
+  name: EnumerateLegacyAudioDevices()
+  href: api/Unosquare.FFME.Library.html#Unosquare_FFME_Library_EnumerateLegacyAudioDevices
+  commentId: M:Unosquare.FFME.Library.EnumerateLegacyAudioDevices
+  fullName: Unosquare.FFME.Library.EnumerateLegacyAudioDevices()
+  nameWithType: Library.EnumerateLegacyAudioDevices()
+- uid: Unosquare.FFME.Library.EnumerateLegacyAudioDevices*
+  name: EnumerateLegacyAudioDevices
+  href: api/Unosquare.FFME.Library.html#Unosquare_FFME_Library_EnumerateLegacyAudioDevices_
+  commentId: Overload:Unosquare.FFME.Library.EnumerateLegacyAudioDevices
+  isSpec: "True"
+  fullName: Unosquare.FFME.Library.EnumerateLegacyAudioDevices
+  nameWithType: Library.EnumerateLegacyAudioDevices
 - uid: Unosquare.FFME.Media
   name: Unosquare.FFME.Media
   href: api/Unosquare.FFME.Media.html
@@ -1583,47 +1627,3 @@ references:
   commentId: F:Unosquare.FFME.Subtitles.TextProperty
   fullName: Unosquare.FFME.Subtitles.TextProperty
   nameWithType: Subtitles.TextProperty
-- uid: Unosquare.FFME.Utilities
-  name: Utilities
-  href: api/Unosquare.FFME.Utilities.html
-  commentId: T:Unosquare.FFME.Utilities
-  fullName: Unosquare.FFME.Utilities
-  nameWithType: Utilities
-- uid: Unosquare.FFME.Utilities.DefaultDirectSoundDevice
-  name: DefaultDirectSoundDevice
-  href: api/Unosquare.FFME.Utilities.html#Unosquare_FFME_Utilities_DefaultDirectSoundDevice
-  commentId: F:Unosquare.FFME.Utilities.DefaultDirectSoundDevice
-  fullName: Unosquare.FFME.Utilities.DefaultDirectSoundDevice
-  nameWithType: Utilities.DefaultDirectSoundDevice
-- uid: Unosquare.FFME.Utilities.DefaultLegacyAudioDevice
-  name: DefaultLegacyAudioDevice
-  href: api/Unosquare.FFME.Utilities.html#Unosquare_FFME_Utilities_DefaultLegacyAudioDevice
-  commentId: F:Unosquare.FFME.Utilities.DefaultLegacyAudioDevice
-  fullName: Unosquare.FFME.Utilities.DefaultLegacyAudioDevice
-  nameWithType: Utilities.DefaultLegacyAudioDevice
-- uid: Unosquare.FFME.Utilities.EnumerateDirectSoundDevices
-  name: EnumerateDirectSoundDevices()
-  href: api/Unosquare.FFME.Utilities.html#Unosquare_FFME_Utilities_EnumerateDirectSoundDevices
-  commentId: M:Unosquare.FFME.Utilities.EnumerateDirectSoundDevices
-  fullName: Unosquare.FFME.Utilities.EnumerateDirectSoundDevices()
-  nameWithType: Utilities.EnumerateDirectSoundDevices()
-- uid: Unosquare.FFME.Utilities.EnumerateDirectSoundDevices*
-  name: EnumerateDirectSoundDevices
-  href: api/Unosquare.FFME.Utilities.html#Unosquare_FFME_Utilities_EnumerateDirectSoundDevices_
-  commentId: Overload:Unosquare.FFME.Utilities.EnumerateDirectSoundDevices
-  isSpec: "True"
-  fullName: Unosquare.FFME.Utilities.EnumerateDirectSoundDevices
-  nameWithType: Utilities.EnumerateDirectSoundDevices
-- uid: Unosquare.FFME.Utilities.EnumerateLegacyAudioDevices
-  name: EnumerateLegacyAudioDevices()
-  href: api/Unosquare.FFME.Utilities.html#Unosquare_FFME_Utilities_EnumerateLegacyAudioDevices
-  commentId: M:Unosquare.FFME.Utilities.EnumerateLegacyAudioDevices
-  fullName: Unosquare.FFME.Utilities.EnumerateLegacyAudioDevices()
-  nameWithType: Utilities.EnumerateLegacyAudioDevices()
-- uid: Unosquare.FFME.Utilities.EnumerateLegacyAudioDevices*
-  name: EnumerateLegacyAudioDevices
-  href: api/Unosquare.FFME.Utilities.html#Unosquare_FFME_Utilities_EnumerateLegacyAudioDevices_
-  commentId: Overload:Unosquare.FFME.Utilities.EnumerateLegacyAudioDevices
-  isSpec: "True"
-  fullName: Unosquare.FFME.Utilities.EnumerateLegacyAudioDevices
-  nameWithType: Utilities.EnumerateLegacyAudioDevices

@@ -70,6 +70,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Library.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Library.html",
+          "hash": "l+LChjPlP1pTSbKScngk1w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Media.AudioDeviceInfo-1.yml",
       "output": {
         ".html": {
@@ -238,23 +250,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Utilities.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Utilities.html",
-          "hash": "Ez3orW/PJTcjjDaF0a+/eQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.yml",
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.html",
-          "hash": "FxXF/Bcllw8H6UjZ/mjnDw=="
+          "hash": "v7HYdhItqAMD9zlw4JQ8dA=="
         }
       },
       "is_incremental": false,
@@ -266,7 +266,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "Gpq7CPiwWknYUIjcDPA4iA=="
+          "hash": "muI1kMa+HjYe1v2Q8wi3jQ=="
         }
       },
       "is_incremental": false,
@@ -303,6 +303,12 @@
           "total_file_count": 0,
           "skipped_file_count": 0
         },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 16,
+          "skipped_file_count": 0
+        },
         "ResourceDocumentProcessor": {
           "can_incremental": false,
           "details": "Processor ResourceDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
@@ -314,12 +320,6 @@
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 1,
-          "skipped_file_count": 0
-        },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 16,
           "skipped_file_count": 0
         }
       }
