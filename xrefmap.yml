@@ -1131,6 +1131,12 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.EnableWpfMultiThreadedVideo
   nameWithType: MediaElement.EnableWpfMultiThreadedVideo
+- uid: Unosquare.FFME.MediaElement.FFmpegMessageLogged
+  name: FFmpegMessageLogged
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegMessageLogged
+  commentId: E:Unosquare.FFME.MediaElement.FFmpegMessageLogged
+  fullName: Unosquare.FFME.MediaElement.FFmpegMessageLogged
+  nameWithType: MediaElement.FFmpegMessageLogged
 - uid: Unosquare.FFME.MediaElement.IsDisposed
   name: IsDisposed
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDisposed

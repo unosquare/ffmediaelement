@@ -901,6 +901,36 @@ in order to output to a new audio device</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_FFmpegMessageLogged" data-uid="Unosquare.FFME.MediaElement.FFmpegMessageLogged">FFmpegMessageLogged</h4>
+  <div class="markdown level1 summary"><p>Occurs when a logging message from the FFmpeg library has been received.
+This is shared across all instances of Media Elements.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static event EventHandler&lt;MediaLogMessageEventArgs&gt; FFmpegMessageLogged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventhandler-1">EventHandler</a>&lt;<span class="xref">MediaLogMessageEventArgs</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 id="Unosquare_FFME_MediaElement_FFmpegMessageLogged_remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>This event is raised on a background thread.
+All interaction with UI elements requires calls on their corresponding dispatcher.</p>
+</div>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_RenderingAudio" data-uid="Unosquare.FFME.MediaElement.RenderingAudio">RenderingAudio</h4>
   <div class="markdown level1 summary"><p>Occurs right before the audio is added to the audio buffer.
 You can update the bytes before they are queued.
