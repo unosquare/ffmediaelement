@@ -2,7 +2,6 @@
 {
     using ClosedCaptions;
     using FFmpeg.AutoGen;
-    using Media;
     using Platform;
     using System;
     using System.Diagnostics;
@@ -10,6 +9,7 @@
     using System.Linq;
     using System.Text;
     using System.Windows;
+    using Unosquare.FFME.Media;
 
     public partial class MainWindow
     {
@@ -234,7 +234,7 @@
                     {
                         var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
                         if (accelerator == null) continue;
-                        if (GuiContext.Current.IsInDebugMode == true)
+                        if (Debugger.IsAttached)
                             e.Options.VideoHardwareDevice = accelerator;
 
                         break;

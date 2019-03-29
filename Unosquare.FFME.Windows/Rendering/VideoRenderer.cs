@@ -68,7 +68,7 @@
                 throw new NotSupportedException($"Unable to get equivalent pixel format from source: {Constants.VideoPixelFormat}");
 
             // Set the DPI
-            GuiContext.Current.EnqueueInvoke(() =>
+            Library.GuiContext.EnqueueInvoke(() =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
                 DpiX = 96.0 * visual?.CompositionTarget?.TransformToDevice.M11 ?? 96.0;
@@ -120,19 +120,15 @@
         /// <inheritdoc />
         public void OnStop()
         {
-            GuiContext.Current.EnqueueInvoke(() =>
-            {
-                MediaElement.CaptionsView.Reset();
-            });
+            Library.GuiContext.EnqueueInvoke(() =>
+                MediaElement.CaptionsView.Reset());
         }
 
         /// <inheritdoc />
         public void OnSeek()
         {
-            GuiContext.Current.EnqueueInvoke(() =>
-            {
-                MediaElement.CaptionsView.Reset();
-            });
+            Library.GuiContext.EnqueueInvoke(() =>
+                MediaElement.CaptionsView.Reset());
         }
 
         /// <inheritdoc />
@@ -243,7 +239,7 @@
         /// <inheritdoc />
         public void OnClose()
         {
-            GuiContext.Current.EnqueueInvoke(() =>
+            Library.GuiContext.EnqueueInvoke(() =>
             {
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;

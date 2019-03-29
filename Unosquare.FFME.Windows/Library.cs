@@ -8,15 +8,25 @@
     public static partial class Library
     {
         /// <summary>
+        /// Gets or sets a value indicating whether the video visualization control
+        /// creates its own dispatcher thread to handle rendering of video frames.
+        /// This is an experimental feature and it is useful when creating video walls.
+        /// For example if you want to display multiple videos at a time and don't want to
+        /// use time from the main UI thread. This feature is only valid if we are in
+        /// a WPF context.
+        /// </summary>
+        public static bool EnableWpfMultiThreadedVideo { get; set; }
+
+        /// <summary>
         /// The default DirectSound device.
         /// </summary>
-        public static readonly DirectSoundDeviceInfo DefaultDirectSoundDevice = new DirectSoundDeviceInfo(
+        public static DirectSoundDeviceInfo DefaultDirectSoundDevice { get; } = new DirectSoundDeviceInfo(
             DirectSoundPlayer.DefaultPlaybackDeviceId, nameof(DefaultDirectSoundDevice), nameof(DirectSoundPlayer), true, Guid.Empty.ToString());
 
         /// <summary>
-        /// The default Windows MME Legacy Audio Device.
+        /// The default Windows Multimeda Extensions Legacy Audio Device.
         /// </summary>
-        public static readonly LegacyAudioDeviceInfo DefaultLegacyAudioDevice = new LegacyAudioDeviceInfo(
+        public static LegacyAudioDeviceInfo DefaultLegacyAudioDevice { get; } = new LegacyAudioDeviceInfo(
             -1, nameof(DefaultLegacyAudioDevice), nameof(LegacyAudioPlayer), true, Guid.Empty.ToString());
 
         /// <summary>

@@ -67,7 +67,7 @@
                 MediaCore.Dispose();
 
                 // Notify the one last state
-                GuiContext.Current.EnqueueInvoke(() =>
+                Library.GuiContext.EnqueueInvoke(() =>
                 {
                     UpdateNotificationProperties();
                     UpdateDependencyProperties();

@@ -5,7 +5,6 @@
     using Engine;
     using Platform;
     using System;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
@@ -162,7 +161,7 @@
             }
 
             // We fire-and-forget the update of the text
-            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+            Library.GuiContext.EnqueueInvoke(() =>
             {
                 lock (SyncLock)
                 {

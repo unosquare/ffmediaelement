@@ -9,6 +9,7 @@
     <Import_RootNamespace>Unosquare.FFME</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Library.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Media\MediaFailedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Media\FrameDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Media\InputFormatEventArgs.cs" />
@@ -24,9 +25,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.MediaProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Events.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.PropertyUpdates.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiContextType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiTimer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\MediaConnector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\PropertyMapper.cs" />
   </ItemGroup>

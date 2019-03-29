@@ -68,6 +68,9 @@
             MediaEngine.FFmpegMessageLogged += (s, message) =>
                 FFmpegMessageLogged?.Invoke(typeof(MediaElement), new MediaLogMessageEventArgs(message));
 
+            // A GUI context must be registered
+            Library.RegisterGuiContext(GuiContext.Current);
+
             // Content property cannot be changed.
             ContentProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(null, OnCoerceContentValue));
 
@@ -97,16 +100,6 @@
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the video visualization control
-        /// creates its own dispatcher thread to handle rendering of video frames.
-        /// This is an experimental feature and it is useful when creating video walls.
-        /// For example if you want to display multiple videos at a time and don't want to
-        /// use time from the main UI thread. This feature is only valid if we are in
-        /// a WPF context.
-        /// </summary>
-        public static bool EnableWpfMultiThreadedVideo { get; set; }
-
         /// <inheritdoc />
         Uri IUriContext.BaseUri { get; set; }
 
@@ -126,8 +119,7 @@
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
         /// GUI context, it runs on its own dispatcher (multi-threaded UI).
         /// </summary>
-        internal ImageHost VideoView { get; } = new ImageHost(
-            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultiThreadedVideo)
+        internal ImageHost VideoView { get; } = new ImageHost(GuiContext.Current.Type == GuiContextType.WPF && Library.EnableWpfMultiThreadedVideo)
         { Name = nameof(VideoView) };
 
         /// <summary>
@@ -193,7 +185,7 @@
                 PropertyUpdatesWorker.Dispose();
 
                 // Make sure we perform GUI operations on the GUI thread.
-                GuiContext.Current?.EnqueueInvoke(() =>
+                Library.GuiContext?.EnqueueInvoke(() =>
                 {
                     // Remove event handlers
                     try { VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates; }

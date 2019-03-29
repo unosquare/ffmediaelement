@@ -3,6 +3,7 @@
     using FFmpeg.AutoGen;
     using Platform;
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Threading;
     using System.Windows;
@@ -27,8 +28,8 @@
             Library.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 
             // Multi-threaded video enables the creation of independent
-            // dispatcher threads to render video frames.
-            MediaElement.EnableWpfMultiThreadedVideo = GuiContext.Current.IsInDebugMode == false;
+            // dispatcher threads to render video frames. This is an experimental feature.
+            Library.EnableWpfMultiThreadedVideo = !Debugger.IsAttached;
         }
 
         /// <summary>

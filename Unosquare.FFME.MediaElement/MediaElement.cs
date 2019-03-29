@@ -3,7 +3,6 @@
     using Diagnostics;
     using Engine;
     using Media;
-    using Platform;
     using Primitives;
     using System;
     using System.ComponentModel;
@@ -167,7 +166,7 @@
             try
             {
                 var result = await MediaCore.Close();
-                await GuiContext.Current.InvokeAsync(() => Source = null);
+                await Library.GuiContext.InvokeAsync(() => Source = null);
                 return result;
             }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
@@ -221,12 +220,12 @@
             try
             {
                 IsOpeningViaCommand.Value = true;
-                await GuiContext.Current.InvokeAsync(() => Source = uri);
+                await Library.GuiContext.InvokeAsync(() => Source = uri);
                 return await MediaCore.Open(uri);
             }
             catch (Exception ex)
             {
-                await GuiContext.Current.InvokeAsync(() => Source = null);
+                await Library.GuiContext.InvokeAsync(() => Source = null);
                 PostMediaFailedEvent(ex);
             }
             finally
@@ -247,12 +246,12 @@
             try
             {
                 IsOpeningViaCommand.Value = true;
-                await GuiContext.Current.InvokeAsync(() => Source = stream.StreamUri);
+                await Library.GuiContext.InvokeAsync(() => Source = stream.StreamUri);
                 return await MediaCore.Open(stream);
             }
             catch (Exception ex)
             {
-                await GuiContext.Current.InvokeAsync(() => Source = null);
+                await Library.GuiContext.InvokeAsync(() => Source = null);
                 PostMediaFailedEvent(ex);
             }
             finally

@@ -10,7 +10,6 @@
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Windows;
-    using System.Windows.Threading;
     using Wave;
 
     /// <summary>
@@ -230,7 +229,7 @@
             // Self-disconnect
             if (Application.Current != null)
             {
-                GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+                Library.GuiContext.EnqueueInvoke(() =>
                     Application.Current.Exit -= OnApplicationExit);
             }
 
@@ -379,7 +378,7 @@
             // Release the audio device always upon exiting
             if (Application.Current != null)
             {
-                GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+                Library.GuiContext.EnqueueInvoke(() =>
                     Application.Current.Exit += OnApplicationExit);
             }
 

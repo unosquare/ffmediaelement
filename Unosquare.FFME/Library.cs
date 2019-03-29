@@ -3,6 +3,7 @@
     using Container;
     using FFmpeg.AutoGen;
     using Media;
+    using Platform;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -16,7 +17,7 @@
         private static readonly string NotInitializedErrorMessage =
             $"{nameof(FFmpeg)} library not initialized. Set the {nameof(FFmpegDirectory)} and call {nameof(LoadFFmpeg)}";
 
-        private static readonly object InitLock = new object();
+        private static readonly object SyncLock = new object();
         private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
         private static ReadOnlyCollection<string> m_InputFormatNames;
@@ -85,7 +86,7 @@
         {
             get
             {
-                lock (InitLock)
+                lock (SyncLock)
                 {
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
@@ -104,7 +105,7 @@
         {
             get
             {
-                lock (InitLock)
+                lock (SyncLock)
                 {
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
@@ -123,7 +124,7 @@
         {
             get
             {
-                lock (InitLock)
+                lock (SyncLock)
                 {
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
@@ -153,7 +154,7 @@
         {
             get
             {
-                lock (InitLock)
+                lock (SyncLock)
                 {
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
@@ -172,7 +173,7 @@
         {
             get
             {
-                lock (InitLock)
+                lock (SyncLock)
                 {
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
@@ -191,7 +192,7 @@
         {
             get
             {
-                lock (InitLock)
+                lock (SyncLock)
                 {
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
@@ -210,7 +211,7 @@
         {
             get
             {
-                lock (InitLock)
+                lock (SyncLock)
                 {
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
@@ -243,7 +244,7 @@
         {
             get
             {
-                lock (InitLock)
+                lock (SyncLock)
                 {
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);

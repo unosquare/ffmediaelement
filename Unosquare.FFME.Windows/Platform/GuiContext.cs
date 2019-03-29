@@ -24,7 +24,7 @@
     /// Provides properties and methods for the
     /// WPF or Windows Forms GUI Threading context.
     /// </summary>
-    public sealed class GuiContext
+    public sealed class GuiContext : IGuiContext
     {
         /// <summary>
         /// Initializes static members of the <see cref="GuiContext"/> class.
