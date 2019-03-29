@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Media
 {
     using Diagnostics;
-    using Media;
     using System;
 
     /// <summary>

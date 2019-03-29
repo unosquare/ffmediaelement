@@ -18,28 +18,7 @@
         /// </summary>
         private readonly AtomicBoolean IsOpeningViaCommand = new AtomicBoolean(false);
 
-        /// <summary>
-        /// Initializes static members of the <see cref="MediaElement"/> class.
-        /// </summary>
-        static MediaElement()
-        {
-            MediaEngine.FFmpegMessageLogged += (s, message) =>
-                FFmpegMessageLogged?.Invoke(typeof(MediaElement), new MediaLogMessageEventArgs(message));
-
-            InitializeStaticComponent();
-        }
-
         #region Events
-
-        /// <summary>
-        /// Occurs when a logging message from the FFmpeg library has been received.
-        /// This is shared across all instances of Media Elements.
-        /// </summary>
-        /// <remarks>
-        /// This event is raised on a background thread.
-        /// All interaction with UI elements requires calls on their corresponding dispatcher.
-        /// </remarks>
-        public static event EventHandler<MediaLogMessageEventArgs> FFmpegMessageLogged;
 
         /// <summary>
         /// Occurs when a logging message has been logged.
@@ -121,34 +100,6 @@
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
-
-        /// <summary>
-        /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
-        /// You must set this path before setting the Source property for the first time on any instance of this control.
-        /// Setting this property when FFmpeg binaries have been registered will throw an exception.
-        /// </summary>
-        public static string FFmpegDirectory
-        {
-            get => Library.FFmpegDirectory;
-            set => Library.FFmpegDirectory = value;
-        }
-
-        /// <summary>
-        /// Specifies the bitwise flags that correspond to FFmpeg library identifiers.
-        /// Please use the <see cref="FFmpeg.AutoGen.FFmpegLoadMode"/> class for valid combinations.
-        /// If FFmpeg is already loaded, the value cannot be changed.
-        /// </summary>
-        public static int FFmpegLoadModeFlags
-        {
-            get => Library.FFmpegLoadModeFlags;
-            set => Library.FFmpegLoadModeFlags = value;
-        }
-
-        /// <summary>
-        /// Gets the FFmpeg version information. Returns null
-        /// when the libraries have not been loaded.
-        /// </summary>
-        public static string FFmpegVersionInfo => Library.FFmpegVersionInfo;
 
         /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => this;
@@ -317,10 +268,5 @@
         /// <inheritdoc />
         void ILoggingHandler.HandleLogMessage(LoggingMessage message) =>
             RaiseMessageLoggedEvent(message);
-
-        /// <summary>
-        /// This method gets called in the static constructor
-        /// </summary>
-        static partial void InitializeStaticComponent();
     }
 }

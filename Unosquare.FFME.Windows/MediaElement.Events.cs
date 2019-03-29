@@ -10,6 +10,16 @@
         #region Events
 
         /// <summary>
+        /// Occurs when a logging message from the FFmpeg library has been received.
+        /// This is shared across all instances of Media Elements.
+        /// </summary>
+        /// <remarks>
+        /// This event is raised on a background thread.
+        /// All interaction with UI elements requires calls on their corresponding dispatcher.
+        /// </remarks>
+        public static event EventHandler<MediaLogMessageEventArgs> FFmpegMessageLogged;
+
+        /// <summary>
         /// Occurs right before the video is presented on the screen.
         /// You can update the pixels on the bitmap before it is rendered on the screen.
         /// Or you could take a screen shot.

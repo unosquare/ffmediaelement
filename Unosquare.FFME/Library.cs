@@ -13,7 +13,9 @@
     /// </summary>
     public static partial class Library
     {
-        private static readonly string NotInitializedErrorMessage = $"{nameof(FFmpeg)} library not initialized. Set the {nameof(FFmpegDirectory)} and call {nameof(LoadFFmpeg)}";
+        private static readonly string NotInitializedErrorMessage =
+            $"{nameof(FFmpeg)} library not initialized. Set the {nameof(FFmpegDirectory)} and call {nameof(LoadFFmpeg)}";
+
         private static readonly object InitLock = new object();
         private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;

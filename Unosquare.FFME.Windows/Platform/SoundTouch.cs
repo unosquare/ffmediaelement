@@ -43,7 +43,7 @@
             {
                 // Include the ffmpeg directory in the search path
                 var loadResult = LibraryLoader.LoadNativeLibrary(
-                    Path.Combine(MediaElement.FFmpegDirectory, SoundTouchLibrary));
+                    Path.Combine(Library.FFmpegDirectory, SoundTouchLibrary));
 
                 if (loadResult == IntPtr.Zero)
                 {

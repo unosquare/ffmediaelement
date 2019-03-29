@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     using Engine;
+    using Media;
     using Platform;
     using Primitives;
     using Rendering;
@@ -58,6 +59,23 @@
         #endregion
 
         #region Constructors
+
+        /// <summary>
+        /// Initializes static members of the <see cref="MediaElement"/> class.
+        /// </summary>
+        static MediaElement()
+        {
+            MediaEngine.FFmpegMessageLogged += (s, message) =>
+                FFmpegMessageLogged?.Invoke(typeof(MediaElement), new MediaLogMessageEventArgs(message));
+
+            // Content property cannot be changed.
+            ContentProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(null, OnCoerceContentValue));
+
+            var style = new Style(typeof(MediaElement), null);
+            style.Setters.Add(new Setter(FlowDirectionProperty, FlowDirection.LeftToRight));
+            style.Seal();
+            StyleProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(style));
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaElement" /> class.
@@ -228,20 +246,6 @@
                 throw new InvalidOperationException($"The '{nameof(Content)}' property is not meant to be set.");
 
             return baseValue;
-        }
-
-        /// <summary>
-        /// Initializes static members of the <see cref="MediaElement"/> class.
-        /// </summary>
-        static partial void InitializeStaticComponent()
-        {
-            // Content property cannot be changed.
-            ContentProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(null, OnCoerceContentValue));
-
-            var style = new Style(typeof(MediaElement), null);
-            style.Setters.Add(new Setter(FlowDirectionProperty, FlowDirection.LeftToRight));
-            style.Seal();
-            StyleProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(style));
         }
 
         /// <summary>

@@ -179,7 +179,7 @@
             }
 
             WindowTitle = $"{title} - {state} - FFME Player v{AppVersion} "
-                + $"FFmpeg {MediaElement.FFmpegVersionInfo} ({(GuiContext.Current.IsInDebugMode ? "Debug" : "Release")})";
+                + $"FFmpeg {Library.FFmpegVersionInfo} ({(GuiContext.Current.IsInDebugMode ? "Debug" : "Release")})";
         }
     }
 }

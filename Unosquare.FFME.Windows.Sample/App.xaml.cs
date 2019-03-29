@@ -20,11 +20,11 @@
         {
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1-win32-shared.zip
-            MediaElement.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
+            Library.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
             // Full Features is already the default.
-            MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
+            Library.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 
             // Multi-threaded video enables the creation of independent
             // dispatcher threads to render video frames.
@@ -83,7 +83,7 @@
                     GuiContext.Current?.EnqueueInvoke(() =>
                     {
                         MessageBox.Show(MainWindow,
-                            $"Unable to Load FFmpeg Libraries from path:\r\n    {MediaElement.FFmpegDirectory}" +
+                            $"Unable to Load FFmpeg Libraries from path:\r\n    {Library.FFmpegDirectory}" +
                             $"\r\nMake sure the above folder contains FFmpeg shared binaries (dll files) for the " +
                             $"applicantion's architecture ({(Environment.Is64BitProcess ? "64-bit" : "32-bit")})" +
                             $"\r\nTIP: You can download builds from https://ffmpeg.zeranoe.com/builds/" +
