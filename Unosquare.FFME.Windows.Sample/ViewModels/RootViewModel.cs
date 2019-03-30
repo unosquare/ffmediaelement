@@ -13,6 +13,7 @@
     public sealed class RootViewModel : ViewModelBase
     {
         private string m_WindowTitle = string.Empty;
+        private string m_NotificationMessage = string.Empty;
         private bool m_IsPlaylistPanelOpen = App.IsInDesignMode;
         private bool m_IsPropertiesPanelOpen = App.IsInDesignMode;
         private bool m_IsApplicationLoaded = App.IsInDesignMode;
@@ -67,6 +68,22 @@
         {
             get => m_WindowTitle;
             private set => SetProperty(ref m_WindowTitle, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the notification message to be displayed
+        /// </summary>
+        public string NotificationMessage
+        {
+            get
+            {
+                return m_NotificationMessage;
+            }
+            set
+            {
+                m_NotificationMessage = value;
+                NotifyPropertyChanged(nameof(NotificationMessage));
+            }
         }
 
         /// <summary>

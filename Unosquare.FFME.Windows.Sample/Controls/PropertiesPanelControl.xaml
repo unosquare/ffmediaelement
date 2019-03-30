@@ -7,7 +7,6 @@
              xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
              mc:Ignorable="d" d:DesignHeight="700"
              d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}">
-    <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
     <Border Name="PropertyExplorerPanel" Width="280" Style="{StaticResource SidePanelContainerBorderStyle}">
         <DockPanel LastChildFill="True">
             <!-- The Content -->

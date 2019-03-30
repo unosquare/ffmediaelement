@@ -9,13 +9,15 @@
         WindowStartupLocation="Manual" MinHeight="720" Height="0" MinWidth="1280" Width="0"
         Title="{Binding WindowTitle}" Background="Black">
     <Window.Resources>
-        <!-- ReSharper disable once Xaml.RedundantResource -->
         <Storyboard x:Key="ShowControlOpacity" Storyboard.TargetProperty="(UIElement.Opacity)">
             <DoubleAnimation To="1" Duration="0:0:0.100" FillBehavior="HoldEnd" />
         </Storyboard>
-        <!-- ReSharper disable once Xaml.RedundantResource -->
         <Storyboard x:Key="HideControlOpacity" Storyboard.TargetProperty="(UIElement.Opacity)">
             <DoubleAnimation To="0" Duration="0:0:0.300" FillBehavior="HoldEnd" />
+        </Storyboard>
+        <Storyboard x:Key="ShowNotification" Storyboard.TargetProperty="(UIElement.Opacity)">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" Duration="0:0:0.25" To="1.0" />
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" Duration="0:0:2" From="1.0" To="0.0" BeginTime="0:0:2" />
         </Storyboard>
     </Window.Resources>
     <Grid Name="Player">
@@ -27,7 +29,7 @@
                 x:Name="ControllerPanel"
                 DockPanel.Dock="Bottom"
                 Visibility="{Binding IsApplicationLoaded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-            
+
             <controls:PlaylistPanelControl 
                 x:Name="PlaylistPanel"
                 DockPanel.Dock="Right"
@@ -38,6 +40,25 @@
                 DockPanel.Dock="Right" 
                 Visibility="{Binding IsPropertiesPanelOpen, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </DockPanel>
+
+        <Grid Name="NotificationsGrid"
+              Width="300" MaxHeight="46" VerticalAlignment="Top"
+              HorizontalAlignment="Left" Margin="10,10,0,0">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Opacity" Value="0" />
+                </Style>
+            </Grid.Style>
+            <Border CornerRadius="4" Background="#BB08162d"
+                    BorderBrush="ForestGreen" BorderThickness="1"
+                    Padding="4" Name="NotificationsBorder">
+                <StackPanel>
+                    <TextBlock Name="NotificationTextBlock" Foreground="LimeGreen" FontFamily="Lucida Console"
+                               TextWrapping="WrapWithOverflow" Text="{Binding NotificationMessage}">
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </Grid>
 
     </Grid>
 

@@ -41,6 +41,9 @@
         /// </summary>
         public MainWindow()
         {
+            // Set the ViewModel from the application resource
+            ViewModel = App.ViewModel;
+
             // During runtime, let's hide the window. The loaded event handler will
             // compute the final placement of our window.
             if (!App.IsInDesignMode)
@@ -64,7 +67,7 @@
         /// <summary>
         /// A proxy, strongly-typed property to the underlying DataContext.
         /// </summary>
-        public RootViewModel ViewModel => DataContext as RootViewModel;
+        public RootViewModel ViewModel { get; }
 
         /// <summary>
         /// A flag indicating whether screenshot capture progress is currently active.
@@ -87,6 +90,29 @@
             Loaded += OnWindowLoaded;
             PreviewKeyDown += OnWindowKeyDown;
             MouseWheel += OnMouseWheelChange;
+
+            #region Notification MEssages
+
+            var notificationsStoryboard = FindResource("ShowNotification") as Storyboard;
+            ViewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName != nameof(ViewModel.NotificationMessage))
+                    return;
+
+                Dispatcher.InvokeAsync(() =>
+                {
+                    if (string.IsNullOrWhiteSpace(ViewModel.NotificationMessage))
+                    {
+                        NotificationsGrid.Opacity = 0;
+                        return;
+                    }
+
+                    Storyboard.SetTarget(notificationsStoryboard, NotificationsGrid);
+                    notificationsStoryboard.Begin();
+                });
+            };
+
+            #endregion
 
             #region Mouse Move Detection for Hiding the Controller Panel
 
@@ -278,14 +304,16 @@
             // Volume Up
             if (e.Key == Key.Add || e.Key == Key.VolumeUp)
             {
-                Media.Volume += 0.05;
+                Media.Volume += Media.Volume >= 1 ? 0 : 0.05;
+                ViewModel.NotificationMessage = $"Volume: {Media.Volume:p0}";
                 return;
             }
 
             // Volume Down
             if (e.Key == Key.Subtract || e.Key == Key.VolumeDown)
             {
-                Media.Volume -= 0.05;
+                Media.Volume -= Media.Volume <= 0 ? 0 : 0.05;
+                ViewModel.NotificationMessage = $"Volume: {Media.Volume:p0}";
                 return;
             }
 
@@ -293,6 +321,7 @@
             if (e.Key == Key.M || e.Key == Key.VolumeMute)
             {
                 Media.IsMuted = !Media.IsMuted;
+                ViewModel.NotificationMessage = Media.IsMuted ? "Muted." : "Unmuted.";
                 return;
             }
 
@@ -340,6 +369,7 @@
                 var currentCaptions = (int)Media.ClosedCaptionsChannel;
                 var nextCaptions = currentCaptions >= (int)CaptionsChannel.CC4 ? CaptionsChannel.CCP : (CaptionsChannel)(currentCaptions + 1);
                 Media.ClosedCaptionsChannel = nextCaptions;
+                ViewModel.NotificationMessage = $"Closed-Captions: {nextCaptions}";
                 return;
             }
 
@@ -351,6 +381,7 @@
                 Media.Balance = 0;
                 Media.IsMuted = false;
                 ViewModel.Controller.MediaElementZoom = 1.0;
+                ViewModel.NotificationMessage = "Defaults applied.";
                 return;
             }
 
@@ -377,6 +408,7 @@
 
                         // prevent firther processing if we did not get a bitmap.
                         bmp?.Save(App.GetCaptureFilePath("Screenshot", "png"), ImageFormat.Png);
+                        ViewModel.NotificationMessage = "Captured screenshot.";
                     }
                     catch (Exception ex)
                     {
@@ -409,9 +441,13 @@
                     if (StreamRecorder == null && Media.IsOpen)
                     {
                         StreamRecorder = new TransportStreamRecorder(App.GetCaptureFilePath("Capture", "ts"), Media);
+                        ViewModel.NotificationMessage = "Stream recording initiated.";
                     }
                     else
                     {
+                        if (StreamRecorder != null)
+                            ViewModel.NotificationMessage = "Stream recording completed.";
+
                         StreamRecorder?.Close();
                         StreamRecorder = null;
                     }

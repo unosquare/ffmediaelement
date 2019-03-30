@@ -80,19 +80,24 @@
                 // Notify the end user media has opened successfully
                 Parent.PostMediaOpenedEvent(mediaInfo);
 
-                // Start playback if we don't support pausing
-                if (sender.State.CanPause == false)
+                try
                 {
-                    await sender.Play();
-                    return;
+                    // Start playback if we don't support pausing
+                    if (sender.State.CanPause == false)
+                    {
+                        await sender.Play();
+                        return;
+                    }
+
+                    if (Parent.LoadedBehavior == MediaPlaybackState.Play)
+                        await sender.Play();
+                    else if (Parent.LoadedBehavior == MediaPlaybackState.Pause)
+                        await sender.Pause();
                 }
-
-                if (Parent.LoadedBehavior == MediaPlaybackState.Play)
-                    await sender.Play();
-                else if (Parent.LoadedBehavior == MediaPlaybackState.Pause)
-                    await sender.Pause();
-
-                Parent.PostMediaReadyEvent();
+                finally
+                {
+                    Parent.PostMediaReadyEvent();
+                }
             });
         }
 

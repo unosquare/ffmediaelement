@@ -77,7 +77,6 @@
                                     </BeginStoryboard>
                                 </DataTrigger.ExitActions>
                             </DataTrigger>
-
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
@@ -250,7 +249,6 @@
                 </ItemsControl>
                 <Border Grid.Row="1" VerticalAlignment="Center">
                     <TextBlock Foreground="#ccc" TextAlignment="Center" FontSize="13">
-                        <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
                         <TextBlock Text="{Binding ElementName=PlaylistItemsControl, Path=ItemsSource.Count}" />
                         <TextBlock> items in playlist.</TextBlock>
                     </TextBlock>

@@ -216,7 +216,7 @@
             LogEventStart(nameof(MediaChanged));
             Library.GuiContext.EnqueueInvoke(() =>
             {
-                MediaOpened?.Invoke(this, new MediaOpenedEventArgs(mediaInfo));
+                MediaChanged?.Invoke(this, new MediaOpenedEventArgs(mediaInfo));
                 LogEventDone(nameof(MediaChanged));
             });
         }

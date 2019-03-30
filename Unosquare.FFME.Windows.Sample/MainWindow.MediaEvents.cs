@@ -70,6 +70,8 @@
         /// <param name="e">The <see cref="MediaInitializingEventArgs"/> instance containing the event data.</param>
         private void OnMediaInitializing(object sender, MediaInitializingEventArgs e)
         {
+            ViewModel.NotificationMessage = "Media is opening . . .";
+
             // An example of injecting input options for http/https streams
             // A simple website to get live stream examples: https://pwn.sh/tools/getstream.html
             if (e.MediaSource.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
@@ -285,7 +287,7 @@
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpened(object sender, MediaOpenedEventArgs e)
         {
-            // Tun the coide you need once the media has opened.
+            // This will fire when the media has opened.
         }
 
         /// <summary>
@@ -298,6 +300,7 @@
             // Set a start position (see issue #66 or issue #277)
             // Media.Position = TimeSpan.FromSeconds(5);
             // await Media.Seek(TimeSpan.FromSeconds(5));
+            ViewModel.NotificationMessage = "Media opened and ready.";
         }
 
         /// <summary>
@@ -313,6 +316,8 @@
                 StreamRecorder?.Close();
                 StreamRecorder = null;
             }
+
+            ViewModel.NotificationMessage = "Media closed.";
         }
 
         /// <summary>
@@ -322,6 +327,8 @@
         /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
         private void OnMediaChanging(object sender, MediaOpeningEventArgs e)
         {
+            ViewModel.NotificationMessage = "Media is updating . . .";
+
             var availableStreams = e.Info.Streams
                 .Where(s => s.Value.CodecType == (AVMediaType)StreamCycleMediaType)
                 .Select(x => x.Value)
@@ -385,7 +392,7 @@
         /// <param name="e">The <see cref="MediaOpenedEventArgs"/> instance containing the event data.</param>
         private void OnMediaChanged(object sender, MediaOpenedEventArgs e)
         {
-            // placeholder
+            ViewModel.NotificationMessage = "Media updated.";
         }
 
         /// <summary>
@@ -396,6 +403,7 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private async void OnAudioDeviceStopped(object sender, EventArgs e)
         {
+            ViewModel.NotificationMessage = "Audio device stopped.";
             if (sender is MediaElement media)
                 await media.ChangeMedia();
         }
