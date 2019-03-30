@@ -238,42 +238,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Platform.GuiContext.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Platform.GuiContext.html",
-          "hash": "3d9rqCow4K6u7KHulindnQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Platform.GuiContextType.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Platform.GuiContextType.html",
-          "hash": "lJLqu6QgNRu6ptyPwwTW5Q=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Platform.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Platform.html",
-          "hash": "zWBceapQBMpwVf2eOOgKqQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Subtitles.yml",
       "output": {
         ".html": {
@@ -302,7 +266,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "EGtaRZ1M1LKd/NPJbyaX+Q=="
+          "hash": "mKqfM+lK38lGJRAH8dgCQA=="
         }
       },
       "is_incremental": false,
@@ -348,7 +312,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 19,
+          "total_file_count": 16,
           "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {
