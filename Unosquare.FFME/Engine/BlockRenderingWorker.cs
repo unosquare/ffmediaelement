@@ -357,7 +357,10 @@
                 if (Commands.ActiveSeekMode == CommandManager.SeekMode.Normal
                 && !Commands.WaitForSeekBlocks(DefaultPeriod.Milliseconds))
                 {
-                    break;
+                    if (MediaOptions.IsFluidSeekingDisabled)
+                        continue;
+                    else
+                        break;
                 }
             }
         }
