@@ -25,7 +25,7 @@
         /// <summary>
         /// The property updates worker timer.
         /// </summary>
-        private GuiTimer PropertyUpdatesWorker;
+        private IGuiTimer PropertyUpdatesWorker;
 
         /// <summary>
         /// Starts the property updates worker.
@@ -49,11 +49,10 @@
             }
 
             // Properties Worker Logic
-            PropertyUpdatesWorker = new GuiTimer(() =>
-            {
-                UpdateNotificationProperties();
-                UpdateDependencyProperties();
-            }, HandledAsynchronousDispose);
+            PropertyUpdatesWorker = Library.GuiContext.CreateTimer(
+                Constants.PropertyUpdatesInterval,
+                UpdateProperties,
+                HandledAsynchronousDispose);
         }
 
         /// <summary>
@@ -67,26 +66,22 @@
                 MediaCore.Dispose();
 
                 // Notify the one last state
-                Library.GuiContext.EnqueueInvoke(() =>
-                {
-                    UpdateNotificationProperties();
-                    UpdateDependencyProperties();
-                });
+                Library.GuiContext.EnqueueInvoke(UpdateProperties);
             });
         }
 
         /// <summary>
-        /// Updates the notification properties.
+        /// Updates the info properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void UpdateNotificationProperties()
+        private void UpdateInfoProperties()
         {
             // Detect changes
-            var notificationProperties = this.DetectInfoPropertyChanges(NotificationPropertyCache);
+            var changedProperties = this.DetectInfoPropertyChanges(NotificationPropertyCache);
             var notifyRemainingDuration = false;
 
             // Handling of Notification Properties
-            foreach (var p in notificationProperties)
+            foreach (var p in changedProperties)
             {
                 // Notify the changed properties
                 NotifyPropertyChangedEvent(p);
@@ -102,10 +97,10 @@
         }
 
         /// <summary>
-        /// Updates the dependency properties.
+        /// Updates the controller properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void UpdateDependencyProperties()
+        private void UpdateControllerProperties()
         {
             // Detect Notification and Dependency property changes
             var changes = this.DetectControllerPropertyChanges();
@@ -140,6 +135,16 @@
                 if (change.Key.Name == nameof(Position) && IsSeekable)
                     NotifyPropertyChangedEvent(nameof(RemainingDuration));
             }
+        }
+
+        /// <summary>
+        /// Updates the controller properties.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void UpdateProperties()
+        {
+            UpdateInfoProperties();
+            UpdateControllerProperties();
         }
     }
 }

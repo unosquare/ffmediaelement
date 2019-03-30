@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Primitives;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -14,7 +13,7 @@
     /// Provides properties and methods for the
     /// WPF or Windows Forms GUI Threading context.
     /// </summary>
-    public sealed class GuiContext : IGuiContext
+    internal sealed class GuiContext : IGuiContext
     {
         /// <summary>
         /// Initializes static members of the <see cref="GuiContext"/> class.
@@ -72,43 +71,19 @@
         /// </summary>
         internal Dispatcher GuiDispatcher { get; }
 
-        /// <summary>
-        /// Invokes a task on the GUI thread with the possibility of awaiting it.
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <param name="callback">The callback.</param>
-        /// <returns>The awaitable task.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ConfiguredTaskAwaitable InvokeAsync(DispatcherPriority priority, Action callback) =>
-            InvokeAsyncInternal(priority, callback, null).ConfigureAwait(true);
-
-        /// <summary>
-        /// Invokes a task on the GUI thread with the possibility of awaiting it.
-        /// </summary>
-        /// <param name="callback">The callback.</param>
-        /// <returns>The awaitable task.</returns>
+        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ConfiguredTaskAwaitable InvokeAsync(Action callback) =>
-#if WINDOWS_UWP
-            InvokeAsyncInternal(DispatcherPriority.Normal, callback, null).ConfigureAwait(true);
-#else
             InvokeAsyncInternal(DispatcherPriority.DataBind, callback, null).ConfigureAwait(true);
-#endif
 
-        /// <summary>
-        /// Invokes a task on the GUI thread and does not await it.
-        /// </summary>
-        /// <param name="callback">The callback.</param>
+        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnqueueInvoke(Action callback) => InvokeAsync(callback);
 
-        /// <summary>
-        /// Invokes a task on the GUI thread.
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <param name="callback">The callback.</param>
+        /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnqueueInvoke(DispatcherPriority priority, Action callback) => InvokeAsync(priority, callback);
+        public IGuiTimer CreateTimer(TimeSpan interval, Action cycleCallback, Action disposeCallback) =>
+            new GuiTimer(Type, interval, cycleCallback, disposeCallback);
 
         /// <summary>
         /// Invokes a task on the GUI thread.
@@ -131,13 +106,6 @@
                 // We try here because we'd like to catch cancellations and ignore then
                 switch (Type)
                 {
-#if WINDOWS_UWP
-                    case GuiContextType.UWP:
-                        {
-                            await GuiDispatcher.RunAsync(priority, () => { callback.DynamicInvoke(arguments); });
-                            return;
-                        }
-#else
                     case GuiContextType.WPF:
                         {
                             await GuiDispatcher.InvokeAsync(() => { callback.DynamicInvoke(arguments); }, priority);
@@ -146,11 +114,11 @@
 
                     case GuiContextType.WinForms:
                         {
-                            var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
+                            var doneEvent = new ManualResetEventSlim(false);
                             ThreadContext.Post(a =>
                             {
                                 try { callback.DynamicInvoke(arguments); }
-                                finally { doneEvent.Complete(); }
+                                finally { doneEvent.Set(); }
                             }, null);
 
                             var waitingTask = new Task(() =>
@@ -164,7 +132,6 @@
 
                             return;
                         }
-#endif
 
                     default:
                         {

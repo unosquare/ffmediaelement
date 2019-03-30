@@ -11,7 +11,7 @@
     /// <summary>
     /// Defaults and constants of the Media Engine.
     /// </summary>
-    internal static class Constants
+    internal static partial class Constants
     {
         /// <summary>
         /// Initializes static members of the <see cref="Constants"/> class.
