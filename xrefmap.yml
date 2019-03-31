@@ -1132,38 +1132,12 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
   fullName: Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
   nameWithType: MediaElement.ClosedCaptionsChannelProperty
-- uid: Unosquare.FFME.MediaElement.Dispose
-  name: Dispose()
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Dispose
-  commentId: M:Unosquare.FFME.MediaElement.Dispose
-  fullName: Unosquare.FFME.MediaElement.Dispose()
-  nameWithType: MediaElement.Dispose()
-- uid: Unosquare.FFME.MediaElement.Dispose*
-  name: Dispose
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Dispose_
-  commentId: Overload:Unosquare.FFME.MediaElement.Dispose
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.Dispose
-  nameWithType: MediaElement.Dispose
 - uid: Unosquare.FFME.MediaElement.FFmpegMessageLogged
   name: FFmpegMessageLogged
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegMessageLogged
   commentId: E:Unosquare.FFME.MediaElement.FFmpegMessageLogged
   fullName: Unosquare.FFME.MediaElement.FFmpegMessageLogged
   nameWithType: MediaElement.FFmpegMessageLogged
-- uid: Unosquare.FFME.MediaElement.IsDisposed
-  name: IsDisposed
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDisposed
-  commentId: P:Unosquare.FFME.MediaElement.IsDisposed
-  fullName: Unosquare.FFME.MediaElement.IsDisposed
-  nameWithType: MediaElement.IsDisposed
-- uid: Unosquare.FFME.MediaElement.IsDisposed*
-  name: IsDisposed
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDisposed_
-  commentId: Overload:Unosquare.FFME.MediaElement.IsDisposed
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.IsDisposed
-  nameWithType: MediaElement.IsDisposed
 - uid: Unosquare.FFME.MediaElement.IsMuted
   name: IsMuted
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsMuted
