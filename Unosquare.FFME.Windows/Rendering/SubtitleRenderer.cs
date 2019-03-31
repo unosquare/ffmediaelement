@@ -1,9 +1,10 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Container;
+    using Diagnostics;
     using Engine;
     using Platform;
     using System;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
@@ -12,7 +13,7 @@
     internal class SubtitleRenderer : IMediaRenderer, ILoggingSource
     {
         /// <summary>
-        /// The synchronize lock
+        /// The synchronize lock.
         /// </summary>
         private readonly object SyncLock = new object();
         private TimeSpan? StartTime;
@@ -160,7 +161,7 @@
             }
 
             // We fire-and-forget the update of the text
-            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+            Library.GuiContext.EnqueueInvoke(() =>
             {
                 lock (SyncLock)
                 {

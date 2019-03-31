@@ -5,7 +5,7 @@
     using System.Windows;
 
     /// <summary>
-    /// Represents the general state of a Window
+    /// Represents the general state of a Window.
     /// </summary>
     public sealed class WindowStatus
     {
@@ -105,7 +105,7 @@
 
         /// <summary>
         /// Provides access to disable or enable screen timeout. Original idea taken from:
-        /// http://www.blackwasp.co.uk/DisableScreensaver.aspx
+        /// http://www.blackwasp.co.uk/DisableScreensaver.aspx address.
         /// </summary>
         private static class NativeMethods
         {

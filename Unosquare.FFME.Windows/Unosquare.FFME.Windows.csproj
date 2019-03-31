@@ -2,36 +2,52 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop" ToolsVersion="Current">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
-    <OutputType>Library</OutputType>
+    <!-- Assembly Properties -->
+    <TargetFrameworks>net472</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
-    <AssemblyName>ffme.win</AssemblyName>
+    <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+    <AssemblyName>ffme.win</AssemblyName>
+    <Product>FFME: The Adavanced WPF MediaElement Alternative</Product>
+    <Company>Unosquare SA de CV</Company>
+    <CodeAnalysisRuleSet>$(SolutionDir)\Analyzers.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
-    
-    <RepositoryType>GitHub</RepositoryType>
-    <PackageTags>FFmpeg, Media, Audio, Video, Decoding</PackageTags>
-    <PackageProjectUrl>https://github.com/unosquare/ffmediaelement</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/unosquare/ffmediaelement/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageIconUrl>https://github.com/unosquare/ffmediaelement/blob/master/ffme.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 
-    <Version>4.1.290</Version>
+    <!-- Assembly Version Information -->
     <AssemblyVersion>4.1.290.0</AssemblyVersion>
     <FileVersion>4.1.290.0</FileVersion>
-    <LangVersion>latest</LangVersion>
 
-    <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
-    <Company>Unosquare SA de CV</Company>
-    <Product>Unosquare FFmpeg MediaElement</Product>
-    <Description>A WPF MediaElement Alternative</Description>
+    <!-- NuGet Package Properties -->
+    <!-- https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target -->
+    <PackageId>FFME.Windows</PackageId>
+    <PackageVersion>4.1.290</PackageVersion>
+    <Version>4.1.290</Version>
+    <Authors>Mario Di Vece, and Contributors to the FFME project</Authors>
+    <Title>FFME: The Adavanced WPF MediaElement Alternative</Title>
+    <Description>FFME is an advanced WPF MediaElement alternative. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses FFmpeg to read and decode audio and video.</Description>
     <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2015-2019</Copyright>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/unosquare/ffmediaelement</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/unosquare/ffmediaelement/blob/master/ffme.png</PackageIconUrl>
+    <PackageTags>ffme hls wpf ffmpeg mediaelement h264 h265 hevc audio video decoding playback frame</PackageTags>
+    <PackageReleaseNotes>
+      This is a release package of the Michelob build referencing bindings to FFmpeg version 4.1.1
+      This package does not contain the required FFmpeg binaries. Please refer to the following URL for instructions on how to obtain the binaries: https://github.com/unosquare/ffmediaelement
+      Release details: https://github.com/unosquare/ffmediaelement/milestone/10?closed=1
+    </PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="$(SolutionDir)\Support\readme.txt" Pack="true" PackagePath="" />
+    <None Include="$(SolutionDir)\LICENSE.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -46,16 +62,15 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="4.1.0.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
@@ -68,8 +83,8 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj" />
-  </ItemGroup>
-  
+  <Import Project="..\Unosquare.FFME.MediaElement\Unosquare.FFME.MediaElement.projitems" Label="Shared" />
+
+  <Import Project="..\Unosquare.FFME\Unosquare.FFME.projitems" Label="Shared" />
+
 </Project>

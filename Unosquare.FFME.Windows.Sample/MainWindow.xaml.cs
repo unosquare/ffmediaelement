@@ -1,10 +1,8 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using ClosedCaptions;
-    using Engine;
+    using Common;
     using Foundation;
-    using Platform;
-    using Primitives;
     using System;
     using System.Linq;
     using System.Threading.Tasks;
@@ -18,20 +16,21 @@
     using ImageFormat = System.Drawing.Imaging.ImageFormat;
 
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml.
     /// </summary>
-    public partial class MainWindow
+    public partial class MainWindow : Window
     {
         #region Fields
 
         private static readonly Key[] TogglePlayPauseKeys = { Key.Play, Key.MediaPlayPause, Key.Space };
-        private readonly AtomicBoolean IsCaptureInProgress = new AtomicBoolean(false);
+        private readonly object ScreenshotSyncLock = new object();
         private readonly object RecorderSyncLock = new object();
         private TransportStreamRecorder StreamRecorder;
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
         private DispatcherTimer MouseMoveTimer;
         private MediaType StreamCycleMediaType = MediaType.None;
+        private bool m_IsCaptureInProgress;
 
         #endregion
 
@@ -42,9 +41,12 @@
         /// </summary>
         public MainWindow()
         {
+            // Set the ViewModel from the application resource
+            ViewModel = App.ViewModel;
+
             // During runtime, let's hide the window. The loaded event handler will
             // compute the final placement of our window.
-            if (GuiContext.Current.IsInDesignTime == false)
+            if (!App.IsInDesignMode)
             {
                 Left = int.MinValue;
                 Top = int.MinValue;
@@ -63,9 +65,18 @@
         #region Properties
 
         /// <summary>
-        /// A proxy, strongly-typed property to the underlying DataContext
+        /// A proxy, strongly-typed property to the underlying DataContext.
         /// </summary>
-        public RootViewModel ViewModel => DataContext as RootViewModel;
+        public RootViewModel ViewModel { get; }
+
+        /// <summary>
+        /// A flag indicating whether screenshot capture progress is currently active.
+        /// </summary>
+        private bool IsCaptureInProgress
+        {
+            get { lock (ScreenshotSyncLock) return m_IsCaptureInProgress; }
+            set { lock (ScreenshotSyncLock) m_IsCaptureInProgress = value; }
+        }
 
         #endregion
 
@@ -79,6 +90,29 @@
             Loaded += OnWindowLoaded;
             PreviewKeyDown += OnWindowKeyDown;
             MouseWheel += OnMouseWheelChange;
+
+            #region Notification MEssages
+
+            var notificationsStoryboard = FindResource("ShowNotification") as Storyboard;
+            ViewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName != nameof(ViewModel.NotificationMessage))
+                    return;
+
+                Dispatcher.InvokeAsync(() =>
+                {
+                    if (string.IsNullOrWhiteSpace(ViewModel.NotificationMessage))
+                    {
+                        NotificationsGrid.Opacity = 0;
+                        return;
+                    }
+
+                    Storyboard.SetTarget(notificationsStoryboard, NotificationsGrid);
+                    notificationsStoryboard.Begin();
+                });
+            };
+
+            #endregion
 
             #region Mouse Move Detection for Hiding the Controller Panel
 
@@ -114,7 +148,6 @@
                     if (Math.Abs(ControllerPanel.Opacity) <= double.Epsilon) return;
                     Cursor = Cursors.None;
 
-                    // ReSharper disable once InvertIf
                     if (FindResource("HideControlOpacity") is Storyboard sb)
                     {
                         Storyboard.SetTarget(sb, ControllerPanel);
@@ -126,7 +159,6 @@
                     if (Math.Abs(ControllerPanel.Opacity - 1d) <= double.Epsilon) return;
                     Cursor = Cursors.Arrow;
 
-                    // ReSharper disable once InvertIf
                     if (FindResource("ShowControlOpacity") is Storyboard sb)
                     {
                         Storyboard.SetTarget(sb, ControllerPanel);
@@ -161,6 +193,7 @@
             Media.PositionChanged += OnMediaPositionChanged;
             Media.MediaFailed += OnMediaFailed;
             Media.MessageLogged += OnMediaMessageLogged;
+            Media.MediaStateChanged += OnMediaStateChanged;
 
             // Complex examples of Media Rendering Events
             BindMediaRenderingEvents();
@@ -272,14 +305,16 @@
             // Volume Up
             if (e.Key == Key.Add || e.Key == Key.VolumeUp)
             {
-                Media.Volume += 0.05;
+                Media.Volume += Media.Volume >= 1 ? 0 : 0.05;
+                ViewModel.NotificationMessage = $"Volume: {Media.Volume:p0}";
                 return;
             }
 
             // Volume Down
             if (e.Key == Key.Subtract || e.Key == Key.VolumeDown)
             {
-                Media.Volume -= 0.05;
+                Media.Volume -= Media.Volume <= 0 ? 0 : 0.05;
+                ViewModel.NotificationMessage = $"Volume: {Media.Volume:p0}";
                 return;
             }
 
@@ -287,6 +322,7 @@
             if (e.Key == Key.M || e.Key == Key.VolumeMute)
             {
                 Media.IsMuted = !Media.IsMuted;
+                ViewModel.NotificationMessage = Media.IsMuted ? "Muted." : "Unmuted.";
                 return;
             }
 
@@ -334,6 +370,7 @@
                 var currentCaptions = (int)Media.ClosedCaptionsChannel;
                 var nextCaptions = currentCaptions >= (int)CaptionsChannel.CC4 ? CaptionsChannel.CCP : (CaptionsChannel)(currentCaptions + 1);
                 Media.ClosedCaptionsChannel = nextCaptions;
+                ViewModel.NotificationMessage = $"Closed-Captions: {nextCaptions}";
                 return;
             }
 
@@ -345,6 +382,7 @@
                 Media.Balance = 0;
                 Media.IsMuted = false;
                 ViewModel.Controller.MediaElementZoom = 1.0;
+                ViewModel.NotificationMessage = "Defaults applied.";
                 return;
             }
 
@@ -354,11 +392,11 @@
                 // Don't run the capture operation as it is in progress
                 // GDI requires exclusive access to files when writing
                 // so we do this one at a time
-                if (IsCaptureInProgress == true)
+                if (IsCaptureInProgress)
                     return;
 
                 // Immediately set the progress to true.
-                IsCaptureInProgress.Value = true;
+                IsCaptureInProgress = true;
 
                 // Send the capture to the background so we don't have frames skipping
                 // on the UI. This prvents frame jittering.
@@ -371,6 +409,7 @@
 
                         // prevent firther processing if we did not get a bitmap.
                         bmp?.Save(App.GetCaptureFilePath("Screenshot", "png"), ImageFormat.Png);
+                        ViewModel.NotificationMessage = "Captured screenshot.";
                     }
                     catch (Exception ex)
                     {
@@ -388,7 +427,7 @@
                     finally
                     {
                         // unlock for further captures.
-                        IsCaptureInProgress.Value = false;
+                        IsCaptureInProgress = false;
                     }
                 });
 
@@ -403,9 +442,13 @@
                     if (StreamRecorder == null && Media.IsOpen)
                     {
                         StreamRecorder = new TransportStreamRecorder(App.GetCaptureFilePath("Capture", "ts"), Media);
+                        ViewModel.NotificationMessage = "Stream recording initiated.";
                     }
                     else
                     {
+                        if (StreamRecorder != null)
+                            ViewModel.NotificationMessage = "Stream recording completed.";
+
                         StreamRecorder?.Close();
                         StreamRecorder = null;
                     }

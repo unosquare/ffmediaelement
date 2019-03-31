@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using Engine;
     using System;
     using System.Diagnostics;
     using System.Drawing;
@@ -10,7 +9,7 @@
     public partial class MainWindow
     {
         /// <summary>
-        /// Provides examples for rendering events
+        /// Provides examples for rendering events.
         /// </summary>
         private void BindMediaRenderingEvents()
         {

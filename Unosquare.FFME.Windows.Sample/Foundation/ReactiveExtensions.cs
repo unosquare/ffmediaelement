@@ -13,7 +13,7 @@
     internal static class ReactiveExtensions
     {
         /// <summary>
-        /// Contains a list of subscriptions Subscriptions[Publisher][PropertyName].List of subscriber-action pairs
+        /// Contains a list of subscriptions Subscriptions[Publisher][PropertyName].List of subscriber-action pairs.
         /// </summary>
         private static readonly Dictionary<INotifyPropertyChanged, SubscriptionSet> Subscriptions
             = new Dictionary<INotifyPropertyChanged, SubscriptionSet>();
@@ -21,7 +21,6 @@
         private static readonly object SyncLock = new object();
 
         // The pinned actions (action that don't get removed if the reference is lost.
-        // ReSharper disable once CollectionNeverQueried.Local
         private static readonly Dictionary<Action, bool> PinnedActions = new Dictionary<Action, bool>();
 
         /// <summary>

@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using ClosedCaptions;
+    using Container;
     using Engine;
-    using Platform;
     using System;
     using System.Collections.Generic;
     using System.Windows;
@@ -133,7 +133,7 @@
             }
 
             // Show some preview of the text
-            if (!GuiContext.Current.IsInDesignTime)
+            if (!Library.IsInDesignMode)
                 return;
 
             // Line 11 (index 10) preview
@@ -147,7 +147,7 @@
 
         /// <summary>
         /// Takes the current state of the CC packet buffer and projects the visual properties
-        /// on to the CC visual grid of characters
+        /// on to the CC visual grid of characters.
         /// </summary>
         private void PaintBuffer()
         {

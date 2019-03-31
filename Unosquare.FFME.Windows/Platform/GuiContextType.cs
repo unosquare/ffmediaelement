@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Platform
 {
     /// <summary>
-    /// Enumerates GUI Context Types
+    /// Enumerates GUI Context Types.
     /// </summary>
-    public enum GuiContextType
+    internal enum GuiContextType
     {
         /// <summary>
         /// An invalid GUI context (console applications)

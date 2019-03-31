@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
-    using Engine;
-    using Events;
+    using Common;
     using Playlists;
     using System;
     using System.IO;
@@ -9,7 +8,7 @@
     using ViewModels;
 
     /// <summary>
-    /// A class exposing usage of custom play lists
+    /// A class exposing usage of custom play lists.
     /// </summary>
     public class CustomPlaylistEntryCollection : PlaylistEntryCollection<CustomPlaylistEntry>
     {
@@ -44,7 +43,7 @@
         /// Finds an entry based on the media url.
         /// </summary>
         /// <param name="mediaSource">The media URL.</param>
-        /// <returns>The playlist entry or null if not found</returns>
+        /// <returns>The playlist entry or null if not found.</returns>
         public CustomPlaylistEntry FindEntryByMediaSource(string mediaSource)
         {
             lock (SyncRoot)
@@ -171,7 +170,7 @@
         }
 
         /// <summary>
-        /// Loads the Playlist from the default location
+        /// Loads the Playlist from the default location.
         /// </summary>
         public void LoadEntries()
         {
@@ -182,7 +181,7 @@
         }
 
         /// <summary>
-        /// Saves the playlist to the default location
+        /// Saves the playlist to the default location.
         /// </summary>
         public void SaveEntries()
         {

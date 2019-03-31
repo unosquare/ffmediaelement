@@ -4,15 +4,16 @@
     using System.Windows.Media;
 
     /// <summary>
-    /// Contains single-character text and its attributes
+    /// Contains single-character text and its attributes.
     /// </summary>
     internal sealed class ClosedCaptionsCellState
     {
         /// <summary>
         /// Gets the character as a string.
         /// </summary>
-        public string Text => Character == default ?
-                        string.Empty : Character.ToString(CultureInfo.InvariantCulture);
+        public string Text => Character == default
+            ? string.Empty
+            : Character.ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Gets or sets the character.

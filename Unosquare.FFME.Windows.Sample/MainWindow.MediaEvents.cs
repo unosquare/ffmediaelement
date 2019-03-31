@@ -1,16 +1,15 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using ClosedCaptions;
-    using Engine;
-    using Events;
     using FFmpeg.AutoGen;
-    using Platform;
     using System;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
     using System.Windows;
+    using System.Windows.Shell;
+    using Unosquare.FFME.Common;
 
     public partial class MainWindow
     {
@@ -49,8 +48,8 @@
         /// Handles the MediaFailed event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="ExceptionRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaFailed(object sender, ExceptionRoutedEventArgs e)
+        /// <param name="e">The <see cref="MediaFailedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaFailed(object sender, MediaFailedEventArgs e)
         {
             MessageBox.Show(
                 Application.Current.MainWindow,
@@ -72,6 +71,8 @@
         /// <param name="e">The <see cref="MediaInitializingEventArgs"/> instance containing the event data.</param>
         private void OnMediaInitializing(object sender, MediaInitializingEventArgs e)
         {
+            ViewModel.NotificationMessage = "Media is opening . . .";
+
             // An example of injecting input options for http/https streams
             // A simple website to get live stream examples: https://pwn.sh/tools/getstream.html
             if (e.MediaSource.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
@@ -121,7 +122,8 @@
         /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpening(object sender, MediaOpeningEventArgs e)
         {
-            const string SideLoadAspect = "Client.SideLoad";
+            // the event sender is the MediaElement itself
+            var media = sender as MediaElement;
 
             // You can start off by adjusting subtitles delay
             // This defaults to 0 but you can delay (or advance with a negative delay)
@@ -144,17 +146,17 @@
             // A few WMV files I have tested don't have continuous enough audio packets to support
             // perfect synchronization between audio and video so we simply disable it.
             // Also if time synchronization is disabled, the recommendation is to also disable audio synchronization.
-            Media.RendererOptions.AudioDisableSync =
+            media.RendererOptions.AudioDisableSync =
                 e.Options.IsTimeSyncDisabled ||
                 e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
 
             // Legacy audio out is the use of the WinMM api as opposed to using DirectSound
             // Enable legacy audio out if you are having issues with the DirectSound driver.
-            Media.RendererOptions.UseLegacyAudioOut = e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
+            media.RendererOptions.UseLegacyAudioOut = e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
 
             // You can limit how often the video renderer updates the picture.
             // We keep it as 0 to refresh the video according to the native stream specification.
-            Media.RendererOptions.VideoRefreshRateLimit = 0;
+            media.RendererOptions.VideoRefreshRateLimit = 0;
 
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;
@@ -194,7 +196,6 @@
                 e.Options.AudioStream = englishAudioStream;
 
             // Setting Advanced Video Stream Options is also possible
-            // ReSharper disable once InvertIf
             if (e.Options.VideoStream is StreamInfo videoStream)
             {
                 // If we have a valid seek index let's use it!
@@ -219,7 +220,7 @@
                     catch (Exception ex)
                     {
                         // Log the exception, and ignore it. Continue execution.
-                        Media?.LogError(SideLoadAspect, "Error loading seek index data.", ex);
+                        Debug.WriteLine($"Error loading seek index data. {ex.Message}");
                     }
                 }
 
@@ -238,7 +239,7 @@
                     {
                         var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
                         if (accelerator == null) continue;
-                        if (GuiContext.Current.IsInDebugMode == true)
+                        if (Debugger.IsAttached)
                             e.Options.VideoHardwareDevice = accelerator;
 
                         break;
@@ -267,9 +268,9 @@
                 // Since the MediaElement control belongs to the GUI thread
                 // and the closed captions channel property is a dependency
                 // property, we need to set it on the GUI thread.
-                GuiContext.Current.EnqueueInvoke(() =>
+                media.Dispatcher?.InvokeAsync(() =>
                 {
-                    Media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
+                    media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
                         CaptionsChannel.CC1 : CaptionsChannel.CCP;
                 });
             }
@@ -285,29 +286,30 @@
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpened(object sender, MediaOpenedRoutedEventArgs e)
+        private void OnMediaOpened(object sender, MediaOpenedEventArgs e)
         {
-            // Tun the coide you need once the media has opened.
+            // This will fire when the media has opened.
         }
 
         /// <summary>
         /// Handles the MediaReady event of the Media control.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaReady(object sender, RoutedEventArgs e)
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void OnMediaReady(object sender, EventArgs e)
         {
             // Set a start position (see issue #66 or issue #277)
             // Media.Position = TimeSpan.FromSeconds(5);
             // await Media.Seek(TimeSpan.FromSeconds(5));
+            ViewModel.NotificationMessage = "Media opened and ready.";
         }
 
         /// <summary>
-        /// Handles the MediaClosed event of the Media control
+        /// Handles the MediaClosed event of the Media control.
         /// </summary>
-        /// <param name="sender">The sender</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaClosed(object sender, RoutedEventArgs e)
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void OnMediaClosed(object sender, EventArgs e)
         {
             // Always close the recorder so that the file trailer is written.
             lock (RecorderSyncLock)
@@ -315,6 +317,8 @@
                 StreamRecorder?.Close();
                 StreamRecorder = null;
             }
+
+            ViewModel.NotificationMessage = "Media closed.";
         }
 
         /// <summary>
@@ -324,6 +328,8 @@
         /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
         private void OnMediaChanging(object sender, MediaOpeningEventArgs e)
         {
+            ViewModel.NotificationMessage = "Media is updating . . .";
+
             var availableStreams = e.Info.Streams
                 .Where(s => s.Value.CodecType == (AVMediaType)StreamCycleMediaType)
                 .Select(x => x.Value)
@@ -384,10 +390,10 @@
         /// Handles the media changed event.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="MediaOpenedRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaChanged(object sender, MediaOpenedRoutedEventArgs e)
+        /// <param name="e">The <see cref="MediaOpenedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaChanged(object sender, MediaOpenedEventArgs e)
         {
-            // placeholder
+            ViewModel.NotificationMessage = "Media updated.";
         }
 
         /// <summary>
@@ -398,7 +404,9 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private async void OnAudioDeviceStopped(object sender, EventArgs e)
         {
-            if (Media != null) await Media.ChangeMedia();
+            ViewModel.NotificationMessage = "Audio device stopped.";
+            if (sender is MediaElement media)
+                await media.ChangeMedia();
         }
 
         #endregion
@@ -409,10 +417,49 @@
         /// Handles the PositionChanged event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PositionChangedRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaPositionChanged(object sender, PositionChangedRoutedEventArgs e)
+        /// <param name="e">The <see cref="PositionChangedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaPositionChanged(object sender, PositionChangedEventArgs e)
         {
-            // Handle position change notifications
+            var media = sender as MediaElement;
+            if (!media.IsSeekable)
+            {
+                ViewModel.PlaybackProgress = 0;
+                return;
+            }
+
+            ViewModel.PlaybackProgress = media.NaturalDuration.HasValue
+                ? (double)e.Position.Ticks / media.NaturalDuration.Value.Ticks
+                : 1;
+        }
+
+        /// <summary>
+        /// Called when media state changes.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="MediaStateChangedEventArgs" /> instance containing the event data.</param>
+        private void OnMediaStateChanged(object sender, MediaStateChangedEventArgs e)
+        {
+            var media = sender as MediaElement;
+
+            switch (e.MediaState)
+            {
+                case MediaPlaybackState.Close:
+                case MediaPlaybackState.Stop:
+                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.None;
+                    break;
+                case MediaPlaybackState.Manual:
+                case MediaPlaybackState.Pause:
+                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.Paused;
+                    break;
+                case MediaPlaybackState.Play:
+                    ViewModel.PlaybackProgressState = media.IsSeekable
+                        ? TaskbarItemProgressState.Normal
+                        : TaskbarItemProgressState.Indeterminate;
+                    break;
+                default:
+                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.None;
+                    break;
+            }
         }
 
         /// <summary>
@@ -422,7 +469,7 @@
         /// <param name="streamIndex">The associated stream index.</param>
         /// <param name="durationSeconds">The duration in seconds.</param>
         /// <returns>
-        /// The seek index
+        /// The seek index.
         /// </returns>
         private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
         {
@@ -437,10 +484,10 @@
             }
             else
             {
-                if (GuiContext.Current.IsInDebugMode == false || durationSeconds <= 0 || durationSeconds >= 60)
+                if (!Debugger.IsAttached || durationSeconds <= 0 || durationSeconds >= 60)
                     return null;
 
-                var seekIndex = MediaEngine.CreateVideoSeekIndex(mediaFilePath, streamIndex);
+                var seekIndex = Library.CreateVideoSeekIndex(mediaFilePath, streamIndex);
                 if (seekIndex.Entries.Count <= 0) return null;
 
                 using (var stream = File.OpenWrite(seekFilePath))

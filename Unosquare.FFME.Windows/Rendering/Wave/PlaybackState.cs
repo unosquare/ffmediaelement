@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
     /// <summary>
-    /// Enumerates the various wave output playback states
+    /// Enumerates the various wave output playback states.
     /// </summary>
     internal enum PlaybackState
     {

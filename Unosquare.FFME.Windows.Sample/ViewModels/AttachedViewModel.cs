@@ -3,7 +3,7 @@
     using Foundation;
 
     /// <summary>
-    /// A base class for Root VM-attached view models
+    /// A base class for Root VM-attached view models.
     /// </summary>
     /// <seealso cref="ViewModelBase" />
     public abstract class AttachedViewModel : ViewModelBase
@@ -23,7 +23,7 @@
         public RootViewModel Root { get; }
 
         /// <summary>
-        /// Called by the root ViewModel when the application is loaded and fully available
+        /// Called by the root ViewModel when the application is loaded and fully available.
         /// </summary>
         internal virtual void OnApplicationLoaded()
         {

@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
-    using Engine;
+    using Common;
     using FFmpeg.AutoGen;
     using System;
     using System.IO;
@@ -32,7 +32,7 @@
         }
 
         /// <summary>
-        /// The custom file scheme (URL prefix) including ://
+        /// The custom file scheme (URL prefix) including the :// sequence.
         /// </summary>
         public static string Scheme => "customfile://";
 
@@ -65,7 +65,7 @@
         /// <param name="targetBuffer">The target buffer.</param>
         /// <param name="targetBufferLength">Length of the target buffer.</param>
         /// <returns>
-        /// The number of bytes that have been read
+        /// The number of bytes that have been read.
         /// </returns>
         public int Read(void* opaque, byte* targetBuffer, int targetBufferLength)
         {

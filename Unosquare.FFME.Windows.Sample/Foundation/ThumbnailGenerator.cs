@@ -34,7 +34,7 @@
         /// <param name="targetPath">The target path.</param>
         /// <param name="thumbnailFilename">The thumbnail filename.</param>
         /// <returns>
-        /// An image Source
+        /// An image Source.
         /// </returns>
         public static ImageSource GetThumbnail(string targetPath, string thumbnailFilename)
         {
@@ -64,7 +64,7 @@
         /// <param name="background">The background.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <returns>The thumbnail image</returns>
+        /// <returns>The thumbnail image.</returns>
         public static Image CreateThumbnail(Image sourceImage, Color background, int width, int height)
         {
             var outputSize = new Size(width, height);
@@ -96,7 +96,7 @@
         /// </summary>
         /// <param name="thumbnail">The thumbnail.</param>
         /// <param name="baseDirectory">The base directory.</param>
-        /// <returns>The filename with extension</returns>
+        /// <returns>The filename with extension.</returns>
         public static string SaveThumbnail(Image thumbnail, string baseDirectory)
         {
             var guid = Guid.NewGuid();
@@ -110,7 +110,7 @@
         /// </summary>
         /// <param name="maxSize">The maximum size.</param>
         /// <param name="currentSize">Size of the current.</param>
-        /// <returns>A proportional size structure</returns>
+        /// <returns>A proportional size structure.</returns>
         private static Size ComputeProportionalSize(Size maxSize, Size currentSize)
         {
             if (maxSize.Width < 1 || maxSize.Height < 1 || currentSize.Width < 1 || currentSize.Height < 1)

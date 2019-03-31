@@ -1,13 +1,13 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
+    using Common;
     using Foundation;
     using System;
     using System.Windows;
-    using System.Windows.Controls;
     using System.Windows.Media;
 
     /// <summary>
-    /// Represents a VM for the Controller Control
+    /// Represents a VM for the Controller Control.
     /// </summary>
     /// <seealso cref="AttachedViewModel" />
     public sealed class ControllerViewModel : AttachedViewModel
@@ -171,7 +171,6 @@
                 var m = App.ViewModel.MediaElement;
                 if (m == null) return;
 
-                // ReSharper disable once UseNegatedPatternMatching
                 var transform = m.RenderTransform as ScaleTransform;
                 if (transform == null)
                 {
@@ -230,7 +229,7 @@
             new Action(() =>
             {
                 StopButtonVisibility =
-                    m.IsOpen && m.IsChanging == false && m.IsSeeking == false && (m.HasMediaEnded || (m.IsSeekable && m.MediaState != MediaState.Stop)) ?
+                    m.IsOpen && m.IsChanging == false && m.IsSeeking == false && (m.HasMediaEnded || (m.IsSeekable && m.MediaState != MediaPlaybackState.Stop)) ?
                     Visibility.Visible : Visibility.Hidden;
             })
             .WhenChanged(m, nameof(m.IsOpen), nameof(m.HasMediaEnded), nameof(m.IsSeekable), nameof(m.MediaState), nameof(m.IsChanging), nameof(m.IsSeeking));

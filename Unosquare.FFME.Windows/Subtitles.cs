@@ -5,55 +5,54 @@
     using System.Windows.Media.Effects;
 
     /// <summary>
-    /// Defines attached properties for subtitle rendering
+    /// Defines attached properties for subtitle rendering.
     /// </summary>
-    // ReSharper disable once ConvertToStaticClass
     public sealed class Subtitles
     {
         /// <summary>
-        /// The foreground text property
+        /// The foreground text property.
         /// </summary>
         public static readonly DependencyProperty TextProperty = DependencyProperty.RegisterAttached(
             "Text", typeof(string), typeof(Subtitles));
 
         /// <summary>
-        /// The foreground text property
+        /// The foreground text property.
         /// </summary>
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.RegisterAttached(
             "Foreground", typeof(Brush), typeof(Subtitles));
 
         /// <summary>
-        /// The text foreground effect dependency property
+        /// The text foreground effect dependency property.
         /// </summary>
         public static readonly DependencyProperty EffectProperty = DependencyProperty.RegisterAttached(
             "Effect", typeof(Effect), typeof(Subtitles));
 
         /// <summary>
-        /// The text outline width dependency property
+        /// The text outline width dependency property.
         /// </summary>
         public static readonly DependencyProperty OutlineWidthProperty = DependencyProperty.RegisterAttached(
             "OutlineWidth", typeof(Thickness), typeof(Subtitles));
 
         /// <summary>
-        /// The text outline brush dependency property
+        /// The text outline brush dependency property.
         /// </summary>
         public static readonly DependencyProperty OutlineBrushProperty = DependencyProperty.RegisterAttached(
             "OutlineBrush", typeof(Brush), typeof(Subtitles));
 
         /// <summary>
-        /// The font size property
+        /// The font size property.
         /// </summary>
         public static readonly DependencyProperty FontSizeProperty = DependencyProperty.RegisterAttached(
             "FontSize", typeof(double), typeof(Subtitles));
 
         /// <summary>
-        /// The font weight property
+        /// The font weight property.
         /// </summary>
         public static readonly DependencyProperty FontWeightProperty = DependencyProperty.RegisterAttached(
             "FontWeight", typeof(FontWeight), typeof(Subtitles));
 
         /// <summary>
-        /// The font family property
+        /// The font family property.
         /// </summary>
         public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.RegisterAttached(
             "FontFamily", typeof(FontFamily), typeof(Subtitles));
@@ -70,42 +69,42 @@
         /// Gets the text.
         /// </summary>
         /// <param name="element">The object.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         public static string GetText(MediaElement element) => element?.GetValue(TextProperty) as string;
 
         /// <summary>
         /// Gets the size of the font.
         /// </summary>
         /// <param name="element">The object.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         public static double GetFontSize(MediaElement element) => (double)(element?.GetValue(FontSizeProperty) ?? default);
 
         /// <summary>
         /// Gets the font weight.
         /// </summary>
         /// <param name="element">The object.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         public static FontWeight GetFontWeight(MediaElement element) => (FontWeight)(element?.GetValue(FontWeightProperty) ?? default);
 
         /// <summary>
         /// Gets the font family.
         /// </summary>
         /// <param name="element">The object.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         public static FontFamily GetFontFamily(MediaElement element) => element?.GetValue(FontFamilyProperty) as FontFamily;
 
         /// <summary>
         /// Gets the text foreground.
         /// </summary>
         /// <param name="element">The object.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         public static Brush GetForeground(MediaElement element) => element?.GetValue(ForegroundProperty) as Brush;
 
         /// <summary>
         /// Gets the effect.
         /// </summary>
         /// <param name="element">The object.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         public static Effect GetEffect(MediaElement element) => element?.GetValue(EffectProperty) as Effect;
 
         /// <summary>

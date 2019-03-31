@@ -3,7 +3,6 @@
     using Primitives;
     using System;
     using System.Collections;
-    using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -16,13 +15,13 @@
     /// being hosted on its own dispatcher. This allows for multi threaded
     /// UI composition.
     /// </summary>
-    /// <typeparam name="T">The contained framework element</typeparam>
+    /// <typeparam name="T">The contained framework element.</typeparam>
     /// <seealso cref="FrameworkElement" />
     internal abstract class ElementHostBase<T> : FrameworkElement
         where T : FrameworkElement
     {
         /// <summary>
-        /// The thread separated control loaded event
+        /// The thread separated control loaded event.
         /// </summary>
         public static readonly RoutedEvent ElementLoadedEvent = EventManager.RegisterRoutedEvent(
             nameof(ElementLoaded),
@@ -33,10 +32,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementHostBase{T}"/> class.
         /// </summary>
-        /// <param name="hasOwnDispatcher">if set to <c>true</c>, it creates its own separate thread and associated dispatcher</param>
+        /// <param name="hasOwnDispatcher">if set to <c>true</c>, it creates its own separate thread and associated dispatcher.</param>
         protected ElementHostBase(bool hasOwnDispatcher)
         {
-            var isInDesignMode = DesignerProperties.GetIsInDesignMode(this);
+            var isInDesignMode = Library.IsInDesignMode;
             HasOwnDispatcher = !isInDesignMode && hasOwnDispatcher;
         }
 
@@ -60,12 +59,12 @@
         public Dispatcher ElementDispatcher { get; private set; }
 
         /// <summary>
-        /// Provides access to the framework element hosted within this element
+        /// Provides access to the framework element hosted within this element.
         /// </summary>
         public T Element { get; private set; }
 
         /// <summary>
-        /// Gets the available render area
+        /// Gets the available render area.
         /// </summary>
         protected Size AvailableSize { get; private set; }
 
@@ -115,7 +114,7 @@
         /// Invokes the specified action on the hosted visual element's dispatcher.
         /// </summary>
         /// <param name="action">The action.</param>
-        /// <returns>The awaitable operation</returns>
+        /// <returns>The awaitable operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task InvokeAsync(Action action) => InvokeAsync(DispatcherPriority.Normal, action);
 
@@ -124,7 +123,7 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        /// <returns>The awaitable operation</returns>
+        /// <returns>The awaitable operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task InvokeAsync(DispatcherPriority priority, Action action)
         {
@@ -173,9 +172,9 @@
         protected override Visual GetVisualChild(int index) => HasOwnDispatcher ? Host : (Visual)Element;
 
         /// <summary>
-        /// Creates the element contained by this host
+        /// Creates the element contained by this host.
         /// </summary>
-        /// <returns>An instance of the framework element to be hosted</returns>
+        /// <returns>An instance of the framework element to be hosted.</returns>
         protected abstract T CreateHostedElement();
 
         /// <inheritdoc />
@@ -241,20 +240,20 @@
         /// <summary>
         /// Gets the element property.
         /// </summary>
-        /// <typeparam name="V">The property type</typeparam>
+        /// <typeparam name="TValue">The property type.</typeparam>
         /// <param name="property">The property.</param>
-        /// <returns>The value</returns>
-        protected V GetElementProperty<V>(DependencyProperty property)
+        /// <returns>The value.</returns>
+        protected TValue GetElementProperty<TValue>(DependencyProperty property)
         {
             if (!HasOwnDispatcher)
-                return (V)Element.GetValue(property);
+                return (TValue)Element.GetValue(property);
 
-            var result = default(V);
+            var result = default(TValue);
             if (Element != null)
             {
                 InvokeAsync(DispatcherPriority.DataBind, () =>
                 {
-                    result = (V)Element.GetValue(property);
+                    result = (TValue)Element.GetValue(property);
                 })?.Wait();
             }
 
@@ -264,10 +263,10 @@
         /// <summary>
         /// Sets the element property.
         /// </summary>
-        /// <typeparam name="V">The value type</typeparam>
+        /// <typeparam name="TValue">The value type.</typeparam>
         /// <param name="property">The property.</param>
         /// <param name="value">The value.</param>
-        protected void SetElementProperty<V>(DependencyProperty property, V value)
+        protected void SetElementProperty<TValue>(DependencyProperty property, TValue value)
         {
             if (HasOwnDispatcher && Element != null)
             {
@@ -328,7 +327,7 @@
         }
 
         /// <summary>
-        /// A presentation source class to root a Visual (a HostVisual) on to its own visual tree
+        /// A presentation source class to root a Visual (a HostVisual) on to its own visual tree.
         /// </summary>
         /// <seealso cref="FrameworkElement" />
         private sealed class HostedPresentationSource : PresentationSource, IDisposable

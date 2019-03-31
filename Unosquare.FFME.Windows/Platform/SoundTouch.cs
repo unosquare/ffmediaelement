@@ -43,7 +43,7 @@
             {
                 // Include the ffmpeg directory in the search path
                 var loadResult = LibraryLoader.LoadNativeLibrary(
-                    Path.Combine(MediaElement.FFmpegDirectory, SoundTouchLibrary));
+                    Path.Combine(Library.FFmpegDirectory, SoundTouchLibrary));
 
                 if (loadResult == IntPtr.Zero)
                 {
@@ -77,7 +77,7 @@
         }
 
         /// <summary>
-        /// Settings as defined in SoundTouch.h
+        /// Settings as defined in SoundTouch.h.
         /// </summary>
         public enum Setting
         {
@@ -186,12 +186,12 @@
         #region Properties
 
         /// <summary>
-        /// Get SoundTouch version string
+        /// Get SoundTouch version string.
         /// </summary>
         public static string Version => Marshal.PtrToStringAnsi(NativeMethods.GetVersionString());
 
         /// <summary>
-        /// Gets a value indicating whether the SoundTouch Library (dll) is available
+        /// Gets a value indicating whether the SoundTouch Library (dll) is available.
         /// </summary>
         public static bool IsAvailable { get; }
 
@@ -204,9 +204,9 @@
         }
 
         /// <summary>
-        /// Returns number of samples currently unprocessed in SoundTouch internal buffer
+        /// Returns number of samples currently unprocessed in SoundTouch internal buffer.
         /// </summary>
-        /// <returns>Number of sample frames</returns>
+        /// <returns>Number of sample frames.</returns>
         public uint UnprocessedSampleCount
         {
             get { lock (SyncRoot) { return NativeMethods.NumUnprocessedSamples(handle); } }
@@ -215,7 +215,7 @@
         /// <summary>
         /// Check if there aren't any samples available for outputting.
         /// </summary>
-        /// <returns>nonzero if there aren't any samples available for outputting</returns>
+        /// <returns>nonzero if there aren't any samples available for outputting.</returns>
         public int IsEmpty
         {
             get { lock (SyncRoot) { return NativeMethods.IsEmpty(handle); } }
@@ -229,7 +229,7 @@
         /// The <see cref="int"/>.
         /// </value>
         /// <param name="settingId">The setting identifier.</param>
-        /// <returns>The value of the setting</returns>
+        /// <returns>The value of the setting.</returns>
         public int this[Setting settingId]
         {
             get
@@ -255,7 +255,7 @@
 
         /// <summary>
         /// Sets sample rate.
-        /// Value: Sample rate, e.g. 44100
+        /// Value: Sample rate, e.g. 44100.
         /// </summary>
         /// <param name="value">The sample rate value.</param>
         public void SetSampleRate(uint value)
@@ -266,7 +266,7 @@
 
         /// <summary>
         /// Sets the number of channels
-        /// Value: 1 = mono, 2 = stereo, n = multichannel
+        /// Value: 1 = mono, 2 = stereo, n = multichannel.
         /// </summary>
         /// <param name="value">The value.</param>
         public void SetChannels(uint value)
@@ -289,7 +289,7 @@
 
         /// <summary>
         /// Sets new tempo control value as a difference in percents compared
-        /// to the original tempo (-50 .. +100 %);
+        /// to the original tempo (-50 .. +100 %);.
         /// </summary>
         /// <param name="value">The value.</param>
         public void SetTempoChange(float value)
@@ -313,7 +313,7 @@
         /// <summary>
         /// Sets new rate control value as a difference in percents compared
         /// to the original rate (-50 .. +100 %);
-        /// Value: Rate setting is in %
+        /// Value: Rate setting is in %.
         /// </summary>
         /// <param name="value">The value.</param>
         public void SetRateChange(float value)
@@ -337,7 +337,7 @@
         /// <summary>
         /// Sets pitch change in octaves compared to the original pitch
         /// (-1.00 .. +1.00 for +- one octave);
-        /// Value: Pitch setting in octaves
+        /// Value: Pitch setting in octaves.
         /// </summary>
         /// <param name="value">The value.</param>
         public void SetPitchOctaves(float value)
@@ -349,7 +349,7 @@
         /// <summary>
         /// Sets pitch change in semi-tones compared to the original pitch
         /// (-12 .. +12 for +- one octave);
-        /// Value: Pitch setting in semitones
+        /// Value: Pitch setting in semitones.
         /// </summary>
         /// <param name="value">The value.</param>
         public void SetPitchSemiTones(float value)
@@ -385,10 +385,10 @@
         /// the input of the object. Notice that sample rate _has_to_ be set before
         /// calling this function, otherwise throws a runtime_error exception.
         /// </summary>
-        /// <param name="samples">Sample buffer to input</param>
+        /// <param name="samples">Sample buffer to input.</param>
         /// <param name="numSamples">Number of sample frames in buffer. Notice
         /// that in case of multi-channel sound a single sample frame contains
-        /// data for all channels</param>
+        /// data for all channels.</param>
         public void PutSamples(float[] samples, uint numSamples)
         {
             lock (SyncRoot) { NativeMethods.PutSamples(handle, samples, numSamples); }
@@ -396,7 +396,7 @@
 
         /// <summary>
         /// int16 version of putSamples(): This accept int16 (i.e. short) sample data
-        /// and internally converts it to float format before processing
+        /// and internally converts it to float format before processing.
         /// </summary>
         /// <param name="samples">Sample input buffer.</param>
         /// <param name="numSamples">Number of sample frames in buffer. Notice
@@ -410,9 +410,9 @@
         /// <summary>
         /// Receive processed samples from the processor.
         /// </summary>
-        /// <param name="outBuffer">Buffer where to copy output samples</param>
-        /// <param name="maxSamples">Max number of sample frames to receive</param>
-        /// <returns>The number of samples received</returns>
+        /// <param name="outBuffer">Buffer where to copy output samples.</param>
+        /// <param name="maxSamples">Max number of sample frames to receive.</param>
+        /// <returns>The number of samples received.</returns>
         public uint ReceiveSamples(float[] outBuffer, uint maxSamples)
         {
             lock (SyncRoot) { return NativeMethods.ReceiveSamples(handle, outBuffer, maxSamples); }
@@ -420,11 +420,11 @@
 
         /// <summary>
         /// int16 version of receiveSamples(): This converts internal float samples
-        /// into int16 (i.e. short) return data type
+        /// into int16 (i.e. short) return data type.
         /// </summary>
         /// <param name="outBuffer">Buffer where to copy output samples.</param>
         /// <param name="maxSamples">How many samples to receive at max.</param>
-        /// <returns>Number of received sample frames</returns>
+        /// <returns>Number of received sample frames.</returns>
         public uint ReceiveSamplesI16(short[] outBuffer, uint maxSamples)
         {
             lock (SyncRoot) { return NativeMethods.ReceiveSamples_i16(handle, outBuffer, maxSamples); }
@@ -463,7 +463,7 @@
         #region Native Methods
 
         /// <summary>
-        /// Provides direct access to mapped DLL methods
+        /// Provides direct access to mapped DLL methods.
         /// </summary>
         private static class NativeMethods
         {

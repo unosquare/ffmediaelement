@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
-    using Primitives;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -10,15 +9,16 @@
     using System.Windows.Threading;
 
     /// <summary>
-    /// Serves as a UI, XAML-bindable command defined using delegates
+    /// Serves as a UI, XAML-bindable command defined using delegates.
     /// </summary>
     public class DelegateCommand : ICommand
     {
         #region Property backing fields
 
+        private readonly object SyncLock = new object();
         private readonly Func<object, bool> m_CanExecute;
         private readonly Action<object> ExecuteAction;
-        private readonly AtomicBoolean IsExecuting = new AtomicBoolean(false);
+        private bool m_IsExecuting;
 
         #region Constructors
 
@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="execute">The execute callback.</param>
         /// <param name="canExecute">The can execute checker callback.</param>
-        /// <exception cref="ArgumentNullException">execute</exception>
+        /// <exception cref="ArgumentNullException">execute.</exception>
         public DelegateCommand(Action<object> execute, Func<object, bool> canExecute)
         {
             var callback = execute ?? throw new ArgumentNullException(nameof(execute));
@@ -46,7 +46,7 @@
         /// Initializes a new instance of the <see cref="DelegateCommand"/> class.
         /// </summary>
         /// <param name="execute">The execute callback.</param>
-        /// <exception cref="ArgumentNullException">execute</exception>
+        /// <exception cref="ArgumentNullException">execute.</exception>
         public DelegateCommand(Action<object> execute)
             : this(execute, null)
         {
@@ -71,6 +71,15 @@
         #region ICommand Members
 
         /// <summary>
+        /// Determines if the command is currently executing.
+        /// </summary>
+        public bool IsExecuting
+        {
+            get { lock (SyncLock) return m_IsExecuting; }
+            private set { lock (SyncLock) m_IsExecuting = value; }
+        }
+
+        /// <summary>
         /// Defines the method that determines whether the command can execute in its current state.
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
@@ -80,7 +89,7 @@
         [DebuggerStepThrough]
         public bool CanExecute(object parameter)
         {
-            if (IsExecuting.Value) return false;
+            if (IsExecuting) return false;
             return m_CanExecute == null || m_CanExecute(parameter);
         }
 
@@ -96,7 +105,7 @@
         public void Execute(object parameter) => ExecuteAsync(parameter);
 
         /// <summary>
-        /// Executes the command but does not wait for it to complete
+        /// Executes the command but does not wait for it to complete.
         /// </summary>
         public void Execute() => ExecuteAsync(null);
 
@@ -104,17 +113,17 @@
         /// Executes the command. This call can be awaited.
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable ExecuteAsync(object parameter)
         {
             return Task.Run(async () =>
             {
-                if (IsExecuting.Value)
+                if (IsExecuting)
                     return;
 
                 try
                 {
-                    IsExecuting.Value = true;
+                    IsExecuting = true;
                     await Application.Current.Dispatcher.BeginInvoke(ExecuteAction, DispatcherPriority.Normal, parameter);
                 }
                 catch (Exception ex)
@@ -124,7 +133,7 @@
                 }
                 finally
                 {
-                    IsExecuting.Value = false;
+                    IsExecuting = false;
                     CommandManager.InvalidateRequerySuggested();
                 }
             }).ConfigureAwait(true);
@@ -133,7 +142,7 @@
         /// <summary>
         /// Executes the command. This call can be awaited.
         /// </summary>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable ExecuteAsync() => ExecuteAsync(null);
 
         #endregion

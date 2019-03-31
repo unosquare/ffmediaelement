@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Controls
 {
     /// <summary>
-    /// Interaction logic for ControllerPanelControl.xaml
+    /// Interaction logic for ControllerPanelControl.xaml.
     /// </summary>
     public partial class ControllerPanelControl
     {

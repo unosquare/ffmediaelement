@@ -1,15 +1,16 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using Engine;
-    using Platform;
+    using FFmpeg.AutoGen;
     using System;
+    using System.ComponentModel;
+    using System.Diagnostics;
     using System.IO;
     using System.Threading;
     using System.Windows;
     using ViewModels;
 
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Interaction logic for App.xaml.
     /// </summary>
     public partial class App
     {
@@ -18,28 +19,36 @@
         /// </summary>
         public App()
         {
-            // Change the default location of the ffmpeg binaries
+            // Change the default location of the ffmpeg binaries (same directory as application)
             // You can get the binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1-win32-shared.zip
-            MediaElement.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
+            Library.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
             // Full Features is already the default.
-            MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
+            Library.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 
             // Multi-threaded video enables the creation of independent
-            // dispatcher threads to render video frames.
-            MediaElement.EnableWpfMultiThreadedVideo = GuiContext.Current.IsInDebugMode == false;
+            // dispatcher threads to render video frames. This is an experimental feature
+            // and might become deprecated in the future as no real performance enhancements
+            // have been detected.
+            Library.EnableWpfMultiThreadedVideo = !Debugger.IsAttached;
         }
 
         /// <summary>
-        /// Provides access to the root-level, application-wide VM
+        /// Provides access to the root-level, application-wide VM.
         /// </summary>
         public static RootViewModel ViewModel => Current.Resources[nameof(ViewModel)] as RootViewModel;
 
         /// <summary>
-        /// Gets a full file path for a screen capture or stream recording
+        /// Determines if the Application is in design mode.
         /// </summary>
-        /// <param name="mediaPrefix">The media prefix. Use Screenshot or Capture for example</param>
+        public static bool IsInDesignMode => !(Current is App) ||
+            (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue;
+
+        /// <summary>
+        /// Gets a full file path for a screen capture or stream recording.
+        /// </summary>
+        /// <param name="mediaPrefix">The media prefix. Use Screenshot or Capture for example.</param>
         /// <param name="extension">The file extension without a dot.</param>
         /// <returns>A full file path where the media file will be written to.</returns>
         public static string GetCaptureFilePath(string mediaPrefix, string extension)
@@ -76,14 +85,14 @@
                 try
                 {
                     // Force loading
-                    MediaElement.LoadFFmpeg();
+                    Library.LoadFFmpeg();
                 }
                 catch(Exception ex)
                 {
-                    GuiContext.Current?.EnqueueInvoke(() =>
+                    Current?.Dispatcher?.Invoke(() =>
                     {
                         MessageBox.Show(MainWindow,
-                            $"Unable to Load FFmpeg Libraries from path:\r\n    {MediaElement.FFmpegDirectory}" +
+                            $"Unable to Load FFmpeg Libraries from path:\r\n    {Library.FFmpegDirectory}" +
                             $"\r\nMake sure the above folder contains FFmpeg shared binaries (dll files) for the " +
                             $"applicantion's architecture ({(Environment.Is64BitProcess ? "64-bit" : "32-bit")})" +
                             $"\r\nTIP: You can download builds from https://ffmpeg.zeranoe.com/builds/" +

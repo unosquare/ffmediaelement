@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Flags indicating what features this WaveOut device supports
+    /// Flags indicating what features this WaveOut device supports.
     /// </summary>
     [Flags]
     internal enum WaveOutSupport

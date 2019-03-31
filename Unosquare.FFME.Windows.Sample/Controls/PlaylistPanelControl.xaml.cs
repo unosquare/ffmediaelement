@@ -1,15 +1,15 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Controls
 {
     using Foundation;
-    using Platform;
     using System;
+    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls.Primitives;
     using System.Windows.Input;
     using ViewModels;
 
     /// <summary>
-    /// Interaction logic for PlaylistPanelControl.xaml
+    /// Interaction logic for PlaylistPanelControl.xaml.
     /// </summary>
     public partial class PlaylistPanelControl
     {
@@ -21,7 +21,7 @@
             InitializeComponent();
 
             // Prevent binding to the events
-            if (GuiContext.Current.IsInDesignTime)
+            if (App.IsInDesignMode)
                 return;
 
             // Bind the Enter key to the command
@@ -53,7 +53,7 @@
         #region Properties
 
         /// <summary>
-        /// A proxy, strongly-typed property to the underlying DataContext
+        /// A proxy, strongly-typed property to the underlying DataContext.
         /// </summary>
         public RootViewModel ViewModel => DataContext as RootViewModel;
 

@@ -1,21 +1,25 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
     using Foundation;
-    using Platform;
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Windows;
+    using System.Windows.Shell;
 
     /// <summary>
-    /// Represents the application-wide view model
+    /// Represents the application-wide view model.
     /// </summary>
     /// <seealso cref="ViewModelBase" />
     public sealed class RootViewModel : ViewModelBase
     {
         private string m_WindowTitle = string.Empty;
-        private bool m_IsPlaylistPanelOpen = GuiContext.Current.IsInDesignTime;
-        private bool m_IsPropertiesPanelOpen = GuiContext.Current.IsInDesignTime;
-        private bool m_IsApplicationLoaded = GuiContext.Current.IsInDesignTime;
+        private string m_NotificationMessage = string.Empty;
+        private double m_PlaybackProgress;
+        private TaskbarItemProgressState m_PlaybackProgressState;
+        private bool m_IsPlaylistPanelOpen = App.IsInDesignMode;
+        private bool m_IsPropertiesPanelOpen = App.IsInDesignMode;
+        private bool m_IsApplicationLoaded = App.IsInDesignMode;
         private MediaElement m_MediaElement;
 
         /// <summary>
@@ -36,7 +40,7 @@
         }
 
         /// <summary>
-        /// Gets the product name
+        /// Gets the product name.
         /// </summary>
         public static string ProductName => "Unosquare FFME-Play";
 
@@ -70,6 +74,54 @@
         }
 
         /// <summary>
+        /// Gets or sets the notification message to be displayed
+        /// </summary>
+        public string NotificationMessage
+        {
+            get
+            {
+                return m_NotificationMessage;
+            }
+            set
+            {
+                m_NotificationMessage = value;
+                NotifyPropertyChanged(nameof(NotificationMessage));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the playback progress.
+        /// </summary>
+        public double PlaybackProgress
+        {
+            get
+            {
+                return m_PlaybackProgress;
+            }
+            set
+            {
+                m_PlaybackProgress = value;
+                NotifyPropertyChanged(nameof(PlaybackProgress));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the state of the playback progress.
+        /// </summary>
+        public TaskbarItemProgressState PlaybackProgressState
+        {
+            get
+            {
+                return m_PlaybackProgressState;
+            }
+            set
+            {
+                m_PlaybackProgressState = value;
+                NotifyPropertyChanged(nameof(PlaybackProgressState));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this instance is playlist panel open.
         /// </summary>
         public bool IsPlaylistPanelOpen
@@ -97,7 +149,7 @@
         }
 
         /// <summary>
-        /// Provides access to application-wide commands
+        /// Provides access to application-wide commands.
         /// </summary>
         public AppCommands Commands { get; } = new AppCommands();
 
@@ -116,7 +168,7 @@
         }
 
         /// <summary>
-        /// Called when application has finished loading
+        /// Called when application has finished loading.
         /// </summary>
         internal void OnApplicationLoaded()
         {
@@ -179,7 +231,7 @@
             }
 
             WindowTitle = $"{title} - {state} - FFME Player v{AppVersion} "
-                + $"FFmpeg {MediaElement.FFmpegVersionInfo} ({(GuiContext.Current.IsInDebugMode ? "Debug" : "Release")})";
+                + $"FFmpeg {Library.FFmpegVersionInfo} ({(Debugger.IsAttached ? "Debug" : "Release")})";
         }
     }
 }

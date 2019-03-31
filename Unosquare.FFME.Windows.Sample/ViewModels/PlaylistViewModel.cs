@@ -1,16 +1,14 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
-    using Events;
+    using Common;
     using Foundation;
-    using Platform;
     using System;
     using System.ComponentModel;
     using System.IO;
-    using System.Windows;
     using System.Windows.Data;
 
     /// <summary>
-    /// Represents the Playlist
+    /// Represents the Playlist.
     /// </summary>
     /// <seealso cref="AttachedViewModel" />
     public sealed class PlaylistViewModel : AttachedViewModel
@@ -27,7 +25,7 @@
         private string FilterString = string.Empty;
 
         // Property Backing
-        private bool m_IsInOpenMode = GuiContext.Current.IsInDesignTime;
+        private bool m_IsInOpenMode = App.IsInDesignMode;
         private bool m_IsPlaylistEnabled = true;
         private string m_OpenMediaSource = string.Empty;
         private string m_PlaylistSearchString = string.Empty;
@@ -78,7 +76,7 @@
         }
 
         /// <summary>
-        /// Gets the custom playlist. Do not use for data-binding
+        /// Gets the custom playlist. Do not use for data-binding.
         /// </summary>
         public CustomPlaylistEntryCollection Entries { get; }
 
@@ -175,11 +173,11 @@
         }
 
         /// <summary>
-        /// Called when Media is opened
+        /// Called when Media is opened.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpened(object sender, RoutedEventArgs e)
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void OnMediaOpened(object sender, EventArgs e)
         {
             HasTakenThumbnail = false;
             var m = App.ViewModel.MediaElement;

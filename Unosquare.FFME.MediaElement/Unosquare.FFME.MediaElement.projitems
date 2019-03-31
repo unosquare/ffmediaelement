@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>4f84c6a1-ba3a-4a1e-84ee-7a7aa214f317</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Unosquare.FFME</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Library.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaFailedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\FrameDecodedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\InputFormatEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaInitializingEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaLogMessageEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaOpenedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaOpeningEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaStateChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\PacketReadEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\PositionChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\SubtitleDecodedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Properties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.PropertyUpdates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiTimer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\MediaConnector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\PropertyMapper.cs" />
+  </ItemGroup>
+</Project>

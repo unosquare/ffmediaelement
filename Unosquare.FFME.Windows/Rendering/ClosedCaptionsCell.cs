@@ -48,7 +48,7 @@
         }
 
         /// <summary>
-        /// Resets the entire state and contents of this cell
+        /// Resets the entire state and contents of this cell.
         /// </summary>
         public void Reset()
         {

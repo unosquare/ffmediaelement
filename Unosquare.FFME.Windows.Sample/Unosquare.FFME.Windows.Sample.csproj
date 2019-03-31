@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop" ToolsVersion="Current">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net461;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <OutputType>WinExe</OutputType>
     <UseWpf>true</UseWpf>
     <Title>FFME Reference Player</Title>
@@ -11,7 +11,7 @@
     <RootNamespace>Unosquare.FFME.Windows.Sample</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>$(SolutionDir)\Analyzers.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
     
@@ -23,7 +23,7 @@
     <FileVersion>4.1.290.0</FileVersion>
     <LangVersion>latest</LangVersion>
 
-    <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
+    <Authors>Mario Di Vece, and Contributors to the FFME project</Authors>
     <Company>Unosquare SA de CV</Company>
     <Product>Unosquare FFME Reference Media Player</Product>
     <Description>Reference implementation of a media player using the FFME</Description>
@@ -40,6 +40,7 @@
     <Page Remove="Controls\ControllerPanelControl.xaml" />
     <Page Remove="Controls\PlaylistPanelControl.xaml" />
     <Page Remove="Controls\PropertiesPanelControl.xaml" />
+    <Page Remove="MainWindow.xaml" />
   </ItemGroup>
   
   <ItemGroup>
@@ -59,13 +60,10 @@
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="4.1.0.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
@@ -78,6 +76,10 @@
   </ItemGroup>
 
   <ItemGroup>
+
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Include="Controls\ControllerPanelControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -85,6 +87,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\PropertiesPanelControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

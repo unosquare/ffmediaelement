@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
-    using Engine;
+    using Diagnostics;
     using Primitives;
     using System;
     using System.Collections.Generic;
@@ -12,20 +12,20 @@
     /// <summary>
     /// NativeDirectSoundOut using DirectSound COM interop.
     /// Contact author: Alexandre Mutel - alexandre_mutel at yahoo.fr
-    /// Modified by: Graham "Gee" Plumb
+    /// Modified by: Graham "Gee" Plumb.
     /// </summary>
     internal sealed class DirectSoundPlayer : IWavePlayer, ILoggingSource
     {
         #region Fields
 
         /// <summary>
-        /// DirectSound default playback device GUID
+        /// DirectSound default playback device GUID.
         /// </summary>
         public static readonly Guid DefaultPlaybackDeviceId = new Guid("DEF00000-9C6D-47ED-AAF1-4DDA8F2B5C03");
 
         // Device enumerations
         private static readonly object DevicesEnumLock = new object();
-        private static List<DirectSoundDeviceInfo> EnumeratedDevices;
+        private static List<DirectSoundDeviceData> EnumeratedDevices;
 
         // Instance fields
         private readonly object SyncLock = new object();
@@ -57,7 +57,7 @@
         /// (40ms seems to work under Vista).
         /// </summary>
         /// <param name="renderer">The renderer.</param>
-        /// <param name="deviceId">Selected device</param>
+        /// <param name="deviceId">Selected device.</param>
         public DirectSoundPlayer(AudioRenderer renderer, Guid deviceId)
         {
             Renderer = renderer;
@@ -102,14 +102,14 @@
         #region Public Methods
 
         /// <summary>
-        /// Gets the DirectSound output devices in the system
+        /// Gets the DirectSound output devices in the system.
         /// </summary>
-        /// <returns>The available DirectSound devices</returns>
-        public static List<DirectSoundDeviceInfo> EnumerateDevices()
+        /// <returns>The available DirectSound devices.</returns>
+        public static List<DirectSoundDeviceData> EnumerateDevices()
         {
             lock (DevicesEnumLock)
             {
-                EnumeratedDevices = new List<DirectSoundDeviceInfo>(32);
+                EnumeratedDevices = new List<DirectSoundDeviceData>(32);
                 NativeMethods.DirectSoundEnumerateA(EnumerateDevicesCallback, IntPtr.Zero);
                 return EnumeratedDevices;
             }
@@ -151,10 +151,10 @@
         /// <param name="descriptionPtr">The description string pointer.</param>
         /// <param name="modulePtr">The module string pointer.</param>
         /// <param name="contextPtr">The context pointer.</param>
-        /// <returns>The devices</returns>
+        /// <returns>The devices.</returns>
         private static bool EnumerateDevicesCallback(IntPtr deviceGuidPtr, IntPtr descriptionPtr, IntPtr modulePtr, IntPtr contextPtr)
         {
-            var device = new DirectSoundDeviceInfo();
+            var device = new DirectSoundDeviceData();
             if (deviceGuidPtr == IntPtr.Zero)
             {
                 device.Guid = Guid.Empty;
@@ -178,7 +178,7 @@
         /// </summary>
         /// <param name="eventHandle">The event handle.</param>
         /// <param name="offset">The offset.</param>
-        /// <returns>A DirectSound Position Notification</returns>
+        /// <returns>A DirectSound Position Notification.</returns>
         private static DirectSound.DirectSoundBufferPositionNotify CreatePositionNotification(WaitHandle eventHandle, uint offset) =>
             new DirectSound.DirectSoundBufferPositionNotify
             {
@@ -258,7 +258,6 @@
             Debug.Assert(SamplesTotalSize == (2 * SamplesFrameSize), "Invalid SamplesTotalSize vs SamplesFrameSize");
 
             // Create double buffering notifications.
-            // ReSharper disable once CommentTypo
             // Use DirectSoundNotify at Position [0, 1/2] and Stop Position (0xFFFFFFFF)
             var notifier = audioRenderBuffer as DirectSound.IDirectSoundNotify;
 
@@ -373,10 +372,10 @@
             AudioBackBuffer.GetStatus().HasFlag(DirectSound.DirectSoundBufferStatus.BufferLost);
 
         /// <summary>
-        /// Convert ms to bytes size according to WaveFormat
+        /// Convert ms to bytes size according to WaveFormat.
         /// </summary>
-        /// <param name="millis">The ms</param>
-        /// <returns>number of bytes</returns>
+        /// <param name="millis">The milliseconds.</param>
+        /// <returns>number of bytes.</returns>
         private int MillisToBytes(int millis)
         {
             var bytes = millis * (WaveFormat.AverageBytesPerSecond / 1000);
@@ -385,7 +384,7 @@
         }
 
         /// <summary>
-        /// Clean up the SecondaryBuffer
+        /// Clean up the SecondaryBuffer.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -429,10 +428,10 @@
         }
 
         /// <summary>
-        /// Feeds the SecondaryBuffer with the WaveStream
+        /// Feeds the SecondaryBuffer with the WaveStream.
         /// </summary>
-        /// <param name="bytesToCopy">number of bytes to feed</param>
-        /// <returns>The number of bytes that were read</returns>
+        /// <param name="bytesToCopy">number of bytes to feed.</param>
+        /// <returns>The number of bytes that were read.</returns>
         private int FeedBackBuffer(int bytesToCopy)
         {
             // Restore the buffer if lost
@@ -482,17 +481,17 @@
         private static class DirectSound
         {
             /// <summary>
-            /// DirectSound default capture device GUID
+            /// DirectSound default capture device GUID.
             /// </summary>
             public static readonly Guid DefaultCaptureDeviceId = new Guid("DEF00001-9C6D-47ED-AAF1-4DDA8F2B5C03");
 
             /// <summary>
-            /// DirectSound default device for voice playback
+            /// DirectSound default device for voice playback.
             /// </summary>
             public static readonly Guid DefaultVoicePlaybackDeviceId = new Guid("DEF00002-9C6D-47ED-AAF1-4DDA8F2B5C03");
 
             /// <summary>
-            /// DirectSound default device for voice capture
+            /// DirectSound default device for voice capture.
             /// </summary>
             public static readonly Guid DefaultVoiceCaptureDeviceId = new Guid("DEF00003-9C6D-47ED-AAF1-4DDA8F2B5C03");
 
@@ -566,7 +565,7 @@
             }
 
             /// <summary>
-            /// IDirectSound interface
+            /// IDirectSound interface.
             /// </summary>
             [ComImport]
             [Guid("279AFA83-4981-11CE-A521-0020AF0BE560")]
@@ -592,7 +591,7 @@
             }
 
             /// <summary>
-            /// IDirectSoundBuffer interface
+            /// IDirectSoundBuffer interface.
             /// </summary>
             [ComImport]
             [Guid("279AFA85-4981-11CE-A521-0020AF0BE560")]
@@ -641,7 +640,7 @@
             }
 
             /// <summary>
-            /// IDirectSoundNotify interface
+            /// IDirectSoundNotify interface.
             /// </summary>
             [ComImport]
             [Guid("b0210783-89cd-11d0-af08-00a0c925cd16")]
@@ -677,7 +676,6 @@
                     throw new NotSupportedException($"{nameof(DirectSoundBufferPositionNotify)} does not support hashing.");
             }
 
-            // ReSharper disable NotAccessedField.Local
 #pragma warning disable SA1401 // Fields must be private
 #pragma warning disable 649 // Field is never assigned
 
@@ -708,7 +706,6 @@
                 public int PlayCpuOverhead;
             }
 
-            // ReSharper restore NotAccessedField.Local
 #pragma warning restore 649 // Field is never assigned
 #pragma warning restore SA1401 // Fields must be private
         }
@@ -719,27 +716,27 @@
             private const string User32Lib = "user32.dll";
 
             /// <summary>
-            /// Instantiate DirectSound from the DLL
+            /// Instantiate DirectSound from the DLL.
             /// </summary>
             /// <param name="deviceGuid">The GUID.</param>
             /// <param name="directSound">The direct sound.</param>
             /// <param name="pUnkOuter">The p unk outer.</param>
-            /// <returns>The result code</returns>
+            /// <returns>The result code.</returns>
             [DllImport(DirectSoundLib, EntryPoint = nameof(DirectSoundCreate), SetLastError = true, CharSet = CharSet.Unicode, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
             public static extern int DirectSoundCreate(ref Guid deviceGuid, [Out, MarshalAs(UnmanagedType.Interface)] out DirectSound.IDirectSound directSound, IntPtr pUnkOuter);
 
             /// <summary>
             /// The DirectSoundEnumerate function enumerates the DirectSound drivers installed in the system.
             /// </summary>
-            /// <param name="lpDSEnumCallback">callback function</param>
-            /// <param name="lpContext">User context</param>
+            /// <param name="lpDSEnumCallback">callback function.</param>
+            /// <param name="lpContext">User context.</param>
             [DllImport(DirectSoundLib, EntryPoint = nameof(DirectSoundEnumerateA), SetLastError = true, CharSet = CharSet.Unicode, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
             public static extern void DirectSoundEnumerateA(DirectSound.EnumerateDevicesDelegate lpDSEnumCallback, IntPtr lpContext);
 
             /// <summary>
             /// Gets the HANDLE of the desktop window.
             /// </summary>
-            /// <returns>HANDLE of the Desktop window</returns>
+            /// <returns>HANDLE of the Desktop window.</returns>
             [DllImport(User32Lib)]
             public static extern IntPtr GetDesktopWindow();
         }

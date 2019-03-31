@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
-    using Engine;
+    using Diagnostics;
     using Primitives;
     using System;
     using System.Collections.Generic;
@@ -61,7 +61,7 @@
 
         /// <summary>
         /// Gets or sets the number of buffers used
-        /// Should be set before a call to Init
+        /// Should be set before a call to Init.
         /// </summary>
         public int NumberOfBuffers { get; }
 
@@ -69,7 +69,7 @@
         /// Gets the device number
         /// Should be set before a call to Init
         /// This must be between -1 and <see>DeviceCount</see> - 1.
-        /// -1 means stick to default device even default device is changed
+        /// -1 means stick to default device even default device is changed.
         /// </summary>
         public int DeviceNumber { get; }
 
@@ -82,7 +82,7 @@
         /// <summary>
         /// Gets the capabilities.
         /// </summary>
-        public LegacyAudioDeviceInfo Capabilities { get; }
+        public LegacyAudioDeviceData Capabilities { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
@@ -103,12 +103,12 @@
         /// <summary>
         /// Gets the Windows Multimedia Extensions (MME) devices in the system.
         /// </summary>
-        /// <returns>The available MME devices</returns>
-        public static List<LegacyAudioDeviceInfo> EnumerateDevices()
+        /// <returns>The available MME devices.</returns>
+        public static List<LegacyAudioDeviceData> EnumerateDevices()
         {
             lock (DevicesEnumLock)
             {
-                var devices = new List<LegacyAudioDeviceInfo>(32);
+                var devices = new List<LegacyAudioDeviceData>(32);
                 var count = WaveInterop.RetrieveAudioDeviceCount();
                 for (var i = -1; i < count; i++)
                     devices.Add(WaveInterop.RetrieveAudioDeviceInfo(i));
