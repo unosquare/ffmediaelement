@@ -215,6 +215,11 @@
         public bool CanPause => MediaCore?.State.CanPause ?? default;
 
         /// <summary>
+        /// Gets a value indicating whether the meadia container has reached the end of the stream.
+        /// </summary>
+        public bool IsAtEndOfStream => MediaCore?.State.IsAtEndOfStream ?? default;
+
+        /// <summary>
         /// Returns whether the currently loaded media is live or realtime
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>

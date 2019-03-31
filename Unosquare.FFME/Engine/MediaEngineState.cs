@@ -150,6 +150,9 @@
         /// <inheritdoc />
         public bool IsChanging => MediaCore.Commands?.IsChanging ?? false;
 
+        /// <inheritdoc />
+        public bool IsAtEndOfStream => MediaCore.Container?.IsAtEndOfStream ?? false;
+
         #endregion
 
         #region Container Fixed, One-Time Properties

@@ -120,6 +120,11 @@
         bool HasClosedCaptions { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the media container is at end of the stream.
+        /// </summary>
+        bool IsAtEndOfStream { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the media is buffering.
         /// </summary>
         bool IsBuffering { get; }
