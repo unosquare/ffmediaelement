@@ -29,7 +29,7 @@
     <Description>FFME is an advanced WPF MediaElement alternative. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses FFmpeg to read and decode audio and video.</Description>
     <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2015-2019</Copyright>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/unosquare/ffmediaelement</PackageProjectUrl>
     <PackageIconUrl>https://github.com/unosquare/ffmediaelement/blob/master/ffme.png</PackageIconUrl>
     <PackageTags>ffme hls wpf ffmpeg mediaelement h264 h265 hevc audio video decoding playback frame</PackageTags>
@@ -45,7 +45,7 @@
 
   <ItemGroup>
     <None Include="$(SolutionDir)\Support\readme.txt" Pack="true" PackagePath="" />
-    <None Include="$(SolutionDir)\LICENSE.md" Pack="true" PackagePath="" />
+    <None Include="$(SolutionDir)\LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
   
   <ItemGroup>
