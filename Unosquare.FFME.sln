@@ -13,16 +13,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 		.gitignore = .gitignore
 		Analyzers.ruleset = Analyzers.ruleset
 		appveyor.yml = appveyor.yml
-		Support\build-nuget-package.bat = Support\build-nuget-package.bat
 		docfx.json = docfx.json
 		Support\ffme.png = Support\ffme.png
-		Support\ffme.win.nuspec = Support\ffme.win.nuspec
 		Support\ffmeplay.png = Support\ffmeplay.png
-		LICENSE = LICENSE
+		LICENSE.md = LICENSE.md
 		README.md = README.md
 		Support\readme.txt = Support\readme.txt
-		Support\SoundTouch COPYING.TXT = Support\SoundTouch COPYING.TXT
-		Support\test-suite.html = Support\test-suite.html
 		toc.yml = toc.yml
 	EndProjectSection
 EndProject
