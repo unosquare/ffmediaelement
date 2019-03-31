@@ -4,7 +4,7 @@
     using System;
     using System.Runtime.CompilerServices;
 
-    public partial class Utilities
+    public static partial class Utilities
     {
         /// <summary>
         /// Returns a formatted string, dividing by the specified

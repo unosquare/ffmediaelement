@@ -3,7 +3,7 @@
     using System;
     using Platform;
 
-    public partial class Library
+    public static partial class Library
     {
         private static IGuiContext m_GuiContext;
 

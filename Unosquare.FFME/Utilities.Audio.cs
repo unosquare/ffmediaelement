@@ -3,7 +3,7 @@
     using System;
     using System.Runtime.CompilerServices;
 
-    public partial class Utilities
+    public static partial class Utilities
     {
         /// <summary>
         /// Gets the audio sample amplitude (absolute value of the sample).
