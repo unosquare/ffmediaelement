@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Windows;
+    using System.Windows.Shell;
 
     /// <summary>
     /// Represents the application-wide view model.
@@ -14,6 +15,8 @@
     {
         private string m_WindowTitle = string.Empty;
         private string m_NotificationMessage = string.Empty;
+        private double m_PlaybackProgress;
+        private TaskbarItemProgressState m_PlaybackProgressState;
         private bool m_IsPlaylistPanelOpen = App.IsInDesignMode;
         private bool m_IsPropertiesPanelOpen = App.IsInDesignMode;
         private bool m_IsApplicationLoaded = App.IsInDesignMode;
@@ -83,6 +86,38 @@
             {
                 m_NotificationMessage = value;
                 NotifyPropertyChanged(nameof(NotificationMessage));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the playback progress.
+        /// </summary>
+        public double PlaybackProgress
+        {
+            get
+            {
+                return m_PlaybackProgress;
+            }
+            set
+            {
+                m_PlaybackProgress = value;
+                NotifyPropertyChanged(nameof(PlaybackProgress));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the state of the playback progress.
+        /// </summary>
+        public TaskbarItemProgressState PlaybackProgressState
+        {
+            get
+            {
+                return m_PlaybackProgressState;
+            }
+            set
+            {
+                m_PlaybackProgressState = value;
+                NotifyPropertyChanged(nameof(PlaybackProgressState));
             }
         }
 

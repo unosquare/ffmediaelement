@@ -8,6 +8,7 @@
     using System.Linq;
     using System.Text;
     using System.Windows;
+    using System.Windows.Shell;
     using Unosquare.FFME.Common;
 
     public partial class MainWindow
@@ -419,7 +420,46 @@
         /// <param name="e">The <see cref="PositionChangedEventArgs"/> instance containing the event data.</param>
         private void OnMediaPositionChanged(object sender, PositionChangedEventArgs e)
         {
-            // Handle position change notifications
+            var media = sender as MediaElement;
+            if (!media.IsSeekable)
+            {
+                ViewModel.PlaybackProgress = 0;
+                return;
+            }
+
+            ViewModel.PlaybackProgress = media.NaturalDuration.HasValue
+                ? (double)e.Position.Ticks / media.NaturalDuration.Value.Ticks
+                : 1;
+        }
+
+        /// <summary>
+        /// Called when media state changes.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="MediaStateChangedEventArgs" /> instance containing the event data.</param>
+        private void OnMediaStateChanged(object sender, MediaStateChangedEventArgs e)
+        {
+            var media = sender as MediaElement;
+
+            switch (e.MediaState)
+            {
+                case MediaPlaybackState.Close:
+                case MediaPlaybackState.Stop:
+                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.None;
+                    break;
+                case MediaPlaybackState.Manual:
+                case MediaPlaybackState.Pause:
+                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.Paused;
+                    break;
+                case MediaPlaybackState.Play:
+                    ViewModel.PlaybackProgressState = media.IsSeekable
+                        ? TaskbarItemProgressState.Normal
+                        : TaskbarItemProgressState.Indeterminate;
+                    break;
+                default:
+                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.None;
+                    break;
+            }
         }
 
         /// <summary>

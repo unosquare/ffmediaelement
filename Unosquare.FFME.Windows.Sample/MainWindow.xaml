@@ -20,6 +20,9 @@
             <DoubleAnimation Storyboard.TargetProperty="Opacity" Duration="0:0:2" From="1.0" To="0.0" BeginTime="0:0:2" />
         </Storyboard>
     </Window.Resources>
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo ProgressValue="{Binding PlaybackProgress}" ProgressState="{Binding PlaybackProgressState}" />
+    </Window.TaskbarItemInfo>
     <Grid Name="Player">
         <ffme:MediaElement Name="Media" Background="Black" LoadedBehavior="Play" />
 
@@ -49,9 +52,9 @@
                     <Setter Property="Opacity" Value="0" />
                 </Style>
             </Grid.Style>
-            <Border CornerRadius="4" Background="#BB08162d"
-                    BorderBrush="ForestGreen" BorderThickness="1"
-                    Padding="4" Name="NotificationsBorder">
+            <Border CornerRadius="6" Background="#BB08162d"
+                    BorderBrush="ForestGreen" BorderThickness="0.8"
+                    Padding="6" Name="NotificationsBorder">
                 <StackPanel>
                     <TextBlock Name="NotificationTextBlock" Foreground="LimeGreen" FontFamily="Lucida Console"
                                TextWrapping="WrapWithOverflow" Text="{Binding NotificationMessage}">

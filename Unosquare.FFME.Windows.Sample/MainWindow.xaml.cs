@@ -193,6 +193,7 @@
             Media.PositionChanged += OnMediaPositionChanged;
             Media.MediaFailed += OnMediaFailed;
             Media.MessageLogged += OnMediaMessageLogged;
+            Media.MediaStateChanged += OnMediaStateChanged;
 
             // Complex examples of Media Rendering Events
             BindMediaRenderingEvents();
