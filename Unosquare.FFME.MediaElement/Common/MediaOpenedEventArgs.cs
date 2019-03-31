@@ -15,7 +15,6 @@
         /// </summary>
         /// <param name="info">The input information.</param>
         internal MediaOpenedEventArgs(MediaInfo info)
-            : base()
         {
             Info = info;
         }

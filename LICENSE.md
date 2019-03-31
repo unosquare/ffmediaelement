@@ -70,8 +70,8 @@ WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
 =================================================================================================
 NAudio (Unosquare.FFME.Renderers.Wave)
 =================================================================================================
-Files under the Unosquare.FFME.Rendering.Wave namespace are derived from the NAudio Library
-Commit URL (May 13, 2017): 
+Files under the Unosquare.FFME.Rendering.Wave namespace are derived and heavily modified from the
+NAudio Library. Commit URL (May 13, 2017): 
 https://github.com/naudio/NAudio/commit/17c8ca2ff8c64ce1f5e6b00f74e54d7e9bccaa03
 
 Microsoft Public License (Ms-PL)
@@ -118,7 +118,8 @@ and non-infringement.
 SoundTouch audio processing library (SoundTouch.cs)
 =================================================================================================
 File SoundTouch.cs was modified to include comments, remove notices and set a more 
-concise namespace.
+concise namespace. The file was supplied to the auther as an enhancement and now are part of the
+wrapper offered in the SoundTouch website.
 
 Copyright (c) Olli Parviainen
 http://www.surina.net/soundtouch
