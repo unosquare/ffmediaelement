@@ -35,9 +35,7 @@
         /// Determines if the control library is currently in design-time mode (as opposed to run-time)
         /// </summary>
         internal static bool IsInDesignMode =>
-            (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue ||
-            Application.Current == null ||
-            Application.Current.Dispatcher == null;
+            (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue;
 
         /// <summary>
         /// Enumerates the DirectSound devices.

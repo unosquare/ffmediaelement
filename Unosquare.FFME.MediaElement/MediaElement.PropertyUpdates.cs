@@ -2,11 +2,9 @@
 {
     using Common;
     using Platform;
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using System.Threading;
 
     /*
      * This file contains the Property Updates Worker.
@@ -16,6 +14,8 @@
 
     public partial class MediaElement
     {
+        private readonly object PropertyUpdatesLock = new object();
+
         /// <summary>
         /// Holds the state of the notification properties.
         /// </summary>
@@ -28,50 +28,46 @@
         private IGuiTimer PropertyUpdatesWorker;
 
         /// <summary>
-        /// Starts the property updates worker.
+        /// Starts the property updates worker. You will need to call this method in the constructor of
+        /// the platform-specific MediaElement implementation to continuously pull values from the media state.
         /// </summary>
         /// <exception cref="KeyNotFoundException">MediaElement does not have minimum set of MediaProperties.</exception>
         private void StartPropertyUpdatesWorker()
         {
-            // Check that we are not already started
-            if (PropertyUpdatesWorker != null)
+            lock (PropertyUpdatesLock)
             {
-                throw new InvalidOperationException($"{nameof(PropertyUpdatesWorker)} has to be null " +
-                    $"before calling {nameof(StartPropertyUpdatesWorker)}");
-            }
+                // Check that we are not already started
+                if (PropertyUpdatesWorker != null)
+                    return;
 
-            // Check that all properties map back to the media state
-            if (PropertyMapper.MissingPropertyMappings.Count > 0)
-            {
-                throw new KeyNotFoundException($"{nameof(MediaElement)} is missing properties exposed by {nameof(IMediaEngineState)}. " +
-                    $"Missing properties are: {string.Join(", ", PropertyMapper.MissingPropertyMappings)}. " +
-                    $"Please add these properties to the {nameof(MediaElement)} class.");
-            }
+                // Check that all properties map back to the media state
+                if (PropertyMapper.MissingPropertyMappings.Count > 0)
+                {
+                    throw new KeyNotFoundException($"{nameof(MediaElement)} is missing properties exposed by {nameof(IMediaEngineState)}. " +
+                        $"Missing properties are: {string.Join(", ", PropertyMapper.MissingPropertyMappings)}. " +
+                        $"Please add these properties to the {nameof(MediaElement)} class.");
+                }
 
-            // Properties Worker Logic
-            PropertyUpdatesWorker = Library.GuiContext.CreateTimer(
-                Constants.PropertyUpdatesInterval,
-                UpdateProperties,
-                HandledAsynchronousDispose);
+                // Properties Worker Logic
+                PropertyUpdatesWorker = Library.GuiContext.CreateTimer(Constants.PropertyUpdatesInterval, UpdateStateProperties);
+            }
         }
 
         /// <summary>
-        /// Handles the asynchronous dispose of the underlying Media Engine.
+        /// Stops the property updates worker. You will need to call this method when the platform-specific
+        /// implementation of the control is disposed or removed.
         /// </summary>
-        private void HandledAsynchronousDispose()
+        private void StopPropertyUpdatesWorker()
         {
-            // Dispose outside of the current thread to avoid deadlocks
-            ThreadPool.QueueUserWorkItem(s =>
+            lock (PropertyUpdatesLock)
             {
-                MediaCore.Dispose();
-
-                // Notify the one last state
-                Library.GuiContext.EnqueueInvoke(UpdateProperties);
-            });
+                PropertyUpdatesWorker?.Stop();
+                PropertyUpdatesWorker = null;
+            }
         }
 
         /// <summary>
-        /// Updates the info properties.
+        /// Updates the info properties. Call <see cref="UpdateStateProperties"/> instead.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateInfoProperties()
@@ -81,13 +77,13 @@
             var notifyRemainingDuration = false;
 
             // Handling of Notification Properties
-            foreach (var p in changedProperties)
+            foreach (var propertyName in changedProperties)
             {
                 // Notify the changed properties
-                NotifyPropertyChangedEvent(p);
+                NotifyPropertyChangedEvent(propertyName);
 
                 // Check if we need to notify the remaining duration
-                if (p == nameof(NaturalDuration) || p == nameof(IsSeekable))
+                if (propertyName == nameof(NaturalDuration) || propertyName == nameof(IsSeekable))
                     notifyRemainingDuration = true;
             }
 
@@ -97,7 +93,7 @@
         }
 
         /// <summary>
-        /// Updates the controller properties.
+        /// Updates the controller properties. Call <see cref="UpdateStateProperties"/> instead.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateControllerProperties()
@@ -131,6 +127,9 @@
                 // Update the dependency property value
                 change.Key.SetValue(this, change.Value);
 
+                // Send a notification that the property has changed
+                NotifyPropertyChangedEvent(change.Key.Name);
+
                 // Update the remaining duration if we have seekable media
                 if (change.Key.Name == nameof(Position) && IsSeekable)
                     NotifyPropertyChangedEvent(nameof(RemainingDuration));
@@ -138,13 +137,16 @@
         }
 
         /// <summary>
-        /// Updates the controller properties.
+        /// Updates all of the media state properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void UpdateProperties()
+        private void UpdateStateProperties()
         {
-            UpdateInfoProperties();
-            UpdateControllerProperties();
+            lock (PropertyUpdatesLock)
+            {
+                UpdateInfoProperties();
+                UpdateControllerProperties();
+            }
         }
     }
 }

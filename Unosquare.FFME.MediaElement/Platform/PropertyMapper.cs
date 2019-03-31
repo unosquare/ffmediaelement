@@ -110,14 +110,25 @@
 
             foreach (var targetProperty in MediaElementControllerProperties)
             {
-                engineValue = MediaEngineStateProperties[targetProperty.Key].GetValue(m.MediaCore.State);
                 propertyValue = targetProperty.Value.GetValue(m);
 
-                if (targetProperty.Value.PropertyType != MediaEngineStateProperties[targetProperty.Key].PropertyType)
+                if (m.MediaCore != null)
                 {
-                    engineValue = targetProperty.Value.PropertyType.IsEnum ?
-                        Enum.ToObject(targetProperty.Value.PropertyType, engineValue) :
-                        Convert.ChangeType(engineValue, targetProperty.Value.PropertyType, CultureInfo.InvariantCulture);
+                    // extract the value coming from the media engine state
+                    engineValue = MediaEngineStateProperties[targetProperty.Key].GetValue(m.MediaCore.State);
+
+                    if (targetProperty.Value.PropertyType != MediaEngineStateProperties[targetProperty.Key].PropertyType)
+                    {
+                        engineValue = targetProperty.Value.PropertyType.IsEnum ?
+                            Enum.ToObject(targetProperty.Value.PropertyType, engineValue) :
+                            Convert.ChangeType(engineValue, targetProperty.Value.PropertyType, CultureInfo.InvariantCulture);
+                    }
+                }
+                else
+                {
+                    engineValue = targetProperty.Value.PropertyType.IsValueType
+                        ? Activator.CreateInstance(targetProperty.Value.PropertyType)
+                        : null;
                 }
 
                 if (Equals(engineValue, propertyValue) == false)

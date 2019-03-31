@@ -23,7 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\PositionChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\SubtitleDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.MediaProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Properties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Events.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.PropertyUpdates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiContext.cs" />

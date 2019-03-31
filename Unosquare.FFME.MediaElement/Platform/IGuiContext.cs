@@ -26,8 +26,7 @@
         /// </summary>
         /// <param name="interval">The interval of the timer.</param>
         /// <param name="cycleCallback">The action to execute when the timer ticks.</param>
-        /// <param name="disposeCallback">The action to execute when the timer is disposed.</param>
         /// <returns>The timer object.</returns>
-        IGuiTimer CreateTimer(TimeSpan interval, Action cycleCallback, Action disposeCallback);
+        IGuiTimer CreateTimer(TimeSpan interval, Action cycleCallback);
     }
 }

@@ -3,7 +3,6 @@
     using Common;
     using Engine;
     using Platform;
-    using Primitives;
     using Rendering;
     using System;
     using System.ComponentModel;
@@ -17,7 +16,6 @@
     using System.Windows.Markup;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
-    using System.Windows.Threading;
     using Bitmap = System.Drawing.Bitmap;
 
     /// <summary>
@@ -26,12 +24,10 @@
     /// the FFmpeg library to perform reading and decoding of media streams.
     /// </summary>
     /// <seealso cref="UserControl" />
-    /// <seealso cref="IDisposable" />
-    /// <seealso cref="INotifyPropertyChanged" />
     /// <seealso cref="IUriContext" />
     [Localizability(LocalizationCategory.NeverLocalize)]
     [DefaultProperty(nameof(Source))]
-    public sealed partial class MediaElement : UserControl, IDisposable, IUriContext
+    public sealed partial class MediaElement : UserControl, IUriContext
     {
         #region Fields and Property Backing
 
@@ -40,16 +36,6 @@
         /// </summary>
         internal const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
-
-        /// <summary>
-        /// The dispose lock -- Prevents running actions while disposing.
-        /// </summary>
-        private readonly object DisposeLock = new object();
-
-        /// <summary>
-        /// To detect redundant calls.
-        /// </summary>
-        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         /// <summary>
         /// The allow content change flag.
@@ -93,6 +79,19 @@
             finally
             {
                 AllowContentChange = false;
+
+                // Once we have added the element to the visual tree
+                // we want to pull state changes into the media element control.
+                Loaded += (s, e) =>
+                    StartPropertyUpdatesWorker();
+
+                // When the media element is removed from the visual tree
+                // we want to close the current media and stop the state updates.
+                Unloaded += async (s, e) =>
+                {
+                    try { await Close(); }
+                    finally { StopPropertyUpdatesWorker(); }
+                };
             }
         }
 
@@ -102,18 +101,6 @@
 
         /// <inheritdoc />
         Uri IUriContext.BaseUri { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is disposed.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsDisposed
-        {
-            get => m_IsDisposed.Value;
-            private set => m_IsDisposed.Value = value;
-        }
 
         /// <summary>
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
@@ -172,36 +159,6 @@
         #endregion
 
         #region Methods
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            lock (DisposeLock)
-            {
-                if (IsDisposed) return;
-                IsDisposed = true;
-
-                // Stop the property updates worker
-                PropertyUpdatesWorker.Dispose();
-
-                // Make sure we perform GUI operations on the GUI thread.
-                Library.GuiContext?.EnqueueInvoke(() =>
-                {
-                    // Remove event handlers
-                    try { VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates; }
-                    catch { /* Ignore if VideoView is already null by now. */ }
-
-                    // Remove all the controls
-                    ContentGrid?.Children.Remove(VideoView);
-                    ContentGrid?.Children.Remove(SubtitlesView);
-                    ContentGrid?.Children.Remove(CaptionsView);
-
-                    // Force Refresh
-                    ContentGrid?.Dispatcher?.InvokeAsync(() => { },
-                        DispatcherPriority.Render);
-                });
-            }
-        }
 
         /// <summary>
         /// Binds the property.
@@ -313,9 +270,8 @@
             // Display the control (or not)
             if (!Library.IsInDesignMode)
             {
-                // Setup the media engine and associated property updates worker
+                // Setup the media engine and property updates timer
                 MediaCore = new MediaEngine(this, new MediaConnector(this));
-                StartPropertyUpdatesWorker();
             }
             else
             {
@@ -338,62 +294,58 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void HandleVideoViewLayoutUpdates(object sender, EventArgs e)
         {
-            // Prevent running the code
-            lock (DisposeLock)
+            if (ContentGrid.Children.IndexOf(VideoView) < 0 || VideoView.Element == null)
+                return;
+
+            // Compute the position offset of the video
+            var videoPosition = VideoView.HasOwnDispatcher ?
+                VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0)) :
+                VideoView.Element.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
+
+            // Compute the dimensions of the video
+            var videoSize = VideoView.HasOwnDispatcher ?
+                VideoView.RenderSize :
+                VideoView.Element.DesiredSize;
+
+            // Validate the dimensions; avoid layout operations with invalid values
+            if (videoSize.Width <= 0 || double.IsNaN(videoSize.Width) ||
+                videoSize.Height <= 0 || double.IsNaN(videoSize.Height))
             {
-                if (IsDisposed || ContentGrid.Children.IndexOf(VideoView) < 0 || VideoView.Element == null)
-                    return;
+                return;
+            }
 
-                // Compute the position offset of the video
-                var videoPosition = VideoView.HasOwnDispatcher ?
-                    VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0)) :
-                    VideoView.Element.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
+            if (HasVideo || Library.IsInDesignMode)
+            {
+                // Position and Size the Captions View
+                CaptionsView.Width = Math.Floor(videoSize.Width);
+                CaptionsView.Height = Math.Floor(videoSize.Height * .80); // FCC Safe Caption Area Dimensions
+                CaptionsView.Margin = new Thickness(
+                    Math.Floor(videoPosition.X + ((videoSize.Width - CaptionsView.RenderSize.Width) / 2d)),
+                    Math.Floor(videoPosition.Y + ((videoSize.Height - CaptionsView.RenderSize.Height) / 2d)),
+                    0,
+                    0);
+                CaptionsView.Visibility = Visibility.Visible;
 
-                // Compute the dimensions of the video
-                var videoSize = VideoView.HasOwnDispatcher ?
-                    VideoView.RenderSize :
-                    VideoView.Element.DesiredSize;
+                // Position and Size the Subtitles View
+                SubtitlesView.Width = Math.Floor(videoSize.Width * 0.9d);
+                SubtitlesView.Height = Math.Floor(videoSize.Height / 8d);
+                SubtitlesView.Margin = new Thickness(
+                    Math.Floor(videoPosition.X + ((videoSize.Width - SubtitlesView.RenderSize.Width) / 2d)),
+                    Math.Floor(videoPosition.Y + videoSize.Height - (1.8 * SubtitlesView.RenderSize.Height)),
+                    0,
+                    0);
 
-                // Validate the dimensions; avoid layout operations with invalid values
-                if (videoSize.Width <= 0 || double.IsNaN(videoSize.Width) ||
-                    videoSize.Height <= 0 || double.IsNaN(videoSize.Height))
-                {
-                    return;
-                }
+                SubtitlesView.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                CaptionsView.Width = 0;
+                CaptionsView.Height = 0;
+                CaptionsView.Visibility = Visibility.Collapsed;
 
-                if (HasVideo || Library.IsInDesignMode)
-                {
-                    // Position and Size the Captions View
-                    CaptionsView.Width = Math.Floor(videoSize.Width);
-                    CaptionsView.Height = Math.Floor(videoSize.Height * .80); // FCC Safe Caption Area Dimensions
-                    CaptionsView.Margin = new Thickness(
-                        Math.Floor(videoPosition.X + ((videoSize.Width - CaptionsView.RenderSize.Width) / 2d)),
-                        Math.Floor(videoPosition.Y + ((videoSize.Height - CaptionsView.RenderSize.Height) / 2d)),
-                        0,
-                        0);
-                    CaptionsView.Visibility = Visibility.Visible;
-
-                    // Position and Size the Subtitles View
-                    SubtitlesView.Width = Math.Floor(videoSize.Width * 0.9d);
-                    SubtitlesView.Height = Math.Floor(videoSize.Height / 8d);
-                    SubtitlesView.Margin = new Thickness(
-                        Math.Floor(videoPosition.X + ((videoSize.Width - SubtitlesView.RenderSize.Width) / 2d)),
-                        Math.Floor(videoPosition.Y + videoSize.Height - (1.8 * SubtitlesView.RenderSize.Height)),
-                        0,
-                        0);
-
-                    SubtitlesView.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    CaptionsView.Width = 0;
-                    CaptionsView.Height = 0;
-                    CaptionsView.Visibility = Visibility.Collapsed;
-
-                    SubtitlesView.Width = 0;
-                    SubtitlesView.Height = 0;
-                    SubtitlesView.Visibility = Visibility.Collapsed;
-                }
+                SubtitlesView.Width = 0;
+                SubtitlesView.Height = 0;
+                SubtitlesView.Visibility = Visibility.Collapsed;
             }
         }
 

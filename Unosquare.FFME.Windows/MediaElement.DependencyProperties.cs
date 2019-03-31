@@ -161,7 +161,7 @@ namespace Unosquare.FFME
             {
                 // Skip change actions if we are currently opening via the Open command
                 // We configure the await to true because we need to continue on the captured context
-                if (element.IsOpeningViaCommand == false && element.MediaCore != null)
+                if (!element.IsOpeningViaCommand && element.MediaCore != null)
                     await element.MediaCore.Open(uri).ConfigureAwait(true);
             }
         }
@@ -201,7 +201,7 @@ namespace Unosquare.FFME
             if (element.MediaCore.State.IsSeekable == false)
                 return element.MediaCore.State.Position;
 
-            var valueComingFromEngine = element.PropertyUpdatesWorker.IsExecutingCycle;
+            var valueComingFromEngine = element.PropertyUpdatesWorker?.IsExecutingCycle ?? true;
 
             if (valueComingFromEngine && element.MediaCore.State.IsSeeking == false)
                 return value;

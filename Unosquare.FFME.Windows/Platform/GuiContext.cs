@@ -31,8 +31,16 @@
             Thread = Thread.CurrentThread;
             ThreadContext = SynchronizationContext.Current;
 
+            // Try to extract the dispatcher for the application
             try { GuiDispatcher = Application.Current.Dispatcher; }
             catch { /* Ignore error as app might not be available or context is not WPF */ }
+
+            // If the above was unsuccessful, try to extract the dispatcher from the current thread.
+            if (GuiDispatcher == null)
+            {
+                try { GuiDispatcher = Dispatcher.CurrentDispatcher; }
+                catch { /* Ignore error as app might not be available or context is not WPF */ }
+            }
 
             Type = GuiContextType.None;
             if (GuiDispatcher != null) Type = GuiContextType.WPF;
@@ -82,8 +90,8 @@
 
         /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IGuiTimer CreateTimer(TimeSpan interval, Action cycleCallback, Action disposeCallback) =>
-            new GuiTimer(Type, interval, cycleCallback, disposeCallback);
+        public IGuiTimer CreateTimer(TimeSpan interval, Action cycleCallback) =>
+            new GuiTimer(Type, interval, cycleCallback);
 
         /// <summary>
         /// Invokes a task on the GUI thread.

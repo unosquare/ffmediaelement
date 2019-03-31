@@ -428,7 +428,7 @@
             MediaCore.Container?.SignalAbortReads(false);
 
             // This causes the workers to stop and dispose.
-            MediaCore.Workers.Dispose();
+            MediaCore.Workers?.Dispose();
 
             // Call close on all renderers
             foreach (var renderer in MediaCore.Renderers.Values)
