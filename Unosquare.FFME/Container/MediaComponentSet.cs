@@ -430,9 +430,7 @@
         internal void UpdatePlaybackDuration(TimeSpan duration)
         {
             lock (ComponentSyncLock)
-            {
                 m_PlaybackDuration = duration;
-            }
         }
 
         /// <summary>
@@ -462,6 +460,10 @@
                 var duration = (component.Stream->duration == ffmpeg.AV_NOPTS_VALUE || component.Stream->duration <= 0) ?
                     TimeSpan.MinValue :
                     component.Stream->duration.ToTimeSpan(component.Stream->time_base);
+
+                // some audio streams do not have start times. It's assumed as 0
+                if (component.MediaType == MediaType.Audio && startTime == TimeSpan.MinValue)
+                    startTime = TimeSpan.Zero;
 
                 // Skip the component if not known
                 if (startTime == TimeSpan.MinValue)
@@ -504,6 +506,10 @@
                 if (component.Duration == TimeSpan.MinValue && m_PlaybackDuration != null)
                     component.Duration = m_PlaybackDuration.Value;
             }
+
+            // Don't ever let the start time be null
+            if (m_PlaybackStartTime == null)
+                m_PlaybackStartTime = TimeSpan.Zero;
         }
 
         /// <summary>
