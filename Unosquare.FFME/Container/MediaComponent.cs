@@ -453,7 +453,24 @@
         /// Feeds the decoder buffer and tries to return the next available frame.
         /// </summary>
         /// <returns>The received Media Frame. It is null if no frame could be retrieved.</returns>
-        public MediaFrame ReceiveNextFrame() => DecodePacketFunction();
+        public MediaFrame ReceiveNextFrame()
+        {
+            var frame = DecodePacketFunction();
+
+            // Check if we need to update the playback duration.
+            // This means we have decoded more frames than what was initially reported by the container.
+            if (frame != null && Container.IsStreamSeekable)
+            {
+                if (EndTime != TimeSpan.MinValue && frame.HasValidStartTime && frame.EndTime.Ticks > EndTime.Ticks)
+                {
+                    Duration = TimeSpan.FromTicks(frame.EndTime.Ticks - StartTime.Ticks);
+                    if (this == Container.Components.Main)
+                        Container.Components.UpdatePlaybackDuration(Duration);
+                }
+            }
+
+            return frame;
+        }
 
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />

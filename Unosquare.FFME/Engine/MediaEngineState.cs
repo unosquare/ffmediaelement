@@ -539,7 +539,18 @@
         /// </summary>
         /// <param name="bitRate">The bit rate.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateDecodingBitRate(long bitRate) => DecodingBitRate = bitRate;
+        internal void UpdateDecodingBitRate(long bitRate)
+        {
+            DecodingBitRate = bitRate;
+
+            // Update the component duration and end time
+            if (NaturalDuration != MediaCore.Container?.Components?.PlaybackDuration)
+            {
+                NaturalDuration = MediaCore.Container?.Components?.PlaybackDuration;
+                PlaybackEndTime = MediaCore.Container?.Components?.PlaybackEndTime;
+                MediaStreamSize = MediaCore.Container?.MediaStreamSize ?? default;
+            }
+        }
 
         /// <summary>
         /// Updates the buffering properties: <see cref="PacketBufferCount" />, <see cref="PacketBufferLength" />,

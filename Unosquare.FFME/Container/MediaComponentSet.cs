@@ -352,6 +352,7 @@
         /// <exception cref="ArgumentNullException">When component of the same type is already registered.</exception>
         /// <exception cref="NotSupportedException">When MediaType is not supported.</exception>
         /// <exception cref="ArgumentException">When the component is null.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddComponent(MediaComponent component)
         {
             lock (ComponentSyncLock)
@@ -393,6 +394,7 @@
         /// It calls the dispose method of the media component too.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RemoveComponent(MediaType mediaType)
         {
             lock (ComponentSyncLock)
@@ -420,37 +422,25 @@
         }
 
         /// <summary>
-        /// Computes the main component and backing fields.
+        /// Updates the playback duration property.
+        /// This method is intended to be called only when decoding frames.
         /// </summary>
-        private unsafe void UpdateComponentBackingFields()
+        /// <param name="duration">The duration.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UpdatePlaybackDuration(TimeSpan duration)
         {
-            var allComponents = new List<MediaComponent>(4);
-            var allMediaTypes = new List<MediaType>(4);
-
-            // assign allMediaTypes. IMPORTANT: Order matters because this
-            // establishes the priority in which playback measures are computed
-            if (m_Video != null)
+            lock (ComponentSyncLock)
             {
-                allComponents.Add(m_Video);
-                allMediaTypes.Add(MediaType.Video);
+                m_PlaybackDuration = duration;
             }
+        }
 
-            if (m_Audio != null)
-            {
-                allComponents.Add(m_Audio);
-                allMediaTypes.Add(MediaType.Audio);
-            }
-
-            if (m_Subtitle != null)
-            {
-                allComponents.Add(m_Subtitle);
-                allMediaTypes.Add(MediaType.Subtitle);
-            }
-
-            m_All = new ReadOnlyCollection<MediaComponent>(allComponents);
-            m_MediaTypes = new ReadOnlyCollection<MediaType>(allMediaTypes);
-            m_Count = allComponents.Count;
-
+        /// <summary>
+        /// Updates the playback timing properties.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe void UpdatePlaybackTimingProperties()
+        {
             // Start with unknown or default playback times
             m_PlaybackDuration = null;
             m_PlaybackStartTime = null;
@@ -458,7 +448,7 @@
             // Compute Playback Times -- priority is established by the order
             // of components in allComponents: audio, video, subtitle
             // It would be weird to compute playback duration using subtitles
-            foreach (var component in allComponents)
+            foreach (var component in m_All)
             {
                 // We don't want this kind of info from subtitles
                 if (component.MediaType == MediaType.Subtitle)
@@ -490,9 +480,9 @@
 
             // Compute the playback start, end and duration off the media info
             // if we could not compute it via the components
-            if (m_PlaybackDuration == null && allComponents.Count > 0)
+            if (m_PlaybackDuration == null && m_All.Count > 0)
             {
-                var mediaInfo = allComponents[0].Container?.MediaInfo;
+                var mediaInfo = m_All[0].Container?.MediaInfo;
 
                 if (mediaInfo != null && mediaInfo.Duration != TimeSpan.MinValue && mediaInfo.Duration.Ticks > 0)
                 {
@@ -506,7 +496,7 @@
 
             // Update all of the component start and duration times if not set
             // using the newly computed information if available
-            foreach (var component in allComponents)
+            foreach (var component in m_All)
             {
                 if (component.StartTime == TimeSpan.MinValue)
                     component.StartTime = m_PlaybackStartTime ?? TimeSpan.Zero;
@@ -514,6 +504,43 @@
                 if (component.Duration == TimeSpan.MinValue && m_PlaybackDuration != null)
                     component.Duration = m_PlaybackDuration.Value;
             }
+        }
+
+        /// <summary>
+        /// Computes the main component and backing fields.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe void UpdateComponentBackingFields()
+        {
+            var allComponents = new List<MediaComponent>(4);
+            var allMediaTypes = new List<MediaType>(4);
+
+            // assign allMediaTypes. IMPORTANT: Order matters because this
+            // establishes the priority in which playback measures are computed
+            if (m_Video != null)
+            {
+                allComponents.Add(m_Video);
+                allMediaTypes.Add(MediaType.Video);
+            }
+
+            if (m_Audio != null)
+            {
+                allComponents.Add(m_Audio);
+                allMediaTypes.Add(MediaType.Audio);
+            }
+
+            if (m_Subtitle != null)
+            {
+                allComponents.Add(m_Subtitle);
+                allMediaTypes.Add(MediaType.Subtitle);
+            }
+
+            m_All = new ReadOnlyCollection<MediaComponent>(allComponents);
+            m_MediaTypes = new ReadOnlyCollection<MediaType>(allMediaTypes);
+            m_Count = allComponents.Count;
+
+            // Find Start time, duration and end time
+            UpdatePlaybackTimingProperties();
 
             // Try for the main component to be the video (if it's not stuff like audio album art, that is)
             if (m_Video != null && m_Audio != null && m_Video.StreamInfo.IsAttachedPictureDisposition == false)
