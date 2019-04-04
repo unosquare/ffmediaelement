@@ -81,7 +81,7 @@
         /// Gets the registered FFmpeg input format names.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static IReadOnlyCollection<string> InputFormatNames
+        public static IReadOnlyList<string> InputFormatNames
         {
             get
             {
@@ -100,7 +100,7 @@
         /// Gets the global input format options information.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static IReadOnlyCollection<OptionMetadata> InputFormatOptionsGlobal
+        public static IReadOnlyList<OptionMetadata> InputFormatOptionsGlobal
         {
             get
             {
@@ -149,7 +149,7 @@
         /// Gets the registered FFmpeg decoder codec names.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static unsafe IReadOnlyCollection<string> DecoderNames
+        public static unsafe IReadOnlyList<string> DecoderNames
         {
             get
             {
@@ -168,7 +168,7 @@
         /// Gets the registered FFmpeg decoder codec names.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static unsafe IReadOnlyCollection<string> EncoderNames
+        public static unsafe IReadOnlyList<string> EncoderNames
         {
             get
             {
@@ -187,7 +187,7 @@
         /// Gets the global options that apply to all decoders.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static IReadOnlyCollection<OptionMetadata> DecoderOptionsGlobal
+        public static IReadOnlyList<OptionMetadata> DecoderOptionsGlobal
         {
             get
             {

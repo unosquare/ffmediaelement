@@ -51,6 +51,21 @@
             MissingPropertyMappings = new ReadOnlyCollection<string>(missingMediaElementPropertyNames);
         }
 
+        private interface IPropertyWrapper
+        {
+            string Name { get; }
+
+            Type Type { get; }
+
+            bool CanRead { get; }
+
+            bool CanWrite { get; }
+
+            object GetValue();
+
+            void SetValue(object value);
+        }
+
         /// <summary>
         /// Contains the property names found in the Media Engine State type, but not found in the Media Element.
         /// </summary>
@@ -167,6 +182,109 @@
                 result.Add(propertyInfo);
 
             return result;
+        }
+
+        private sealed class ObjectProxy<T>
+            where T : class
+        {
+            public ObjectProxy(T instance)
+            {
+                Instance = instance;
+                var properties = RetrieveProperties(typeof(T)).OrderBy(p => p.Name).ToArray();
+                var proxies = new Dictionary<string, IPropertyWrapper>(properties.Length);
+                foreach (var property in properties)
+                {
+                    var proxy = CreatePropertyWrapper(property, instance);
+                    proxies[property.Name] = proxy;
+                }
+
+                Properties = new ReadOnlyDictionary<string, IPropertyWrapper>(proxies);
+                PropertyNames = new ReadOnlyCollection<string>(Properties.Keys.ToArray());
+                ReadOnlyPropertyNames = new ReadOnlyCollection<string>(Properties
+                    .Where(kvp => kvp.Value.CanRead && !kvp.Value.CanWrite)
+                    .Select(kvp => kvp.Key).OrderBy(s => s).ToArray());
+                ReadWritePropertyNames = new ReadOnlyCollection<string>(Properties
+                    .Where(kvp => kvp.Value.CanRead && kvp.Value.CanWrite)
+                    .Select(kvp => kvp.Key).OrderBy(s => s).ToArray());
+            }
+
+            public T Instance { get; }
+
+            public IReadOnlyDictionary<string, IPropertyWrapper> Properties { get; }
+
+            public IReadOnlyList<string> PropertyNames { get; }
+
+            public IReadOnlyList<string> ReadOnlyPropertyNames { get; }
+
+            public IReadOnlyList<string> ReadWritePropertyNames { get; }
+
+            public object this[string propertyName]
+            {
+                get => Properties[propertyName].GetValue();
+                set => Properties[propertyName].SetValue(value);
+            }
+
+            private static List<PropertyInfo> RetrieveProperties(Type t)
+            {
+                var flags = BindingFlags.Instance | BindingFlags.Public;
+                var result = new List<PropertyInfo>(64);
+                var propertyInfos = t.GetProperties(flags).ToArray();
+                foreach (var propertyInfo in propertyInfos)
+                    result.Add(propertyInfo);
+
+                return result;
+            }
+
+            private static IPropertyWrapper CreatePropertyWrapper(PropertyInfo propertyInfo, object instance)
+            {
+                var genericType = typeof(PropertyWrapper<,>)
+                    .MakeGenericType(propertyInfo.DeclaringType, propertyInfo.PropertyType);
+                return Activator.CreateInstance(genericType, propertyInfo, instance) as IPropertyWrapper;
+            }
+        }
+
+#pragma warning disable CA1812
+        private sealed class PropertyWrapper<TObject, TValue> : IPropertyWrapper
+            where TObject : class
+        {
+            private readonly TObject Instance;
+            private readonly Func<TObject, TValue> Getter;
+            private readonly Action<TObject, TValue> Setter;
+
+            public PropertyWrapper(PropertyInfo property, TObject instance)
+            {
+                Instance = instance;
+                Name = property.Name;
+                Type = property.PropertyType;
+
+                var getterInfo = property.GetGetMethod(false);
+                if (getterInfo != null)
+                {
+                    CanRead = true;
+                    Getter = (Func<TObject, TValue>)Delegate.CreateDelegate(typeof(Func<TObject, TValue>), getterInfo);
+                }
+
+                var setterInfo = property.GetSetMethod(false);
+                if (setterInfo != null)
+                {
+                    CanWrite = true;
+                    Setter = (Action<TObject, TValue>)Delegate.CreateDelegate(typeof(Action<TObject, TValue>), setterInfo);
+                }
+            }
+
+            public string Name { get; }
+
+            public Type Type { get; }
+
+            public bool CanRead { get; }
+
+            public bool CanWrite { get; }
+
+            object IPropertyWrapper.GetValue() =>
+                Getter(Instance);
+
+            void IPropertyWrapper.SetValue(object value) =>
+                Setter(Instance, (TValue)value);
         }
     }
 }

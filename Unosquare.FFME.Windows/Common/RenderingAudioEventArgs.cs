@@ -1,7 +1,5 @@
 ﻿namespace Unosquare.FFME.Common
 {
-    using Common;
-    using Platform;
     using System;
     using System.Collections.Generic;
 
@@ -43,7 +41,7 @@
         /// Gets a the raw data buffer going into the audio device.
         /// Samples are provided in PCM 16-bit signed, interleaved stereo.
         /// </summary>
-        public IReadOnlyCollection<byte> Buffer { get; }
+        public IReadOnlyList<byte> Buffer { get; }
 
         /// <summary>
         /// Gets the length in bytes of the samples buffer.

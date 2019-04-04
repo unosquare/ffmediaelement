@@ -18,7 +18,7 @@
         /// <summary>
         /// Gets the identifiers.
         /// </summary>
-        public static IReadOnlyCollection<string> Identifiers
+        public static IReadOnlyList<string> Identifiers
         {
             get
             {
