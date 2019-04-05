@@ -354,8 +354,8 @@
                 // then we simply break out of the loop and render whatever it is we have
                 // to create the illussion of smooth seeking. For precision seeking we
                 // continue the loop.
-                if (Commands.ActiveSeekMode == CommandManager.SeekMode.Normal
-                && !Commands.WaitForSeekBlocks(DefaultPeriod.Milliseconds))
+                if (Commands.ActiveSeekMode == CommandManager.SeekMode.Normal &&
+                    !Commands.WaitForSeekBlocks(1))
                 {
                     if (MediaOptions.IsFluidSeekingDisabled)
                         continue;

@@ -28,7 +28,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.PropertyUpdates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiTimer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IPropertyProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\MediaConnector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\ClassProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\PropertyMapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\PropertyProxy.cs" />
   </ItemGroup>
 </Project>

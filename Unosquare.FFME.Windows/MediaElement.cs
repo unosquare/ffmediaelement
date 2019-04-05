@@ -92,6 +92,9 @@
                     try { await Close(); }
                     finally { StopPropertyUpdatesWorker(); }
                 };
+
+                // Begin updating properties from the engine
+                StartPropertyUpdatesWorker();
             }
         }
 

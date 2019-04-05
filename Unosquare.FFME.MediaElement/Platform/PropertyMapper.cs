@@ -6,7 +6,6 @@
     using System.Collections.ObjectModel;
     using System.Globalization;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -15,7 +14,9 @@
     /// </summary>
     internal static class PropertyMapper
     {
-        public const int PropertyMaxCount = 64;
+        private static readonly ClassProxy<IMediaEngineState> MediaEngineProxy = new ClassProxy<IMediaEngineState>();
+        private static readonly ClassProxy<MediaElement> MediaElementProxy = new ClassProxy<MediaElement>((p) =>
+                MediaEngineProxy.PropertyNames.Contains(p.Name));
 
         /// <summary>
         /// Initializes static members of the <see cref="PropertyMapper"/> class.
@@ -23,68 +24,26 @@
         /// <exception cref="KeyNotFoundException">When a property exposed by the underlying MediaCore is not mapped.</exception>
         static PropertyMapper()
         {
-            MediaEngineStateProperties = new ReadOnlyDictionary<string, PropertyInfo>(
-                RetrieveProperties(typeof(IMediaEngineState), false).ToDictionary(p => p.Name, p => p));
-
-            var enginePropertyNames = MediaEngineStateProperties.Keys.ToArray();
-
-            MediaElementControllerProperties = new ReadOnlyDictionary<string, PropertyInfo>(
-                RetrieveProperties(typeof(MediaElement), false)
-                    .Where(p => enginePropertyNames.Contains(p.Name)
-                        && p.CanRead && p.CanWrite)
-                    .ToDictionary(p => p.Name, p => p));
-
-            var controllerPropertyNames = MediaElementControllerProperties.Keys.ToArray();
-
-            MediaElementInfoProperties = new ReadOnlyDictionary<string, PropertyInfo>(
-                RetrieveProperties(typeof(MediaElement), false)
-                    .Where(p => enginePropertyNames.Contains(p.Name)
-                        && controllerPropertyNames.Contains(p.Name) == false
-                        && p.CanRead && p.CanWrite == false)
-                    .ToDictionary(p => p.Name, p => p));
-
-            var allMediaElementPropertyNames = controllerPropertyNames.Union(MediaElementInfoProperties.Keys.ToArray()).ToArray();
-            var missingMediaElementPropertyNames = MediaEngineStateProperties.Keys
-                .Where(p => allMediaElementPropertyNames.Contains(p) == false)
-                .ToArray();
-
-            MissingPropertyMappings = new ReadOnlyCollection<string>(missingMediaElementPropertyNames);
-        }
-
-        private interface IPropertyWrapper
-        {
-            string Name { get; }
-
-            Type Type { get; }
-
-            bool CanRead { get; }
-
-            bool CanWrite { get; }
-
-            object GetValue();
-
-            void SetValue(object value);
+            MissingPropertyMappings = new ReadOnlyCollection<string>(
+                MediaEngineProxy.PropertyNames
+                .Where(p => !MediaElementProxy.PropertyNames.Contains(p))
+                .ToArray());
         }
 
         /// <summary>
         /// Contains the property names found in the Media Engine State type, but not found in the Media Element.
         /// </summary>
-        public static ReadOnlyCollection<string> MissingPropertyMappings { get; }
+        public static IReadOnlyCollection<string> MissingPropertyMappings { get; }
 
         /// <summary>
-        /// Gets the media element properties that can be read and written to.
+        /// Sets the value for the specified property name on the given instance.
         /// </summary>
-        public static ReadOnlyDictionary<string, PropertyInfo> MediaElementControllerProperties { get; }
-
-        /// <summary>
-        /// Gets the media element properties that can only be read from.
-        /// </summary>
-        public static ReadOnlyDictionary<string, PropertyInfo> MediaElementInfoProperties { get; }
-
-        /// <summary>
-        /// Gets the media engine state properties.
-        /// </summary>
-        public static ReadOnlyDictionary<string, PropertyInfo> MediaEngineStateProperties { get; }
+        /// <param name="m">The Media Element instance.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="value">The value.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetValue(MediaElement m, string propertyName, object value) =>
+            MediaElementProxy[m, propertyName] = value;
 
         /// <summary>
         /// Detects the properties that have changed since the last snapshot.
@@ -93,11 +52,11 @@
         /// <param name="lastSnapshot">The last snapshot.</param>
         /// <returns>A list of property names that have changed.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string[] DetectInfoPropertyChanges(this MediaElement m, Dictionary<string, object> lastSnapshot)
+        public static string[] DetectReadOnlyChanges(this MediaElement m, IDictionary<string, object> lastSnapshot)
         {
-            var result = new List<string>(PropertyMaxCount);
-            var currentState = new Dictionary<string, object>(PropertyMaxCount);
-            m.SnapshotNotifications(currentState);
+            var currentState = m.SnapshotReadOnlyState();
+            var result = new List<string>(currentState.Count);
+
             var initLastSnapshot = currentState.Count != lastSnapshot.Count;
 
             foreach (var kvp in currentState)
@@ -113,178 +72,66 @@
         }
 
         /// <summary>
-        /// Detects which controller properties are out of sync with the Media Engine State properties.
+        /// Detects which properties (that are both, readable and writable) are out of sync with the Media Engine State properties.
         /// </summary>
-        /// <param name="m">The m.</param>
+        /// <param name="m">The MediaElement.</param>
         /// <returns>A dictionary of controller properties to synchronize along with the current engine values.</returns>
-        public static Dictionary<PropertyInfo, object> DetectControllerPropertyChanges(this MediaElement m)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<string, object> DetectReadWriteChanges(this MediaElement m)
         {
-            var result = new Dictionary<PropertyInfo, object>(PropertyMaxCount);
-            object engineValue; // The current value of the media engine state property
-            object propertyValue; // The current value of the controller property
+            var properties = MediaElementProxy.ReadWritePropertyNames;
+            var result = new Dictionary<string, object>(properties.Count);
 
-            foreach (var targetProperty in MediaElementControllerProperties)
+            object engineValue;
+            object elementValue;
+
+            foreach (var property in properties)
             {
-                propertyValue = targetProperty.Value.GetValue(m);
+                var engineProperty = MediaEngineProxy[property];
+                var elementProperty = MediaElementProxy[property];
+
+                elementValue = elementProperty.GetValue(m);
 
                 if (m.MediaCore != null)
                 {
                     // extract the value coming from the media engine state
-                    engineValue = MediaEngineStateProperties[targetProperty.Key].GetValue(m.MediaCore.State);
+                    engineValue = engineProperty.GetValue(m.MediaCore.State);
 
-                    if (targetProperty.Value.PropertyType != MediaEngineStateProperties[targetProperty.Key].PropertyType)
+                    if (engineProperty.Type != elementProperty.Type)
                     {
-                        engineValue = targetProperty.Value.PropertyType.IsEnum ?
-                            Enum.ToObject(targetProperty.Value.PropertyType, engineValue) :
-                            Convert.ChangeType(engineValue, targetProperty.Value.PropertyType, CultureInfo.InvariantCulture);
+                        engineValue = engineProperty.Type.IsEnum ?
+                            Enum.ToObject(engineProperty.Type, engineValue) :
+                            Convert.ChangeType(engineValue, elementProperty.Type, CultureInfo.InvariantCulture);
                     }
                 }
                 else
                 {
-                    engineValue = targetProperty.Value.PropertyType.IsValueType
-                        ? Activator.CreateInstance(targetProperty.Value.PropertyType)
+                    engineValue = engineProperty.Type.IsValueType
+                        ? Activator.CreateInstance(engineProperty.Type)
                         : null;
                 }
 
-                if (Equals(engineValue, propertyValue) == false)
-                    result[targetProperty.Value] = engineValue;
+                if (!Equals(engineValue, elementValue))
+                    result[property] = engineValue;
             }
 
             return result;
         }
 
         /// <summary>
-        /// Compiles the state into the target dictionary of property names and property values.
+        /// Snapshots the state of the read only properties as a read-only dictionary.
         /// </summary>
         /// <param name="m">The m.</param>
-        /// <param name="target">The target.</param>
+        /// <returns>The current state of all read-only properties</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void SnapshotNotifications(this MediaElement m, Dictionary<string, object> target)
+        private static IReadOnlyDictionary<string, object> SnapshotReadOnlyState(this MediaElement m)
         {
-            foreach (var p in MediaElementInfoProperties)
-                target[p.Key] = p.Value.GetValue(m);
-        }
+            var properties = MediaElementProxy.ReadOnlyPropertyNames;
+            var target = new Dictionary<string, object>(properties.Count, StringComparer.Ordinal);
+            foreach (var p in properties)
+                target[p] = MediaElementProxy[m, p];
 
-        /// <summary>
-        /// Retrieves the properties.
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <param name="declaredOnly">if set to <c>true</c> [declared only].</param>
-        /// <returns>A list of properties.</returns>
-        private static List<PropertyInfo> RetrieveProperties(Type t, bool declaredOnly)
-        {
-            var flags = BindingFlags.Instance | BindingFlags.Public;
-            if (declaredOnly) flags |= BindingFlags.DeclaredOnly;
-
-            var result = new List<PropertyInfo>(64);
-            var propertyInfos = t.GetProperties(flags).ToArray();
-            foreach (var propertyInfo in propertyInfos)
-                result.Add(propertyInfo);
-
-            return result;
-        }
-
-        private sealed class ObjectProxy<T>
-            where T : class
-        {
-            public ObjectProxy(T instance)
-            {
-                Instance = instance;
-                var properties = RetrieveProperties(typeof(T)).OrderBy(p => p.Name).ToArray();
-                var proxies = new Dictionary<string, IPropertyWrapper>(properties.Length);
-                foreach (var property in properties)
-                {
-                    var proxy = CreatePropertyWrapper(property, instance);
-                    proxies[property.Name] = proxy;
-                }
-
-                Properties = new ReadOnlyDictionary<string, IPropertyWrapper>(proxies);
-                PropertyNames = new ReadOnlyCollection<string>(Properties.Keys.ToArray());
-                ReadOnlyPropertyNames = new ReadOnlyCollection<string>(Properties
-                    .Where(kvp => kvp.Value.CanRead && !kvp.Value.CanWrite)
-                    .Select(kvp => kvp.Key).OrderBy(s => s).ToArray());
-                ReadWritePropertyNames = new ReadOnlyCollection<string>(Properties
-                    .Where(kvp => kvp.Value.CanRead && kvp.Value.CanWrite)
-                    .Select(kvp => kvp.Key).OrderBy(s => s).ToArray());
-            }
-
-            public T Instance { get; }
-
-            public IReadOnlyDictionary<string, IPropertyWrapper> Properties { get; }
-
-            public IReadOnlyList<string> PropertyNames { get; }
-
-            public IReadOnlyList<string> ReadOnlyPropertyNames { get; }
-
-            public IReadOnlyList<string> ReadWritePropertyNames { get; }
-
-            public object this[string propertyName]
-            {
-                get => Properties[propertyName].GetValue();
-                set => Properties[propertyName].SetValue(value);
-            }
-
-            private static List<PropertyInfo> RetrieveProperties(Type t)
-            {
-                var flags = BindingFlags.Instance | BindingFlags.Public;
-                var result = new List<PropertyInfo>(64);
-                var propertyInfos = t.GetProperties(flags).ToArray();
-                foreach (var propertyInfo in propertyInfos)
-                    result.Add(propertyInfo);
-
-                return result;
-            }
-
-            private static IPropertyWrapper CreatePropertyWrapper(PropertyInfo propertyInfo, object instance)
-            {
-                var genericType = typeof(PropertyWrapper<,>)
-                    .MakeGenericType(propertyInfo.DeclaringType, propertyInfo.PropertyType);
-                return Activator.CreateInstance(genericType, propertyInfo, instance) as IPropertyWrapper;
-            }
-        }
-
-#pragma warning disable CA1812
-        private sealed class PropertyWrapper<TObject, TValue> : IPropertyWrapper
-            where TObject : class
-        {
-            private readonly TObject Instance;
-            private readonly Func<TObject, TValue> Getter;
-            private readonly Action<TObject, TValue> Setter;
-
-            public PropertyWrapper(PropertyInfo property, TObject instance)
-            {
-                Instance = instance;
-                Name = property.Name;
-                Type = property.PropertyType;
-
-                var getterInfo = property.GetGetMethod(false);
-                if (getterInfo != null)
-                {
-                    CanRead = true;
-                    Getter = (Func<TObject, TValue>)Delegate.CreateDelegate(typeof(Func<TObject, TValue>), getterInfo);
-                }
-
-                var setterInfo = property.GetSetMethod(false);
-                if (setterInfo != null)
-                {
-                    CanWrite = true;
-                    Setter = (Action<TObject, TValue>)Delegate.CreateDelegate(typeof(Action<TObject, TValue>), setterInfo);
-                }
-            }
-
-            public string Name { get; }
-
-            public Type Type { get; }
-
-            public bool CanRead { get; }
-
-            public bool CanWrite { get; }
-
-            object IPropertyWrapper.GetValue() =>
-                Getter(Instance);
-
-            void IPropertyWrapper.SetValue(object value) =>
-                Setter(Instance, (TValue)value);
+            return target;
         }
     }
 }

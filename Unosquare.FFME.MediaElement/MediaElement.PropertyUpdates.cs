@@ -3,7 +3,6 @@
     using Common;
     using Platform;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Runtime.CompilerServices;
 
     /*
@@ -20,7 +19,7 @@
         /// Holds the state of the notification properties.
         /// </summary>
         private readonly Dictionary<string, object> NotificationPropertyCache
-            = new Dictionary<string, object>(PropertyMapper.PropertyMaxCount);
+            = new Dictionary<string, object>(64);
 
         /// <summary>
         /// The property updates worker timer.
@@ -73,7 +72,7 @@
         private void UpdateInfoProperties()
         {
             // Detect changes
-            var changedProperties = this.DetectInfoPropertyChanges(NotificationPropertyCache);
+            var changedProperties = this.DetectReadOnlyChanges(NotificationPropertyCache);
             var notifyRemainingDuration = false;
 
             // Handling of Notification Properties
@@ -99,17 +98,13 @@
         private void UpdateControllerProperties()
         {
             // Detect Notification and Dependency property changes
-            var changes = this.DetectControllerPropertyChanges();
+            var changes = this.DetectReadWriteChanges();
 
-            // Remove the position property updates if we are not allowed to
-            // report changes from the engine
-            var positionProperty = changes.Keys.FirstOrDefault(p =>
-                !string.IsNullOrWhiteSpace(p.Name) && p.Name == nameof(Position));
-            var preventPositionNotification = (MediaCore?.State.IsSeeking ?? false) && positionProperty != null;
-
-            if (preventPositionNotification)
+            // Remove the position property updates if we are
+            // not allowed to report changes from the engine
+            if ((MediaCore?.State.IsSeeking ?? false) && changes.ContainsKey(nameof(Position)))
             {
-                changes.Remove(positionProperty);
+                changes.Remove(nameof(Position));
 
                 // Only notify remaining duration if we have seekable media.
                 if (IsSeekable)
@@ -117,21 +112,21 @@
             }
 
             // Write the media engine state property state to the dependency properties
-            foreach (var change in changes)
+            foreach (var property in changes.Keys)
             {
                 // Do not upstream the Source property
                 // This causes unintended Open/Close commands to be run
-                if (change.Key.Name == nameof(Source))
+                if (property == nameof(Source))
                     continue;
 
-                // Update the dependency property value
-                change.Key.SetValue(this, change.Value);
+                // Update the writeable property value
+                PropertyMapper.SetValue(this, property, changes[property]);
 
                 // Send a notification that the property has changed
-                NotifyPropertyChangedEvent(change.Key.Name);
+                NotifyPropertyChangedEvent(property);
 
                 // Update the remaining duration if we have seekable media
-                if (change.Key.Name == nameof(Position) && IsSeekable)
+                if (property == nameof(Position) && IsSeekable)
                     NotifyPropertyChangedEvent(nameof(RemainingDuration));
             }
         }
