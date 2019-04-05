@@ -66,10 +66,10 @@
         }
 
         /// <summary>
-        /// Updates the info properties. Call <see cref="UpdateStateProperties"/> instead.
+        /// Updates the read-only properties properties coming from the MediaEngine. Call <see cref="UpdateStateProperties"/> instead.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void UpdateInfoProperties()
+        private void UpdateReadOnlyProperties()
         {
             // Detect changes
             var changedProperties = this.DetectReadOnlyChanges(NotificationPropertyCache);
@@ -92,10 +92,10 @@
         }
 
         /// <summary>
-        /// Updates the controller properties. Call <see cref="UpdateStateProperties"/> instead.
+        /// Updates the properties that are both readable and writable. Call <see cref="UpdateStateProperties"/> instead.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void UpdateControllerProperties()
+        private void UpdateReadWriteProperties()
         {
             // Detect Notification and Dependency property changes
             var changes = this.DetectReadWriteChanges();
@@ -139,8 +139,8 @@
         {
             lock (PropertyUpdatesLock)
             {
-                UpdateInfoProperties();
-                UpdateControllerProperties();
+                UpdateReadOnlyProperties();
+                UpdateReadWriteProperties();
             }
         }
     }

@@ -75,26 +75,23 @@
             {
                 AllowContentChange = true;
                 InitializeComponent();
+
+                // We want to run the property updates worker when the media opens
+                // and stop it when the media closes
+                MediaOpened += (s, e) => StartPropertyUpdatesWorker();
+                MediaClosed += (s, e) => StopPropertyUpdatesWorker();
+
+                // When the Media Element is added to a visual tree
+                // we force a refresh to the property notification system
+                Loaded += (s, e) => StartPropertyUpdatesWorker();
+
+                // When the media element is removed from the visual tree
+                // we want to close the current media to prevent memory leaks
+                Unloaded += async (s, e) => await Close();
             }
             finally
             {
                 AllowContentChange = false;
-
-                // Once we have added the element to the visual tree
-                // we want to pull state changes into the media element control.
-                Loaded += (s, e) =>
-                    StartPropertyUpdatesWorker();
-
-                // When the media element is removed from the visual tree
-                // we want to close the current media and stop the state updates.
-                Unloaded += async (s, e) =>
-                {
-                    try { await Close(); }
-                    finally { StopPropertyUpdatesWorker(); }
-                };
-
-                // Begin updating properties from the engine
-                StartPropertyUpdatesWorker();
             }
         }
 
@@ -104,6 +101,14 @@
 
         /// <inheritdoc />
         Uri IUriContext.BaseUri { get; set; }
+
+        /// <summary>
+        /// Provides access to various internal media renderer options.
+        /// The default options are optimal to work for most media streams.
+        /// This is an advanced feature and it is not recommended to change these
+        /// options without careful consideration.
+        /// </summary>
+        public RendererOptions RendererOptions { get; } = new RendererOptions();
 
         /// <summary>
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
