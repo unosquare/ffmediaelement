@@ -48,7 +48,7 @@
         }
 
         /// <summary>
-        /// Gets the property proxied for this class.
+        /// Gets the property proxies for this class.
         /// </summary>
         public IReadOnlyDictionary<string, IPropertyProxy> Properties { get; }
 
