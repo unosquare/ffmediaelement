@@ -2,7 +2,6 @@
 {
     using Foundation;
     using System;
-    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls.Primitives;
     using System.Windows.Input;

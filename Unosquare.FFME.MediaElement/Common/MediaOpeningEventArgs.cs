@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Common
 {
-    using Common;
     using System;
 
     /// <summary>

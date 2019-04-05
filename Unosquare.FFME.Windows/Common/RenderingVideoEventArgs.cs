@@ -1,8 +1,6 @@
 ﻿namespace Unosquare.FFME.Common
 {
     using ClosedCaptions;
-    using Common;
-    using Platform;
     using System;
     using System.Collections.ObjectModel;
 
