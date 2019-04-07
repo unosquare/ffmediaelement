@@ -63,6 +63,9 @@
                 PropertyUpdatesWorker?.Stop();
                 PropertyUpdatesWorker = null;
             }
+
+            // Ensure one last update
+            UpdateStateProperties();
         }
 
         /// <summary>

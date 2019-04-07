@@ -173,7 +173,7 @@
             await Library.GuiContext.InvokeAsync(() =>
             {
                 IsSourceChangingViaCommand = true;
-                Source = MediaCore.State.Source;
+                Source = MediaCore?.State.Source;
                 IsSourceChangingViaCommand = false;
             });
         }

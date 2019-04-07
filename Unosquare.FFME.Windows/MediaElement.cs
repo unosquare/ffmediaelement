@@ -75,15 +75,7 @@
             {
                 AllowContentChange = true;
                 InitializeComponent();
-
-                // We want to run the property updates worker when the media opens
-                // and stop it when the media closes
-                MediaInitializing += (s, e) => StartPropertyUpdatesWorker();
-                MediaClosed += (s, e) => StopPropertyUpdatesWorker();
-
-                // When the Media Element is added to a visual tree
-                // we force a refresh to the property notification system
-                Loaded += (s, e) => StartPropertyUpdatesWorker();
+                StartPropertyUpdatesWorker();
 
                 // When the media element is removed from the visual tree
                 // we want to close the current media to prevent memory leaks

@@ -91,11 +91,12 @@
                 var elementProperty = MediaElementProxy[property];
 
                 elementValue = elementProperty.GetValue(m);
+                var mediaCore = m.MediaCore;
 
-                if (m.MediaCore != null)
+                if (mediaCore != null)
                 {
                     // extract the value coming from the media engine state
-                    engineValue = engineProperty.GetValue(m.MediaCore.State);
+                    engineValue = engineProperty.GetValue(mediaCore.State);
 
                     if (engineProperty.Type != elementProperty.Type)
                     {

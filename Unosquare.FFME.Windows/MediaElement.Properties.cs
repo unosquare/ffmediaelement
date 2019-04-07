@@ -144,21 +144,27 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source), typeof(Uri), typeof(MediaElement),
-            new FrameworkPropertyMetadata(OnSourcePropertyChanged));
+            new FrameworkPropertyMetadata(null, OnSourcePropertyChanging));
 
-        private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static object OnSourcePropertyChanging(DependencyObject d, object value)
         {
-            if (d == null || d is MediaElement == false) return;
+            if (d == null || d is MediaElement == false)
+                return null;
 
             var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
+            if (element.IsSourceChangingViaCommand)
+                return value;
 
-            if (element.IsSourceChangingViaCommand) return;
+            var uri = value as Uri;
+            var mediaCore = element.MediaCore;
+            if (mediaCore == null) return null;
 
-            if (e.NewValue == null)
-                await element.MediaCore.Close().ConfigureAwait(true);
-            else if (e.NewValue != null && e.NewValue is Uri uri)
-                await element.MediaCore.Open(uri).ConfigureAwait(true);
+            if (uri == null)
+                mediaCore.Close().ConfigureAwait(true).GetAwaiter().GetResult();
+            else
+                mediaCore.Open(uri).ConfigureAwait(true).GetAwaiter().GetResult();
+
+            return mediaCore.State.Source;
         }
 
         #endregion
@@ -190,21 +196,26 @@ namespace Unosquare.FFME
             if (d == null || d is MediaElement == false) return value;
 
             var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed || element.MediaCore.MediaInfo == null)
+            var mediaCore = element.MediaCore;
+
+            if (mediaCore == null || mediaCore.IsDisposed || mediaCore.MediaInfo == null)
                 return TimeSpan.Zero;
 
-            if (element.MediaCore.State.IsSeekable == false)
-                return element.MediaCore.State.Position;
+            if (!element.IsOpen)
+                return TimeSpan.Zero;
+
+            if (mediaCore.State.IsSeekable == false)
+                return mediaCore.State.Position;
 
             var valueComingFromEngine = element.PropertyUpdatesWorker?.IsExecutingCycle ?? true;
 
-            if (valueComingFromEngine && element.MediaCore.State.IsSeeking == false)
+            if (valueComingFromEngine && mediaCore.State.IsSeeking == false)
                 return value;
 
             // Clamp from 0 to duration
             var targetSeek = (TimeSpan)value;
-            var minTarget = element.MediaCore.State.PlaybackStartTime ?? TimeSpan.Zero;
-            var maxTarget = element.MediaCore.State.PlaybackEndTime ?? TimeSpan.Zero;
+            var minTarget = mediaCore.State.PlaybackStartTime ?? TimeSpan.Zero;
+            var maxTarget = mediaCore.State.PlaybackEndTime ?? TimeSpan.Zero;
             var hasValidTaget = maxTarget > minTarget;
 
             if (hasValidTaget)
@@ -215,7 +226,7 @@ namespace Unosquare.FFME
 
             // coming in as a seek from user
             if (hasValidTaget)
-                element.MediaCore?.Seek(targetSeek);
+                mediaCore?.Seek(targetSeek);
 
             return targetSeek;
         }
