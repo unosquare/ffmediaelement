@@ -78,7 +78,7 @@
 
                 // We want to run the property updates worker when the media opens
                 // and stop it when the media closes
-                MediaOpened += (s, e) => StartPropertyUpdatesWorker();
+                MediaInitializing += (s, e) => StartPropertyUpdatesWorker();
                 MediaClosed += (s, e) => StopPropertyUpdatesWorker();
 
                 // When the Media Element is added to a visual tree

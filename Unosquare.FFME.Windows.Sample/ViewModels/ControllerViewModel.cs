@@ -234,8 +234,8 @@
             })
             .WhenChanged(m, nameof(m.IsOpen), nameof(m.HasMediaEnded), nameof(m.IsSeekable), nameof(m.MediaState), nameof(m.IsChanging), nameof(m.IsSeeking));
 
-            new Action(() => { CloseButtonVisibility = m.IsOpen && m.IsChanging == false ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsOpen), nameof(m.IsChanging));
+            new Action(() => { CloseButtonVisibility = (m.IsOpen || m.IsOpening) ? Visibility.Visible : Visibility.Hidden; })
+                .WhenChanged(m, nameof(m.IsOpen), nameof(m.IsOpening));
 
             new Action(() => { SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Hidden; })
                 .WhenChanged(m, nameof(m.IsSeekable));

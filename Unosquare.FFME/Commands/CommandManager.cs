@@ -83,7 +83,55 @@
         /// Closes the currently open media.
         /// </summary>
         /// <returns>An awaitable task which contains a boolean whether or not to resume media when completed.</returns>
-        public Task<bool> CloseMediaAsync() => ExecuteDirectCommand(DirectCommandType.Close, () => CommandCloseMedia());
+        public Task<bool> CloseMediaAsync()
+        {
+            lock (SyncLock)
+            {
+                if (IsCloseInterruptPending)
+                {
+                    this.LogWarning(Aspects.EngineCommand, $"Direct Command interrupt for {PendingDirectCommand} is already pending completion.");
+                    return Task.FromResult(false);
+                }
+
+                var shouldInterrupt =
+                    !IsCloseInterruptPending &&
+                    PendingDirectCommand != DirectCommandType.Close &&
+                    PendingDirectCommand != DirectCommandType.None;
+
+                if (shouldInterrupt)
+                {
+                    IsCloseInterruptPending = true;
+                    MediaCore.Container?.SignalAbortReads(false);
+
+                    return Task.Run(async () =>
+                    {
+                        try
+                        {
+                            while (HasDirectCommandCompleted == false)
+                            {
+                                MediaCore.Container?.SignalAbortReads(false);
+                                await Task.Delay(DefaultPeriod);
+                            }
+
+                            CommandCloseMedia();
+                        }
+                        catch (Exception ex)
+                        {
+                            this.LogWarning(Aspects.Container, $"Closing media via interrupt did not execute cleanly. {ex.Message}");
+                        }
+                        finally
+                        {
+                            IsCloseInterruptPending = false;
+                            PostProcessDirectCommand(DirectCommandType.Close, null, false);
+                        }
+
+                        return true;
+                    });
+                }
+
+                return ExecuteDirectCommand(DirectCommandType.Close, () => CommandCloseMedia());
+            }
+        }
 
         /// <summary>
         /// Changes the media components and applies new configuration.

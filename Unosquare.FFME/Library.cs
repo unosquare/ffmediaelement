@@ -287,7 +287,10 @@
         public static MediaInfo RetrieveMediaInfo(string mediaSource)
         {
             using (var container = new MediaContainer(mediaSource, null, null))
+            {
+                container.Initialize();
                 return container.MediaInfo;
+            }
         }
 
         /// <summary>
@@ -304,6 +307,7 @@
 
             using (var container = new MediaContainer(mediaSource, null, null))
             {
+                container.Initialize();
                 container.MediaOptions.IsAudioDisabled = true;
                 container.MediaOptions.IsVideoDisabled = false;
                 container.MediaOptions.IsSubtitleDisabled = true;

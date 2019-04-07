@@ -144,7 +144,7 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source), typeof(Uri), typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, OnSourcePropertyChanged));
+            new FrameworkPropertyMetadata(OnSourcePropertyChanged));
 
         private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -153,17 +153,12 @@ namespace Unosquare.FFME
             var element = (MediaElement)d;
             if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
-            if (e.NewValue == null && e.OldValue != null && element.IsOpen)
-            {
-                await element.Close();
-            }
-            else if (e.NewValue != null && element.IsOpening == false && e.NewValue is Uri uri)
-            {
-                // Skip change actions if we are currently opening via the Open command
-                // We configure the await to true because we need to continue on the captured context
-                if (!element.IsOpeningViaCommand && element.MediaCore != null)
-                    await element.MediaCore.Open(uri).ConfigureAwait(true);
-            }
+            if (element.IsSourceChangingViaCommand) return;
+
+            if (e.NewValue == null)
+                await element.MediaCore.Close().ConfigureAwait(true);
+            else if (e.NewValue != null && e.NewValue is Uri uri)
+                await element.MediaCore.Open(uri).ConfigureAwait(true);
         }
 
         #endregion

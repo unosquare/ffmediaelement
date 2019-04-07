@@ -136,7 +136,6 @@
             }
 
             Configuration.ProtocolPrefix = protocolPrefix;
-            StreamInitialize();
         }
 
         /// <summary>
@@ -144,8 +143,8 @@
         /// </summary>
         /// <param name="inputStream">The input stream.</param>
         /// <param name="config">The configuration.</param>
-        /// <param name="parent">The parent.</param>
-        public MediaContainer(IMediaInputStream inputStream, ContainerConfiguration config, ILoggingHandler parent)
+        /// <param name="loggingHandler">The parent.</param>
+        public MediaContainer(IMediaInputStream inputStream, ContainerConfiguration config, ILoggingHandler loggingHandler)
         {
             // Argument Validation
             if (inputStream == null)
@@ -160,14 +159,10 @@
             FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
 
             // Create the options object
-            m_LoggingHandler = parent;
+            m_LoggingHandler = loggingHandler;
             MediaSource = mediaSpurceUrl;
             CustomInputStream = inputStream;
             Configuration = config ?? new ContainerConfiguration();
-
-            // Initialize the Input Format Context and Input Stream Context
-            inputStream.OnInitializing?.Invoke(Configuration, MediaSource);
-            StreamInitialize();
         }
 
         #endregion
@@ -339,6 +334,21 @@
         #region Public API
 
         /// <summary>
+        /// Initializes the container and its input context, extrancting stream information.
+        /// Container configuration passed on the constructor is applied.
+        /// This method must be called to make the container usable.
+        /// </summary>
+        public void Initialize()
+        {
+            lock (ReadSyncRoot)
+            {
+                // Initialize the Input Format Context and Input Stream Context
+                CustomInputStream?.OnInitializing?.Invoke(Configuration, MediaSource);
+                StreamInitialize();
+            }
+        }
+
+        /// <summary>
         /// Opens the individual stream components on the existing input context in order to start reading packets.
         /// Any Media Options must be set before this method is called.
         /// </summary>
@@ -501,10 +511,7 @@
         /// <param name="reset">if set to true, the read interrupt will reset the aborted state automatically.</param>
         public void SignalAbortReads(bool reset)
         {
-            if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
-
-            if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
-
+            if (IsDisposed) return;
             SignalAbortReadsAutoReset.Value = reset;
             SignalAbortReadsRequested.Value = true;
         }
@@ -560,14 +567,14 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            if (IsDisposed) return;
-
             lock (ReadSyncRoot)
             {
                 lock (DecodeSyncRoot)
                 {
                     lock (ConvertSyncRoot)
                     {
+                        if (IsDisposed) return;
+
                         Components.Dispose();
                         if (InputContext != null)
                         {

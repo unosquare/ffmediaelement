@@ -11,7 +11,7 @@
 
     public partial class MediaElement : ILoggingHandler, ILoggingSource, INotifyPropertyChanged
     {
-        private readonly AtomicBoolean m_IsOpeningViaCommand = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsSourceChangingViaCommand = new AtomicBoolean(false);
 
         /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => this;
@@ -23,13 +23,13 @@
         internal MediaEngine MediaCore { get; private set; }
 
         /// <summary>
-        /// Signals whether the open task was called via the open command
-        /// so that the source property changing handler does not re-run the open command.
+        /// Gets a value indicating whether the source is either opening or closing via a command
+        /// to prevent the source property to handle open or close operations
         /// </summary>
-        internal bool IsOpeningViaCommand
+        internal bool IsSourceChangingViaCommand
         {
-            get => m_IsOpeningViaCommand.Value;
-            private set => m_IsOpeningViaCommand.Value = value;
+            get => m_IsSourceChangingViaCommand.Value;
+            private set => m_IsSourceChangingViaCommand.Value = value;
         }
 
         #region Public API
@@ -81,22 +81,6 @@
         }).ConfigureAwait(true);
 
         /// <summary>
-        /// Closes the currently loaded media.
-        /// </summary>
-        /// <returns>The awaitable command.</returns>
-        public ConfiguredTaskAwaitable<bool> Close() => Task.Run(async () =>
-        {
-            try
-            {
-                var result = await MediaCore.Close();
-                await Library.GuiContext.InvokeAsync(() => Source = null);
-                return result;
-            }
-            catch (Exception ex) { PostMediaFailedEvent(ex); }
-            return false;
-        }).ConfigureAwait(true);
-
-        /// <summary>
         /// Seeks to the specified target position.
         /// This is an alternative to using the <see cref="Position"/> dependency property.
         /// </summary>
@@ -140,21 +124,9 @@
         /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable<bool> Open(Uri uri) => Task.Run(async () =>
         {
-            try
-            {
-                IsOpeningViaCommand = true;
-                await Library.GuiContext.InvokeAsync(() => Source = uri);
-                return await MediaCore.Open(uri);
-            }
-            catch (Exception ex)
-            {
-                await Library.GuiContext.InvokeAsync(() => Source = null);
-                PostMediaFailedEvent(ex);
-            }
-            finally
-            {
-                IsOpeningViaCommand = false;
-            }
+            try { return await MediaCore.Open(uri); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
+            finally { await UpdateSourceFromMediaCore(); }
 
             return false;
         }).ConfigureAwait(true);
@@ -166,21 +138,22 @@
         /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable<bool> Open(IMediaInputStream stream) => Task.Run(async () =>
         {
-            try
-            {
-                IsOpeningViaCommand = true;
-                await Library.GuiContext.InvokeAsync(() => Source = stream.StreamUri);
-                return await MediaCore.Open(stream);
-            }
-            catch (Exception ex)
-            {
-                await Library.GuiContext.InvokeAsync(() => Source = null);
-                PostMediaFailedEvent(ex);
-            }
-            finally
-            {
-                IsOpeningViaCommand = false;
-            }
+            try { return await MediaCore.Open(stream); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
+            finally { await UpdateSourceFromMediaCore(); }
+
+            return false;
+        }).ConfigureAwait(true);
+
+        /// <summary>
+        /// Closes the currently loaded media.
+        /// </summary>
+        /// <returns>The awaitable command.</returns>
+        public ConfiguredTaskAwaitable<bool> Close() => Task.Run(async () =>
+        {
+            try { return await MediaCore.Close(); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
+            finally { await UpdateSourceFromMediaCore(); }
 
             return false;
         }).ConfigureAwait(true);
@@ -190,5 +163,19 @@
         /// <inheritdoc />
         void ILoggingHandler.HandleLogMessage(LoggingMessage message) =>
             RaiseMessageLoggedEvent(message);
+
+        /// <summary>
+        /// Updates the source property from the media core state.
+        /// </summary>
+        /// <returns>The awaitable task</returns>
+        private async Task UpdateSourceFromMediaCore()
+        {
+            await Library.GuiContext.InvokeAsync(() =>
+            {
+                IsSourceChangingViaCommand = true;
+                Source = MediaCore.State.Source;
+                IsSourceChangingViaCommand = false;
+            });
+        }
     }
 }

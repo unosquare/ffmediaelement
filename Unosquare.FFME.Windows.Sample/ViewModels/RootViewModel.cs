@@ -193,7 +193,7 @@
                 // Update the Controls
                 Playlist.IsInOpenMode = false;
                 IsPlaylistPanelOpen = false;
-                Playlist.OpenMediaSource = m.Source.ToString();
+                Playlist.OpenMediaSource = m.Source?.ToString();
             };
 
             IsPlaylistPanelOpen = true;

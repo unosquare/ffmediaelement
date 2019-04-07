@@ -35,10 +35,10 @@
         {
             if (uri != null)
             {
-                return Task.Run(() =>
+                return Task.Run(async () =>
                 {
-                    Commands.CloseMediaAsync().GetAwaiter().GetResult();
-                    return Commands.OpenMediaAsync(uri);
+                    await Commands.CloseMediaAsync();
+                    return await Commands.OpenMediaAsync(uri);
                 });
             }
             else
@@ -57,10 +57,10 @@
         {
             if (stream != null)
             {
-                return Task.Run(() =>
+                return Task.Run(async () =>
                 {
-                    Commands.CloseMediaAsync().GetAwaiter().GetResult();
-                    return Commands.OpenMediaAsync(stream);
+                    await Commands.CloseMediaAsync();
+                    return await Commands.OpenMediaAsync(stream);
                 });
             }
             else

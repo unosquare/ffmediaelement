@@ -27,6 +27,8 @@
 
             using (var tempContainer = new MediaContainer(mediaSource, null, parent))
             {
+                tempContainer.Initialize();
+
                 // Skip reading and decoding unused blocks
                 tempContainer.MediaOptions.IsAudioDisabled = sourceType != MediaType.Audio;
                 tempContainer.MediaOptions.IsVideoDisabled = sourceType != MediaType.Video;

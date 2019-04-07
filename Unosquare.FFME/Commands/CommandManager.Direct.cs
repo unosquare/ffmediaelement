@@ -19,6 +19,7 @@
 
         private readonly AtomicBoolean HasDirectCommandCompleted = new AtomicBoolean(true);
         private readonly AtomicInteger m_PendingDirectCommand = new AtomicInteger((int)DirectCommandType.None);
+        private readonly AtomicBoolean m_IsCloseInterruptPending = new AtomicBoolean(false);
 
         #endregion
 
@@ -51,7 +52,18 @@
         /// <summary>
         /// Gets a value indicating whether a direct command is pending or in progress.
         /// </summary>
-        private bool IsDirectCommandPending => PendingDirectCommand != DirectCommandType.None && HasDirectCommandCompleted.Value;
+        private bool IsDirectCommandPending =>
+            PendingDirectCommand != DirectCommandType.None ||
+            HasDirectCommandCompleted.Value == false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a close interrupt is pending.
+        /// </summary>
+        private bool IsCloseInterruptPending
+        {
+            get => m_IsCloseInterruptPending.Value;
+            set => m_IsCloseInterruptPending.Value = value;
+        }
 
         #endregion
 
@@ -68,14 +80,26 @@
             lock (SyncLock)
             {
                 // Check the basic conditions for a direct command to execute
-                if (IsDisposed || IsDisposing || IsDirectCommandPending || command == DirectCommandType.None)
+                if (IsDisposed || IsDisposing)
                 {
                     this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Commanding is disposed or a command is pending completion.");
                     return Task.FromResult(false);
                 }
 
+                if (IsDirectCommandPending || command == DirectCommandType.None)
+                {
+                    this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. {PendingDirectCommand} command is pending completion.");
+                    return Task.FromResult(false);
+                }
+
+                if (IsCloseInterruptPending && command != DirectCommandType.Close)
+                {
+                    this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Close interrupt is pending completion.");
+                    return Task.FromResult(false);
+                }
+
                 // Check if we are already open
-                if (command == DirectCommandType.Open && State.IsOpen)
+                if (command == DirectCommandType.Open && (State.IsOpen || State.IsOpening))
                 {
                     this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Close the media before calling Open.");
                     return Task.FromResult(false);
@@ -84,7 +108,7 @@
                 // Close or Change Require the media to be open
                 if ((command == DirectCommandType.Close || command == DirectCommandType.Change) && !State.IsOpen)
                 {
-                    this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Open media before calling Close.");
+                    this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Open media before closing or changing media.");
                     return Task.FromResult(false);
                 }
 
@@ -102,7 +126,7 @@
 
                     // Cause an immediate packet read abort if we need to close
                     if (command == DirectCommandType.Close)
-                        MediaCore.Container.SignalAbortReads(false);
+                        MediaCore.Container?.SignalAbortReads(false);
 
                     // Pause the media core workers
                     MediaCore.Workers?.PauseAll();
@@ -186,9 +210,13 @@
                 }
                 else
                 {
-                    MediaCore.ResetPlaybackPosition();
-                    State.UpdateMediaState(MediaPlaybackState.Close);
-                    MediaCore.SendOnMediaFailed(commandException);
+                    if (!IsCloseInterruptPending)
+                    {
+                        MediaCore.ResetPlaybackPosition();
+                        State.UpdateMediaState(MediaPlaybackState.Close);
+                        MediaCore.SendOnMediaFailed(commandException);
+                        MediaCore.SendOnMediaClosed();
+                    }
                 }
             }
             else if (command == DirectCommandType.Close)
@@ -218,8 +246,11 @@
                 }
                 else
                 {
-                    MediaCore.SendOnMediaFailed(commandException);
-                    State.UpdateMediaState(MediaPlaybackState.Pause);
+                    if (!IsCloseInterruptPending)
+                    {
+                        MediaCore.SendOnMediaFailed(commandException);
+                        State.UpdateMediaState(MediaPlaybackState.Pause);
+                    }
                 }
             }
 
@@ -308,6 +339,9 @@
                 MediaCore.Container = inputStream == null ?
                     new MediaContainer(mediaSource, containerConfig, MediaCore) :
                     new MediaContainer(inputStream, containerConfig, MediaCore);
+
+                // Initialize the container
+                MediaCore.Container.Initialize();
 
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.
