@@ -168,9 +168,9 @@
         /// Updates the source property from the media core state.
         /// </summary>
         /// <returns>The awaitable task</returns>
-        private async Task UpdateSourceFromMediaCore()
+        private ConfiguredTaskAwaitable UpdateSourceFromMediaCore()
         {
-            await Library.GuiContext.InvokeAsync(() =>
+            return Library.GuiContext.InvokeAsync(() =>
             {
                 IsSourceChangingViaCommand = true;
                 Source = MediaCore?.State.Source;

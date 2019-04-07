@@ -103,14 +103,14 @@
                     IsCloseInterruptPending = true;
                     MediaCore.Container?.SignalAbortReads(false);
 
-                    return Task.Run(async () =>
+                    return Task.Run(() =>
                     {
                         try
                         {
                             while (HasDirectCommandCompleted == false)
                             {
                                 MediaCore.Container?.SignalAbortReads(false);
-                                await Task.Delay(DefaultPeriod);
+                                Task.Delay(DefaultPeriod).GetAwaiter().GetResult();
                             }
 
                             CommandCloseMedia();
