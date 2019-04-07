@@ -155,6 +155,8 @@
         {
             lock (SyncLock)
             {
+                const AVRounding RoundingMode = AVRounding.AV_ROUND_NEAR_INF | AVRounding.AV_ROUND_PASS_MINMAX;
+
                 if (HasClosed)
                     return;
 
@@ -164,21 +166,15 @@
                 var inputStreamIndex = e.Packet->stream_index;
                 var outputStreamIndex = StreamMappings[inputStreamIndex];
 
-                var inputStream = e.InputContext->streams[inputStreamIndex];
-                var outputStream = OutputContext->streams[outputStreamIndex];
+                var inputTimeBase = e.InputContext->streams[inputStreamIndex]->time_base;
+                var outputTimeBase = OutputContext->streams[outputStreamIndex]->time_base;
 
                 var packet = ffmpeg.av_packet_clone(e.Packet);
                 packet->stream_index = outputStreamIndex;
-                packet->pts = ffmpeg.av_rescale_q_rnd(
-                    packet->pts, inputStream->time_base, outputStream->time_base, AVRounding.AV_ROUND_NEAR_INF | AVRounding.AV_ROUND_PASS_MINMAX);
-
-                packet->dts = ffmpeg.av_rescale_q_rnd(
-                    packet->dts, inputStream->time_base, outputStream->time_base, AVRounding.AV_ROUND_NEAR_INF | AVRounding.AV_ROUND_PASS_MINMAX);
-
-                packet->duration = ffmpeg.av_rescale_q(
-                    packet->duration, inputStream->time_base, outputStream->time_base);
-
                 packet->pos = -1;
+                packet->pts = ffmpeg.av_rescale_q_rnd(packet->pts, inputTimeBase, outputTimeBase, RoundingMode);
+                packet->dts = ffmpeg.av_rescale_q_rnd(packet->dts, inputTimeBase, outputTimeBase, RoundingMode);
+                packet->duration = ffmpeg.av_rescale_q(packet->duration, inputTimeBase, outputTimeBase);
 
                 ffmpeg.av_interleaved_write_frame(OutputContext, packet);
                 ffmpeg.av_packet_unref(packet);
