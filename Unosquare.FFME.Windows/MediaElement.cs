@@ -75,11 +75,15 @@
             {
                 AllowContentChange = true;
                 InitializeComponent();
-                StartPropertyUpdatesWorker();
+                GuiContext.Current.EnqueueInvoke(StartPropertyUpdatesWorker);
 
                 // When the media element is removed from the visual tree
                 // we want to close the current media to prevent memory leaks
                 Unloaded += async (s, e) => await Close();
+
+                // We also want the Property Updates Worker to start or resume
+                // when the media element is added to the visual tree
+                Loaded += (s, e) => GuiContext.Current.EnqueueInvoke(StartPropertyUpdatesWorker);
             }
             finally
             {
