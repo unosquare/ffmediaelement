@@ -141,6 +141,27 @@
         }
 
         /// <summary>
+        /// Starts a standard delay task.
+        /// </summary>
+        /// <param name="wantedDelay">The wanted delay.</param>
+        /// <param name="token">The token.</param>
+        /// <returns>The awaitable task.</returns>
+        private static Task StartDelayTask(int wantedDelay, CancellationToken token)
+        {
+            return Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(wantedDelay, token);
+                }
+                catch
+                {
+                    // ignore
+                }
+            });
+        }
+
+        /// <summary>
         /// Implements worker control, execution and delay logic in a loop.
         /// </summary>
         private void RunWorkerLoop()
@@ -150,7 +171,7 @@
                 CycleStopwatch.Restart();
                 var interruptToken = CycleCancellation.Token;
                 var period = Period.TotalMilliseconds >= int.MaxValue ? -1 : Convert.ToInt32(Math.Floor(Period.TotalMilliseconds));
-                var delayTask = Task.Delay(period, interruptToken);
+                var delayTask = StartDelayTask(period, interruptToken);
                 var initialWorkerState = WorkerState;
 
                 // Lock the cycle and capture relevant state valid for this cycle
@@ -190,7 +211,7 @@
                     {
                         var cycleDelay = ComputeCycleDelay(initialWorkerState);
                         if (cycleDelay == Timeout.Infinite)
-                            delayTask = Task.Delay(Timeout.Infinite, interruptToken);
+                            delayTask = StartDelayTask(Timeout.Infinite, interruptToken);
 
                         ExecuteCycleDelay(
                             cycleDelay,
