@@ -122,7 +122,7 @@
                         if (futureSearch.Length < MinimumSearchLength && currentSearch.Length < MinimumSearchLength) return;
 
                         EntriesView.Refresh();
-                        FilterString = string.Copy(m_PlaylistSearchString);
+                        FilterString = new string(m_PlaylistSearchString.ToCharArray());
                     });
                 }
 
