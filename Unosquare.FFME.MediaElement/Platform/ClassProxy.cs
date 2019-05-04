@@ -75,7 +75,7 @@
         /// </value>
         /// <param name="instance">The instance.</param>
         /// <param name="propertyName">Name of the property.</param>
-        /// <returns>The value of the property</returns>
+        /// <returns>The value of the property.</returns>
         public object this[T instance, string propertyName]
         {
             get => Properties[propertyName].GetValue(instance);
@@ -89,7 +89,7 @@
         /// The <see cref="IPropertyProxy"/>.
         /// </value>
         /// <param name="propertyName">Name of the property.</param>
-        /// <returns>The property proxy</returns>
+        /// <returns>The property proxy.</returns>
         public IPropertyProxy this[string propertyName] => Properties[propertyName];
 
         /// <summary>

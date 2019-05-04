@@ -32,7 +32,7 @@
             -1, nameof(DefaultLegacyAudioDevice), nameof(LegacyAudioPlayer), true, Guid.Empty.ToString());
 
         /// <summary>
-        /// Determines if the control library is currently in design-time mode (as opposed to run-time)
+        /// Determines if the control library is currently in design-time mode (as opposed to run-time).
         /// </summary>
         internal static bool IsInDesignMode =>
             (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue;

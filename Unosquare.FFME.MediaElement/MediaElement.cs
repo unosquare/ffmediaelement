@@ -24,7 +24,7 @@
 
         /// <summary>
         /// Gets a value indicating whether the source is either opening or closing via a command
-        /// to prevent the source property to handle open or close operations
+        /// to prevent the source property to handle open or close operations.
         /// </summary>
         internal bool IsSourceChangingViaCommand
         {
@@ -167,7 +167,7 @@
         /// <summary>
         /// Updates the source property from the media core state.
         /// </summary>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         private ConfiguredTaskAwaitable UpdateSourceFromMediaCore()
         {
             return Library.GuiContext.InvokeAsync(() =>

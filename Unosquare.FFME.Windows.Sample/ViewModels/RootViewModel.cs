@@ -74,7 +74,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the notification message to be displayed
+        /// Gets or sets the notification message to be displayed.
         /// </summary>
         public string NotificationMessage
         {

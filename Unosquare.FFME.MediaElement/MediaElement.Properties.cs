@@ -14,7 +14,7 @@
         /// <summary>
         /// Gets the Media's natural duration
         /// Only valid after the MediaOpened event has fired.
-        /// Returns null for undefined or negative duration
+        /// Returns null for undefined or negative duration.
         /// </summary>
         public TimeSpan? NaturalDuration
         {

@@ -8,7 +8,7 @@
         private static IGuiContext m_GuiContext;
 
         /// <summary>
-        /// Provides access to the registered GUI context
+        /// Provides access to the registered GUI context.
         /// </summary>
         internal static IGuiContext GuiContext
         {

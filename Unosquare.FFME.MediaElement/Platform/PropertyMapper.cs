@@ -123,7 +123,7 @@
         /// Snapshots the state of the read only properties as a read-only dictionary.
         /// </summary>
         /// <param name="m">The m.</param>
-        /// <returns>The current state of all read-only properties</returns>
+        /// <returns>The current state of all read-only properties.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static IReadOnlyDictionary<string, object> SnapshotReadOnlyState(this MediaElement m)
         {
