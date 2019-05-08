@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Provides access to the underlying FFmpeg library information.
@@ -271,6 +272,13 @@
             FFmpegVersionInfo = ffmpeg.av_version_info();
             return true;
         }
+
+        /// <summary>
+        /// Provides an asynchronous version of the <see cref="LoadFFmpeg"/> call.
+        /// </summary>
+        /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
+        public static async Task<bool> LoadFFmpegAsync() =>
+            await Task.Run(() => LoadFFmpeg()).ConfigureAwait(true);
 
         /// <summary>
         /// Unloads FFmpeg libraries from memory.

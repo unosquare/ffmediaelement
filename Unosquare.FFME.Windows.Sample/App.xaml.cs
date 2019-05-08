@@ -5,7 +5,7 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
-    using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows;
     using ViewModels;
 
@@ -80,14 +80,14 @@
             // Pre-load FFmpeg libraries in the background. This is optional.
             // FFmpeg will be automatically loaded if not already loaded when you try to open
             // a new stream or file. See issue #242
-            ThreadPool.QueueUserWorkItem(s =>
+            Task.Run(async () =>
             {
                 try
                 {
                     // Force loading
-                    Library.LoadFFmpeg();
+                    await Library.LoadFFmpegAsync();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Current?.Dispatcher?.Invoke(() =>
                     {
