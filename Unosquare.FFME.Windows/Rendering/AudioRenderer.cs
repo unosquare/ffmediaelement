@@ -24,6 +24,7 @@
 
         private const int SyncLockTimeout = 100;
 
+        private readonly AtomicBoolean IsClosing = new AtomicBoolean(false);
         private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
 
@@ -145,7 +146,10 @@
             if (MediaCore.State.IsSeeking || HasFiredAudioDeviceStopped) return;
 
             var lockTaken = false;
-            Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
+
+            if (IsClosing == false)
+                Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
+
             if (lockTaken == false) return;
 
             try
@@ -226,6 +230,8 @@
         /// <inheritdoc />
         public void OnClose()
         {
+            IsClosing.Value = true;
+
             // Self-disconnect the exit event to prevent memory leaks
             if (Application.Current is Application app)
                 app.Dispatcher?.BeginInvoke(new Action(() => { app.Exit -= OnApplicationExit; }));
@@ -257,6 +263,8 @@
         /// <inheritdoc />
         public void Dispose()
         {
+            IsClosing.Value = true;
+
             lock (SyncLock)
             {
                 if (IsDisposed) return;
@@ -276,7 +284,9 @@
         {
             // We sync-lock the reads to avoid null reference exceptions as destroy might have been called
             var lockTaken = false;
-            Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
+
+            if (IsClosing == false)
+                Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
 
             if (lockTaken == false || HasFiredAudioDeviceStopped)
             {
@@ -730,7 +740,7 @@
         private void ApplyVolumeAndBalance(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
             // Check if we are muted. We don't need process volume and balance
-            var isMuted = MediaCore.State.IsMuted;
+            var isMuted = MediaCore.State.IsMuted || IsClosing == true;
             if (isMuted)
             {
                 for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset++)
