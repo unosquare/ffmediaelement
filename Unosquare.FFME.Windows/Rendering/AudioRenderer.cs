@@ -226,12 +226,9 @@
         /// <inheritdoc />
         public void OnClose()
         {
-            // Self-disconnect
-            if (Application.Current != null)
-            {
-                Library.GuiContext.EnqueueInvoke(() =>
-                    Application.Current.Exit -= OnApplicationExit);
-            }
+            // Self-disconnect the exit event to prevent memory leaks
+            if (Application.Current is Application app)
+                app.Dispatcher?.BeginInvoke(new Action(() => { app.Exit -= OnApplicationExit; }));
 
             // Yes, seek and destroy... coincidentally.
             lock (SyncLock)
@@ -376,11 +373,8 @@
             Destroy();
 
             // Release the audio device always upon exiting
-            if (Application.Current != null)
-            {
-                Library.GuiContext.EnqueueInvoke(() =>
-                    Application.Current.Exit += OnApplicationExit);
-            }
+            if (Application.Current is Application app)
+                app.Dispatcher?.BeginInvoke(new Action(() => { app.Exit += OnApplicationExit; }));
 
             // Enumerate devices. The default device is the first one so we check
             // that we have more than 1 device (other than the default stub)
