@@ -84,6 +84,9 @@
                 // We also want the Property Updates Worker to start or resume
                 // when the media element is added to the visual tree
                 Loaded += (s, e) => GuiContext.Current.EnqueueInvoke(StartPropertyUpdatesWorker);
+
+                // Forces a state updates upon seeking ended.
+                SeekingEnded += (s, e) => UpdateStateProperties();
             }
             finally
             {

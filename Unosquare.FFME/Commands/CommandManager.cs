@@ -242,6 +242,7 @@
 
                     // Resume the workers since the seek media operation
                     // might have required pausing them.
+                    State.ReportPlaybackPosition();
                     MediaCore.Workers.ResumePaused();
 
                     // Resume if requested

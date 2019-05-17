@@ -297,9 +297,7 @@
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {targetPosition.Format()}");
                 }
 
-                if (hasSeekBlocks == false)
-                    SeekBlocksAvailable.Set();
-
+                SeekBlocksAvailable.Set();
                 MediaCore.InvalidateRenderers();
                 seekOperation.Dispose();
             }
