@@ -91,7 +91,6 @@
 
                 InitializeComponent();
 
-                // UpdatesWorker.Start();
                 // When the media element is removed from the visual tree
                 // we want to close the current media to prevent memory leaks
                 Unloaded += async (s, e) => await Close();
