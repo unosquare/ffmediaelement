@@ -361,10 +361,6 @@
                         {
                             SpeedRatio = MediaCore.State.SpeedRatio;
                         }
-                        else if (p == nameof(SpeedRatio))
-                        {
-                            SpeedRatio = MediaCore.State.SpeedRatio;
-                        }
                         else if (p == nameof(Source))
                         {
                             Source = MediaCore.State.Source;
