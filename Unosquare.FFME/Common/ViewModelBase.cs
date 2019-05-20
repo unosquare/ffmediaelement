@@ -1,5 +1,7 @@
-﻿namespace Unosquare.FFME.Windows.Sample.Foundation
+﻿namespace Unosquare.FFME.Common
 {
+    using Primitives;
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -40,6 +42,28 @@
         /// </summary>
         /// <returns>The property changed notification handler</returns>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>Checks if a property already matches a desired value.  Sets the property and
+        /// notifies listeners only when necessary.</summary>
+        /// <typeparam name="T">Type of the property.</typeparam>
+        /// <param name="storage">Reference to a property with both getter and setter.</param>
+        /// <param name="value">Desired value for the property.</param>
+        /// <param name="propertyName">Name of the property used to notify listeners.  This
+        /// value is optional and can be provided automatically when invoked from compilers that
+        /// support CallerMemberName.</param>
+        /// <param name="notifyAlso">An rray of property names to notify in addition to notifying the changes on the current property name.</param>
+        /// <returns>True if the value was changed, false if the existing value matched the
+        /// desired value.</returns>
+        internal bool SetProperty<T>(AtomicTypeBase<T> storage, T value, [CallerMemberName] string propertyName = "", string[] notifyAlso = null)
+            where T : struct, IComparable, IComparable<T>, IEquatable<T>
+        {
+            if (EqualityComparer<T>.Default.Equals(storage.Value, value))
+                return false;
+
+            storage.Value = value;
+            NotifyPropertyChanged(propertyName, notifyAlso);
+            return true;
+        }
 
         /// <summary>Checks if a property already matches a desired value.  Sets the property and
         /// notifies listeners only when necessary.</summary>

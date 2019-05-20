@@ -249,12 +249,12 @@
                     if (PlayAfterSeek == true)
                     {
                         PlayAfterSeek = false;
-                        State.UpdateMediaState(MediaPlaybackState.Play);
+                        State.MediaState = MediaPlaybackState.Play;
                     }
                     else
                     {
                         if (State.MediaState != MediaPlaybackState.Stop)
-                            State.UpdateMediaState(MediaPlaybackState.Pause);
+                            State.MediaState = MediaPlaybackState.Pause;
                     }
 
                     MediaCore.SendOnSeekingEnded();

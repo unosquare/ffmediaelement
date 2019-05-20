@@ -11,7 +11,7 @@
     /// <summary>
     /// Contains all the status properties of the stream being handled by the media engine.
     /// </summary>
-    internal sealed class MediaEngineState : IMediaEngineState
+    internal sealed class MediaEngineState : ViewModelBase, IMediaEngineState
     {
         #region Property Backing and Private State
 
@@ -29,12 +29,49 @@
         private readonly AtomicLong m_PacketBufferLength = new AtomicLong(default);
         private readonly AtomicInteger m_PacketBufferCount = new AtomicInteger(default);
 
-        private readonly AtomicTimeSpan m_Position = new AtomicTimeSpan(default);
         private readonly AtomicTimeSpan m_FramePosition = new AtomicTimeSpan(default);
+        private readonly AtomicTimeSpan m_Position = new AtomicTimeSpan(default);
         private readonly AtomicDouble m_SpeedRatio = new AtomicDouble(Constants.DefaultSpeedRatio);
         private readonly AtomicDouble m_Volume = new AtomicDouble(Constants.DefaultVolume);
         private readonly AtomicDouble m_Balance = new AtomicDouble(Constants.DefaultBalance);
         private readonly AtomicBoolean m_IsMuted = new AtomicBoolean(false);
+
+        private Uri m_Source;
+        private bool m_IsOpen;
+        private TimeSpan m_PositionStep;
+        private long m_BitRate;
+        private ReadOnlyDictionary<string, string> m_Metadata = EmptyDictionary;
+        private bool m_CanPause;
+        private string m_MediaFormat;
+        private long m_MediaStreamSize;
+        private int m_VideoStreamIndex;
+        private int m_AudioStreamIndex;
+        private int m_SubtitleStreamIndex;
+        private bool m_HasAudio;
+        private bool m_HasVideo;
+        private bool m_HasSubtitles;
+        private string m_VideoCodec;
+        private long m_VideoBitRate;
+        private double m_VideoRotation;
+        private int m_NaturalVideoWidth;
+        private int m_NaturalVideoHeight;
+        private string m_VideoAspectRatio;
+        private double m_VideoFrameRate;
+        private string m_AudioCodec;
+        private long m_AudioBitRate;
+        private int m_AudioChannels;
+        private int m_AudioSampleRate;
+        private int m_AudioBitsPerSample;
+        private TimeSpan? m_NaturalDuration;
+        private TimeSpan? m_PlaybackStartTime;
+        private TimeSpan? m_PlaybackEndTime;
+        private bool m_IsLiveStream;
+        private bool m_IsNetworkStream;
+        private bool m_IsSeekable;
+
+        private string m_VideoSmtpeTimeCode = string.Empty;
+        private string m_VideoHardwareDecoder = string.Empty;
+        private bool m_HasClosedCaptions;
 
         #endregion
 
@@ -45,6 +82,7 @@
         /// </summary>
         /// <param name="mediaCore">The associated media core.</param>
         internal MediaEngineState(MediaEngine mediaCore)
+            : base(false)
         {
             MediaCore = mediaCore;
             ResetAll();
@@ -55,36 +93,40 @@
         #region Controller Properties
 
         /// <inheritdoc />
-        public Uri Source { get; private set; }
+        public Uri Source
+        {
+            get => m_Source;
+            private set => SetProperty(ref m_Source, value);
+        }
 
         /// <inheritdoc />
         public double SpeedRatio
         {
             get => m_SpeedRatio.Value;
-            set => m_SpeedRatio.Value = IsLiveStream
+            set => SetProperty(m_SpeedRatio, IsLiveStream
                 ? Constants.DefaultSpeedRatio
-                : value.Clamp(Constants.MinSpeedRatio, Constants.MaxSpeedRatio);
+                : value.Clamp(Constants.MinSpeedRatio, Constants.MaxSpeedRatio));
         }
 
         /// <inheritdoc />
         public double Volume
         {
             get => m_Volume.Value;
-            set => m_Volume.Value = value.Clamp(Constants.MinVolume, Constants.MaxVolume);
+            set => SetProperty(m_Volume, value.Clamp(Constants.MinVolume, Constants.MaxVolume));
         }
 
         /// <inheritdoc />
         public double Balance
         {
             get => m_Balance.Value;
-            set => m_Balance.Value = value.Clamp(Constants.MinBalance, Constants.MaxBalance);
+            set => SetProperty(m_Balance, value.Clamp(Constants.MinBalance, Constants.MaxBalance));
         }
 
         /// <inheritdoc />
         public bool IsMuted
         {
             get => m_IsMuted.Value;
-            set => m_IsMuted.Value = value;
+            set => SetProperty(m_IsMuted, value);
         }
 
         #endregion
@@ -95,42 +137,72 @@
         public MediaPlaybackState MediaState
         {
             get => (MediaPlaybackState)m_MediaState.Value;
-            private set => m_MediaState.Value = (int)value;
+            internal set
+            {
+                var oldState = (MediaPlaybackState)m_MediaState.Value;
+                if (!SetProperty(m_MediaState, (int)value))
+                    return;
+
+                ReportCommandStatus();
+                ReportTimingStatus();
+                MediaCore.SendOnMediaStateChanged(oldState, value);
+            }
         }
 
         /// <inheritdoc />
         public TimeSpan Position
         {
             get => m_Position.Value;
-            private set => m_Position.Value = value;
+            private set => SetProperty(m_Position, value);
         }
 
         /// <inheritdoc />
         public TimeSpan FramePosition
         {
             get => m_FramePosition.Value;
-            private set => m_FramePosition.Value = value;
+            private set => SetProperty(m_FramePosition, value);
         }
 
         /// <inheritdoc />
         public bool HasMediaEnded
         {
             get => m_HasMediaEnded.Value;
-            private set => m_HasMediaEnded.Value = value;
+            internal set
+            {
+                if (!SetProperty(m_HasMediaEnded, value))
+                    return;
+
+                if (value) MediaCore.SendOnMediaEnded();
+            }
         }
 
         /// <inheritdoc />
-        public string VideoSmtpeTimeCode { get; private set; } = string.Empty;
+        public string VideoSmtpeTimeCode
+        {
+            get => m_VideoSmtpeTimeCode;
+            private set => SetProperty(ref m_VideoSmtpeTimeCode, value);
+        }
 
         /// <inheritdoc />
-        public string VideoHardwareDecoder { get; private set; } = string.Empty;
+        public string VideoHardwareDecoder
+        {
+            get => m_VideoHardwareDecoder;
+            private set => SetProperty(ref m_VideoHardwareDecoder, value);
+        }
 
         /// <inheritdoc />
-        public bool HasClosedCaptions { get; private set; }
+        public bool HasClosedCaptions
+        {
+            get => m_HasClosedCaptions;
+            private set => SetProperty(ref m_HasClosedCaptions, value);
+        }
 
         #endregion
 
         #region Self-Updating Properties
+
+        /// <inheritdoc />
+        public bool IsAtEndOfStream => MediaCore.Container?.IsAtEndOfStream ?? false;
 
         /// <inheritdoc />
         public bool IsPlaying => IsOpen && MediaCore.Timing.IsRunning;
@@ -150,105 +222,230 @@
         /// <inheritdoc />
         public bool IsChanging => MediaCore.Commands?.IsChanging ?? false;
 
-        /// <inheritdoc />
-        public bool IsAtEndOfStream => MediaCore.Container?.IsAtEndOfStream ?? false;
-
         #endregion
 
         #region Container Fixed, One-Time Properties
 
         /// <inheritdoc />
-        public bool IsOpen { get; private set; }
+        public bool IsOpen
+        {
+            get => m_IsOpen;
+            private set
+            {
+                SetProperty(ref m_IsOpen, value);
+                ReportTimingStatus();
+            }
+        }
 
         /// <inheritdoc />
-        public TimeSpan PositionStep { get; private set; }
+        public TimeSpan PositionStep
+        {
+            get => m_PositionStep;
+            private set => SetProperty(ref m_PositionStep, value);
+        }
 
         /// <inheritdoc />
-        public long BitRate { get; private set; }
+        public long BitRate
+        {
+            get => m_BitRate;
+            private set => SetProperty(ref m_BitRate, value);
+        }
 
         /// <inheritdoc />
-        public ReadOnlyDictionary<string, string> Metadata { get; private set; }
+        public ReadOnlyDictionary<string, string> Metadata
+        {
+            get => m_Metadata;
+            private set => SetProperty(ref m_Metadata, value);
+        }
 
         /// <inheritdoc />
-        public bool CanPause { get; private set; }
+        public bool CanPause
+        {
+            get => m_CanPause;
+            private set => SetProperty(ref m_CanPause, value);
+        }
 
         /// <inheritdoc />
-        public string MediaFormat { get; private set; }
+        public string MediaFormat
+        {
+            get => m_MediaFormat;
+            private set => SetProperty(ref m_MediaFormat, value);
+        }
 
         /// <inheritdoc />
-        public long MediaStreamSize { get; private set; }
+        public long MediaStreamSize
+        {
+            get => m_MediaStreamSize;
+            private set => SetProperty(ref m_MediaStreamSize, value);
+        }
 
         /// <inheritdoc />
-        public int VideoStreamIndex { get; private set; }
+        public int VideoStreamIndex
+        {
+            get => m_VideoStreamIndex;
+            private set => SetProperty(ref m_VideoStreamIndex, value);
+        }
 
         /// <inheritdoc />
-        public int AudioStreamIndex { get; private set; }
+        public int AudioStreamIndex
+        {
+            get => m_AudioStreamIndex;
+            private set => SetProperty(ref m_AudioStreamIndex, value);
+        }
 
         /// <inheritdoc />
-        public int SubtitleStreamIndex { get; private set; }
+        public int SubtitleStreamIndex
+        {
+            get => m_SubtitleStreamIndex;
+            private set => SetProperty(ref m_SubtitleStreamIndex, value);
+        }
 
         /// <inheritdoc />
-        public bool HasAudio { get; private set; }
+        public bool HasAudio
+        {
+            get => m_HasAudio;
+            private set => SetProperty(ref m_HasAudio, value);
+        }
 
         /// <inheritdoc />
-        public bool HasVideo { get; private set; }
+        public bool HasVideo
+        {
+            get => m_HasVideo;
+            private set => SetProperty(ref m_HasVideo, value);
+        }
 
         /// <inheritdoc />
-        public bool HasSubtitles { get; private set; }
+        public bool HasSubtitles
+        {
+            get => m_HasSubtitles;
+            private set => SetProperty(ref m_HasSubtitles, value);
+        }
 
         /// <inheritdoc />
-        public string VideoCodec { get; private set; }
+        public string VideoCodec
+        {
+            get => m_VideoCodec;
+            private set => SetProperty(ref m_VideoCodec, value);
+        }
 
         /// <inheritdoc />
-        public long VideoBitRate { get; private set; }
+        public long VideoBitRate
+        {
+            get => m_VideoBitRate;
+            private set => SetProperty(ref m_VideoBitRate, value);
+        }
 
         /// <inheritdoc />
-        public double VideoRotation { get; private set; }
+        public double VideoRotation
+        {
+            get => m_VideoRotation;
+            private set => SetProperty(ref m_VideoRotation, value);
+        }
 
         /// <inheritdoc />
-        public int NaturalVideoWidth { get; private set; }
+        public int NaturalVideoWidth
+        {
+            get => m_NaturalVideoWidth;
+            private set => SetProperty(ref m_NaturalVideoWidth, value);
+        }
 
         /// <inheritdoc />
-        public int NaturalVideoHeight { get; private set; }
+        public int NaturalVideoHeight
+        {
+            get => m_NaturalVideoHeight;
+            private set => SetProperty(ref m_NaturalVideoHeight, value);
+        }
 
         /// <inheritdoc />
-        public string VideoAspectRatio { get; private set; }
+        public string VideoAspectRatio
+        {
+            get => m_VideoAspectRatio;
+            private set => SetProperty(ref m_VideoAspectRatio, value);
+        }
 
         /// <inheritdoc />
-        public double VideoFrameRate { get; private set; }
+        public double VideoFrameRate
+        {
+            get => m_VideoFrameRate;
+            private set => SetProperty(ref m_VideoFrameRate, value);
+        }
 
         /// <inheritdoc />
-        public string AudioCodec { get; private set; }
+        public string AudioCodec
+        {
+            get => m_AudioCodec;
+            private set => SetProperty(ref m_AudioCodec, value);
+        }
 
         /// <inheritdoc />
-        public long AudioBitRate { get; private set; }
+        public long AudioBitRate
+        {
+            get => m_AudioBitRate;
+            private set => SetProperty(ref m_AudioBitRate, value);
+        }
 
         /// <inheritdoc />
-        public int AudioChannels { get; private set; }
+        public int AudioChannels
+        {
+            get => m_AudioChannels;
+            private set => SetProperty(ref m_AudioChannels, value);
+        }
 
         /// <inheritdoc />
-        public int AudioSampleRate { get; private set; }
+        public int AudioSampleRate
+        {
+            get => m_AudioSampleRate;
+            private set => SetProperty(ref m_AudioSampleRate, value);
+        }
 
         /// <inheritdoc />
-        public int AudioBitsPerSample { get; private set; }
+        public int AudioBitsPerSample
+        {
+            get => m_AudioBitsPerSample;
+            private set => SetProperty(ref m_AudioBitsPerSample, value);
+        }
 
         /// <inheritdoc />
-        public TimeSpan? NaturalDuration { get; private set; }
+        public TimeSpan? NaturalDuration
+        {
+            get => m_NaturalDuration;
+            private set => SetProperty(ref m_NaturalDuration, value);
+        }
 
         /// <inheritdoc />
-        public TimeSpan? PlaybackStartTime { get; private set; }
+        public TimeSpan? PlaybackStartTime
+        {
+            get => m_PlaybackStartTime;
+            private set => SetProperty(ref m_PlaybackStartTime, value);
+        }
 
         /// <inheritdoc />
-        public TimeSpan? PlaybackEndTime { get; private set; }
+        public TimeSpan? PlaybackEndTime
+        {
+            get => m_PlaybackEndTime;
+            private set => SetProperty(ref m_PlaybackEndTime, value);
+        }
 
         /// <inheritdoc />
-        public bool IsLiveStream { get; private set; }
+        public bool IsLiveStream
+        {
+            get => m_IsLiveStream;
+            private set => SetProperty(ref m_IsLiveStream, value);
+        }
 
         /// <inheritdoc />
-        public bool IsNetworkStream { get; private set; }
+        public bool IsNetworkStream
+        {
+            get => m_IsNetworkStream;
+            private set => SetProperty(ref m_IsNetworkStream, value);
+        }
 
         /// <inheritdoc />
-        public bool IsSeekable { get; private set; }
+        public bool IsSeekable
+        {
+            get => m_IsSeekable;
+            private set => SetProperty(ref m_IsSeekable, value);
+        }
 
         #endregion
 
@@ -258,47 +455,57 @@
         public bool IsBuffering
         {
             get => m_IsBuffering.Value;
-            private set => m_IsBuffering.Value = value;
+            private set => SetProperty(m_IsBuffering, value);
         }
 
         /// <inheritdoc />
         public long DecodingBitRate
         {
             get => m_DecodingBitRate.Value;
-            private set => m_DecodingBitRate.Value = value;
+            private set => SetProperty(m_DecodingBitRate, value);
         }
 
         /// <inheritdoc />
         public double BufferingProgress
         {
             get => m_BufferingProgress.Value;
-            private set => m_BufferingProgress.Value = value;
+            private set => SetProperty(m_BufferingProgress, value);
         }
 
         /// <inheritdoc />
         public double DownloadProgress
         {
             get => m_DownloadProgress.Value;
-            private set => m_DownloadProgress.Value = value;
+            private set => SetProperty(m_DownloadProgress, value);
         }
 
         /// <inheritdoc />
         public long PacketBufferLength
         {
             get => m_PacketBufferLength.Value;
-            private set => m_PacketBufferLength.Value = value;
+            private set => SetProperty(m_PacketBufferLength, value);
         }
 
         /// <inheritdoc />
         public int PacketBufferCount
         {
             get => m_PacketBufferCount.Value;
-            private set => m_PacketBufferCount.Value = value;
+            private set
+            {
+                SetProperty(m_PacketBufferCount, value);
+                NotifyPropertyChanged(nameof(IsAtEndOfStream));
+            }
         }
 
         #endregion
 
         #region State Management Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ReportCommandStatus() => NotifyPropertyChanged(nameof(IsSeeking), nameof(IsClosing), nameof(IsOpening), nameof(IsChanging));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ReportTimingStatus() => NotifyPropertyChanged(nameof(IsPlaying), nameof(IsPaused));
 
         /// <summary>
         /// Updates the <see cref="Source"/> property.
@@ -407,23 +614,6 @@
         }
 
         /// <summary>
-        /// Updates the media ended state and notifies the parent if there is a change from false to true.
-        /// </summary>
-        /// <param name="hasEnded">if set to <c>true</c> [has ended].</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateMediaEnded(bool hasEnded)
-        {
-            if (HasMediaEnded == false && hasEnded)
-            {
-                HasMediaEnded = true;
-                MediaCore.SendOnMediaEnded();
-                return;
-            }
-
-            HasMediaEnded = hasEnded;
-        }
-
-        /// <summary>
         /// Updates the playback position and related properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -459,21 +649,8 @@
             ResetMediaProperties();
             UpdateFixedContainerProperties();
             InitializeBufferingStatistics();
-        }
-
-        /// <summary>
-        /// Updates the MediaState property.
-        /// </summary>
-        /// <param name="mediaState">State of the media.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateMediaState(MediaPlaybackState mediaState)
-        {
-            var oldValue = MediaState;
-            if (oldValue == mediaState)
-                return;
-
-            MediaState = mediaState;
-            MediaCore.SendOnMediaStateChanged(oldValue, mediaState);
+            ReportCommandStatus();
+            ReportTimingStatus();
         }
 
         /// <summary>
@@ -482,11 +659,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ResetMediaProperties()
         {
-            var oldMediaState = MediaState;
-            var newMediaState = MediaPlaybackState.Close;
-
             // Reset Method-controlled properties
-            MediaState = newMediaState;
             Position = default;
             FramePosition = default;
             HasMediaEnded = default;
@@ -500,8 +673,7 @@
             // Reset controller properties
             SpeedRatio = Constants.DefaultSpeedRatio;
 
-            if (oldMediaState != newMediaState)
-                MediaCore.SendOnMediaStateChanged(oldMediaState, newMediaState);
+            MediaState = MediaPlaybackState.Close;
         }
 
         /// <summary>

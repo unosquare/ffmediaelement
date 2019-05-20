@@ -75,7 +75,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.OnPlay();
 
-            State.UpdateMediaState(MediaPlaybackState.Play);
+            State.MediaState = MediaPlaybackState.Play;
 
             return true;
         }
@@ -95,7 +95,7 @@
                 renderer.OnPause();
 
             MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackPosition));
-            State.UpdateMediaState(MediaPlaybackState.Pause);
+            State.MediaState = MediaPlaybackState.Pause;
             return true;
         }
 
@@ -115,7 +115,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.OnStop();
 
-            State.UpdateMediaState(MediaPlaybackState.Stop);
+            State.MediaState = MediaPlaybackState.Stop;
             return true;
         }
 

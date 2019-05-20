@@ -25,9 +25,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Properties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Events.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.PropertyUpdates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IPropertyProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\MediaConnector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\ClassProxy.cs" />

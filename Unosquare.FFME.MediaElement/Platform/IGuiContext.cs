@@ -20,13 +20,5 @@
         /// </summary>
         /// <param name="callback">The callback.</param>
         void EnqueueInvoke(Action callback);
-
-        /// <summary>
-        /// A factory method to create  timers that run actions on the same thread as the <see cref="MediaElement"/> control.
-        /// </summary>
-        /// <param name="interval">The interval of the timer.</param>
-        /// <param name="cycleCallback">The action to execute when the timer ticks.</param>
-        /// <returns>The timer object.</returns>
-        IGuiTimer CreateTimer(TimeSpan interval, Action cycleCallback);
     }
 }

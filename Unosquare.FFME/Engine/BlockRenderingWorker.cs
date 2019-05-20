@@ -426,12 +426,12 @@
                     MediaCore.ChangePlaybackPosition(playbackEndClock);
                 }
 
-                State.UpdateMediaState(MediaPlaybackState.Stop);
-                State.UpdateMediaEnded(true);
+                State.MediaState = MediaPlaybackState.Stop;
+                State.HasMediaEnded = true;
             }
             else
             {
-                State.UpdateMediaEnded(false);
+                State.HasMediaEnded = false;
             }
         }
 

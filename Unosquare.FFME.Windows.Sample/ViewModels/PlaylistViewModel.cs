@@ -163,11 +163,7 @@
             base.OnApplicationLoaded();
             var m = App.ViewModel.MediaElement;
 
-            new Action(() =>
-            {
-                IsPlaylistEnabled = m.IsOpening == false;
-            }).WhenChanged(m, nameof(m.IsOpening));
-
+            m.WhenChanged(() => IsPlaylistEnabled = m.IsOpening == false, nameof(m.IsOpening));
             m.MediaOpened += OnMediaOpened;
             m.RenderingVideo += OnRenderingVideo;
         }
@@ -182,7 +178,7 @@
             HasTakenThumbnail = false;
             var m = App.ViewModel.MediaElement;
 
-            Entries.AddOrUpdateEntry(m.Source?.ToString() ?? m.MediaInfo.MediaSource, m.MediaInfo);
+            Entries.AddOrUpdateEntry(m.MediaInfo);
             Entries.SaveEntries();
         }
 
@@ -195,12 +191,13 @@
         {
             const double snapshotPosition = 3;
 
-            var state = e.EngineState;
-            if (HasTakenThumbnail || state.Source == null)
-                return;
+            if (HasTakenThumbnail) return;
 
-            var sourceUrl = state.Source.ToString();
-            if (string.IsNullOrWhiteSpace(sourceUrl))
+            var state = e.EngineState;
+            var mediaElement = sender as MediaElement;
+            var info = mediaElement?.MediaInfo;
+
+            if (string.IsNullOrWhiteSpace(info?.MediaSource))
                 return;
 
             if (!state.HasMediaEnded && state.Position.TotalSeconds < snapshotPosition &&
@@ -208,7 +205,7 @@
                 return;
 
             HasTakenThumbnail = true;
-            Entries.AddOrUpdateEntryThumbnail(sourceUrl, e.Bitmap);
+            Entries.AddOrUpdateEntryThumbnail(info, e.Bitmap);
             Entries.SaveEntries();
         }
     }

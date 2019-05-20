@@ -88,11 +88,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnqueueInvoke(Action callback) => InvokeAsync(callback);
 
-        /// <inheritdoc />
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IGuiTimer CreateTimer(TimeSpan interval, Action cycleCallback) =>
-            new GuiTimer(Type, interval, cycleCallback);
-
         /// <summary>
         /// Invokes a task on the GUI thread.
         /// </summary>

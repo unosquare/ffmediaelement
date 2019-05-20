@@ -46,7 +46,11 @@
         private DirectCommandType PendingDirectCommand
         {
             get => (DirectCommandType)m_PendingDirectCommand.Value;
-            set => m_PendingDirectCommand.Value = (int)value;
+            set
+            {
+                m_PendingDirectCommand.Value = (int)value;
+                State.ReportCommandStatus();
+            }
         }
 
         /// <summary>
@@ -205,7 +209,7 @@
 
                 if (commandException == null)
                 {
-                    State.UpdateMediaState(MediaPlaybackState.Stop);
+                    State.MediaState = MediaPlaybackState.Stop;
                     MediaCore.SendOnMediaOpened();
                 }
                 else
@@ -213,7 +217,7 @@
                     if (!IsCloseInterruptPending)
                     {
                         MediaCore.ResetPlaybackPosition();
-                        State.UpdateMediaState(MediaPlaybackState.Close);
+                        State.MediaState = MediaPlaybackState.Close;
                         MediaCore.SendOnMediaFailed(commandException);
                         MediaCore.SendOnMediaClosed();
                     }
@@ -225,7 +229,7 @@
                 MediaCore.Timing.Reset();
                 State.ResetAll();
                 MediaCore.ResetPlaybackPosition();
-                State.UpdateMediaState(MediaPlaybackState.Close);
+                State.MediaState = MediaPlaybackState.Close;
                 State.UpdateSource(null);
 
                 // Notify media has closed
@@ -241,15 +245,14 @@
                     MediaCore.SendOnMediaChanged();
 
                     // command result contains the play after seek.
-                    State.UpdateMediaState(
-                        resumeMedia ? MediaPlaybackState.Play : MediaPlaybackState.Pause);
+                    State.MediaState = resumeMedia ? MediaPlaybackState.Play : MediaPlaybackState.Pause;
                 }
                 else
                 {
                     if (!IsCloseInterruptPending)
                     {
                         MediaCore.SendOnMediaFailed(commandException);
-                        State.UpdateMediaState(MediaPlaybackState.Pause);
+                        State.MediaState = MediaPlaybackState.Pause;
                     }
                 }
             }

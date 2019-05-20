@@ -84,12 +84,12 @@
             {
                 try
                 {
-                    // Force loading
+                    // Pre-load FFmpeg
                     await Library.LoadFFmpegAsync();
                 }
                 catch (Exception ex)
                 {
-                    Current?.Dispatcher?.Invoke(() =>
+                    await Current?.Dispatcher?.BeginInvoke(new Action(() =>
                     {
                         MessageBox.Show(MainWindow,
                             $"Unable to Load FFmpeg Libraries from path:\r\n    {Library.FFmpegDirectory}" +
@@ -102,7 +102,7 @@
                             MessageBoxImage.Error);
 
                         Current?.Shutdown();
-                    });
+                    }));
                 }
             });
         }

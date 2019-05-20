@@ -3,8 +3,11 @@
     using Common;
     using Engine;
     using Platform;
+    using Primitives;
     using Rendering;
     using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.IO;
     using System.Runtime.CompilerServices;
@@ -16,6 +19,7 @@
     using System.Windows.Markup;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
+    using System.Windows.Threading;
     using Bitmap = System.Drawing.Bitmap;
 
     /// <summary>
@@ -41,6 +45,9 @@
         /// The allow content change flag.
         /// </summary>
         private readonly bool AllowContentChange;
+
+        private readonly ConcurrentBag<string> PropertyUpdates = new ConcurrentBag<string>();
+        private readonly AtomicBoolean m_IsStateUpdating = new AtomicBoolean(false);
 
         #endregion
 
@@ -74,19 +81,20 @@
             try
             {
                 AllowContentChange = true;
-                InitializeComponent();
-                GuiContext.Current.EnqueueInvoke(StartPropertyUpdatesWorker);
 
+                if (!Library.IsInDesignMode)
+                {
+                    // Setup the media engine and property updates timer
+                    MediaCore = new MediaEngine(this, new MediaConnector(this));
+                    MediaCore.State.PropertyChanged += (s, e) => NotifyMediaCoreStateChanged(e.PropertyName);
+                }
+
+                InitializeComponent();
+
+                // UpdatesWorker.Start();
                 // When the media element is removed from the visual tree
                 // we want to close the current media to prevent memory leaks
                 Unloaded += async (s, e) => await Close();
-
-                // We also want the Property Updates Worker to start or resume
-                // when the media element is added to the visual tree
-                Loaded += (s, e) => GuiContext.Current.EnqueueInvoke(StartPropertyUpdatesWorker);
-
-                // Forces a state updates upon seeking ended.
-                SeekingEnded += (s, e) => UpdateStateProperties();
             }
             finally
             {
@@ -130,6 +138,16 @@
         /// Gets the grid control holding the rest of the controls.
         /// </summary>
         internal Grid ContentGrid { get; } = new Grid { Name = nameof(ContentGrid) };
+
+        /// <summary>
+        /// Determines whether the property values are being copied over from the
+        /// <see cref="MediaCore"/> state.
+        /// </summary>
+        internal bool IsStateUpdating
+        {
+            get => m_IsStateUpdating.Value;
+            set => m_IsStateUpdating.Value = value;
+        }
 
         #endregion
 
@@ -275,12 +293,7 @@
             ContentGrid.Children.Add(CaptionsView);
 
             // Display the control (or not)
-            if (!Library.IsInDesignMode)
-            {
-                // Setup the media engine and property updates timer
-                MediaCore = new MediaEngine(this, new MediaConnector(this));
-            }
-            else
+            if (Library.IsInDesignMode)
             {
                 var bitmap = Properties.Resources.FFmpegMediaElementBackground;
                 var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
@@ -288,10 +301,83 @@
                 var controlBitmap = new WriteableBitmap(bitmapSource);
                 VideoView.Source = controlBitmap;
             }
+            else
+            {
+                // Check that all properties map back to the media state
+                if (PropertyMapper.MissingPropertyMappings.Count > 0)
+                {
+                    throw new KeyNotFoundException($"{nameof(MediaElement)} is missing properties exposed by {nameof(IMediaEngineState)}. " +
+                        $"Missing properties are: {string.Join(", ", PropertyMapper.MissingPropertyMappings)}. " +
+                        $"Please add these properties to the {nameof(MediaElement)} class.");
+                }
+            }
 
             // Bind Content View Properties
             BindProperty(VideoView, HorizontalAlignmentProperty, this, nameof(HorizontalContentAlignment), BindingMode.OneWay);
             BindProperty(VideoView, VerticalAlignmentProperty, this, nameof(VerticalContentAlignment), BindingMode.OneWay);
+        }
+
+        /// <summary>
+        /// Queues a property notification change from the state on to the UI thread.
+        /// </summary>
+        /// <param name="propertyName">The media state property that has changed.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void NotifyMediaCoreStateChanged(string propertyName)
+        {
+            PropertyUpdates.Add(propertyName);
+
+            // The notifications occur in the Background priority
+            // which is below the Input priority.
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                try
+                {
+                    if (PropertyUpdates.Count <= 0)
+                        return;
+
+                    IsStateUpdating = true;
+                    while (PropertyUpdates.TryTake(out var p))
+                    {
+                        if (p == nameof(Position))
+                        {
+                            if (!IsSeeking)
+                                Position = MediaCore.State.Position;
+
+                            NotifyPropertyChangedEvent(nameof(RemainingDuration));
+                        }
+                        else if (p == nameof(Volume))
+                        {
+                            Volume = MediaCore.State.Volume;
+                        }
+                        else if (p == nameof(Balance))
+                        {
+                            Balance = MediaCore.State.Balance;
+                        }
+                        else if (p == nameof(IsMuted))
+                        {
+                            IsMuted = MediaCore.State.IsMuted;
+                        }
+                        else if (p == nameof(SpeedRatio))
+                        {
+                            SpeedRatio = MediaCore.State.SpeedRatio;
+                        }
+                        else if (p == nameof(SpeedRatio))
+                        {
+                            SpeedRatio = MediaCore.State.SpeedRatio;
+                        }
+                        else if (p == nameof(Source))
+                        {
+                            Source = MediaCore.State.Source;
+                        }
+
+                        NotifyPropertyChangedEvent(p);
+                    }
+                }
+                finally
+                {
+                    IsStateUpdating = false;
+                }
+            }), DispatcherPriority.Background);
         }
 
         /// <summary>

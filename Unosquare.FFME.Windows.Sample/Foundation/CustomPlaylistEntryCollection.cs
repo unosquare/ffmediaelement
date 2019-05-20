@@ -51,7 +51,7 @@
                 var lookupMediaSource = mediaSource?.Trim() ?? string.Empty;
                 foreach (var entry in this)
                 {
-                    if (lookupMediaSource.Trim().Equals(entry.MediaSource, StringComparison.OrdinalIgnoreCase))
+                    if (lookupMediaSource.Equals(entry.MediaSource, StringComparison.OrdinalIgnoreCase))
                         return entry;
                 }
 
@@ -62,12 +62,12 @@
         /// <summary>
         /// Adds or updates an entry.
         /// </summary>
-        /// <param name="mediaSource">The media URL.</param>
-        /// <param name="info">The information.</param>
-        public void AddOrUpdateEntry(string mediaSource, MediaInfo info)
+        /// <param name="info">The media information.</param>
+        public void AddOrUpdateEntry(MediaInfo info)
         {
             lock (SyncRoot)
             {
+                var mediaSource = info.MediaSource;
                 var entry = FindEntryByMediaSource(mediaSource);
                 if (entry == null)
                 {
@@ -130,12 +130,13 @@
         /// Sets the entry thumbnail.
         /// Deletes the prior thumbnail file is found or previously set.
         /// </summary>
-        /// <param name="mediaSource">The media URL.</param>
+        /// <param name="info">The media info.</param>
         /// <param name="bitmap">The bitmap.</param>
-        public void AddOrUpdateEntryThumbnail(string mediaSource, BitmapDataBuffer bitmap)
+        public void AddOrUpdateEntryThumbnail(MediaInfo info, BitmapDataBuffer bitmap)
         {
             lock (SyncRoot)
             {
+                var mediaSource = info.MediaSource;
                 var entry = FindEntryByMediaSource(mediaSource);
                 if (entry == null) return;
 
@@ -158,7 +159,7 @@
         /// <summary>
         /// Removes the entry.
         /// </summary>
-        /// <param name="mediaSource">The media URL.</param>
+        /// <param name="mediaSource">The media source.</param>
         public void RemoveEntryByMediaSource(string mediaSource)
         {
             lock (SyncRoot)

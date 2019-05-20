@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
-    using Foundation;
+    using Common;
 
     /// <summary>
     /// A base class for Root VM-attached view models.

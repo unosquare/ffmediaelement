@@ -31,7 +31,11 @@
         public bool IsSeeking
         {
             get => m_IsSeeking.Value;
-            private set => m_IsSeeking.Value = value;
+            private set
+            {
+                m_IsSeeking.Value = value;
+                State.ReportCommandStatus();
+            }
         }
 
         /// <summary>
@@ -108,7 +112,7 @@
                     IsSeeking = true;
                     PlayAfterSeek = State.MediaState == MediaPlaybackState.Play && seekMode == SeekMode.Normal;
                     MediaCore.PausePlayback();
-                    State.UpdateMediaState(MediaPlaybackState.Manual);
+                    State.MediaState = MediaPlaybackState.Manual;
                     MediaCore.SendOnSeekingStarted();
                 }
 
@@ -214,7 +218,7 @@
                         targetPosition = firstFrame.StartTime;
 
                     // Ensure we signal media has not ended
-                    State.UpdateMediaEnded(false);
+                    State.HasMediaEnded = false;
 
                     // Clear Blocks and frames (This does not clear the preloaded subtitles)
                     foreach (var mt in all)

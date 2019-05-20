@@ -2,7 +2,6 @@
 {
     using Common;
     using Foundation;
-    using System;
     using System.Windows;
     using System.Windows.Media;
 
@@ -203,54 +202,79 @@
             base.OnApplicationLoaded();
             var m = App.ViewModel.MediaElement;
 
-            new Action(() => { IsMediaOpenVisibility = m.IsOpen ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsOpen));
+            m.WhenChanged(() => IsMediaOpenVisibility = m.IsOpen ? Visibility.Visible : Visibility.Hidden,
+                nameof(m.IsOpen));
 
-            new Action(() => { ClosedCaptionsVisibility = m.HasClosedCaptions ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.HasClosedCaptions));
+            m.WhenChanged(() => ClosedCaptionsVisibility = m.HasClosedCaptions ? Visibility.Visible : Visibility.Hidden,
+                nameof(m.HasClosedCaptions));
 
-            new Action(() =>
+            m.WhenChanged(() =>
             {
                 AudioControlVisibility = m.HasAudio ? Visibility.Visible : Visibility.Hidden;
                 IsAudioControlEnabled = m.HasAudio;
-            }).WhenChanged(m, nameof(m.HasAudio));
+            }, nameof(m.HasAudio));
 
-            new Action(() => { PauseButtonVisibility = m.CanPause && m.IsPlaying ? Visibility.Visible : Visibility.Collapsed; })
-                .WhenChanged(m, nameof(m.CanPause), nameof(m.IsPlaying));
+            m.WhenChanged(() => PauseButtonVisibility = m.CanPause && m.IsPlaying ? Visibility.Visible : Visibility.Collapsed,
+                nameof(m.CanPause),
+                nameof(m.IsPlaying));
 
-            new Action(() =>
+            m.WhenChanged(() =>
             {
                 PlayButtonVisibility =
                     m.IsOpen && m.IsPlaying == false && m.HasMediaEnded == false && m.IsSeeking == false && m.IsChanging == false ?
                     Visibility.Visible : Visibility.Collapsed;
-            })
-            .WhenChanged(m, nameof(m.IsOpen), nameof(m.IsPlaying), nameof(m.HasMediaEnded), nameof(m.IsSeeking), nameof(m.IsChanging));
+            },
+            nameof(m.IsOpen),
+            nameof(m.IsPlaying),
+            nameof(m.HasMediaEnded),
+            nameof(m.IsSeeking),
+            nameof(m.IsChanging));
 
-            new Action(() =>
+            m.WhenChanged(() =>
             {
                 StopButtonVisibility =
                     m.IsOpen && m.IsChanging == false && m.IsSeeking == false && (m.HasMediaEnded || (m.IsSeekable && m.MediaState != MediaPlaybackState.Stop)) ?
                     Visibility.Visible : Visibility.Hidden;
-            })
-            .WhenChanged(m, nameof(m.IsOpen), nameof(m.HasMediaEnded), nameof(m.IsSeekable), nameof(m.MediaState), nameof(m.IsChanging), nameof(m.IsSeeking));
+            },
+            nameof(m.IsOpen),
+            nameof(m.HasMediaEnded),
+            nameof(m.IsSeekable),
+            nameof(m.MediaState),
+            nameof(m.IsChanging),
+            nameof(m.IsSeeking));
 
-            new Action(() => { CloseButtonVisibility = (m.IsOpen || m.IsOpening) ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsOpen), nameof(m.IsOpening));
+            m.WhenChanged(() => CloseButtonVisibility = (m.IsOpen || m.IsOpening) ? Visibility.Visible : Visibility.Hidden,
+                nameof(m.IsOpen),
+                nameof(m.IsOpening));
 
-            new Action(() => { SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsSeekable));
+            m.WhenChanged(() => SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Hidden, nameof(m.IsSeekable));
 
-            new Action(() => { BufferingProgressVisibility = m.IsOpening || (m.IsBuffering && m.BufferingProgress < 0.95) ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsOpening), nameof(m.IsBuffering), nameof(m.BufferingProgress), nameof(m.Position));
+            m.WhenChanged(() =>
+            {
+                BufferingProgressVisibility = m.IsOpening || (m.IsBuffering && m.BufferingProgress < 0.95)
+                    ? Visibility.Visible
+                    : Visibility.Hidden;
+            },
+            nameof(m.IsOpening),
+            nameof(m.IsBuffering),
+            nameof(m.BufferingProgress),
+            nameof(m.Position));
 
-            new Action(() => { DownloadProgressVisibility = m.IsOpen && m.HasMediaEnded == false && ((m.DownloadProgress > 0d && m.DownloadProgress < 0.95) || m.IsLiveStream) ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsOpen), nameof(m.HasMediaEnded), nameof(m.DownloadProgress), nameof(m.IsLiveStream));
+            m.WhenChanged(() =>
+            {
+                DownloadProgressVisibility = m.IsOpen && m.HasMediaEnded == false &&
+                    ((m.DownloadProgress > 0d && m.DownloadProgress < 0.95) || m.IsLiveStream)
+                        ? Visibility.Visible
+                        : Visibility.Hidden;
+            },
+            nameof(m.IsOpen),
+            nameof(m.HasMediaEnded),
+            nameof(m.DownloadProgress),
+            nameof(m.IsLiveStream));
 
-            new Action(() => { OpenButtonVisibility = m.IsOpening == false ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsOpening));
+            m.WhenChanged(() => OpenButtonVisibility = m.IsOpening == false ? Visibility.Visible : Visibility.Hidden, nameof(m.IsOpening));
 
-            new Action(() => { IsSpeedRatioEnabled = m.IsOpening == false; })
-                .WhenChanged(m, nameof(m.IsOpen), nameof(m.IsSeekable));
+            m.WhenChanged(() => IsSpeedRatioEnabled = m.IsOpening == false, nameof(m.IsOpen), nameof(m.IsSeekable));
         }
     }
 }

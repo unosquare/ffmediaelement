@@ -3,7 +3,6 @@
     using Common;
     using Diagnostics;
     using Engine;
-    using Primitives;
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
@@ -11,8 +10,6 @@
 
     public partial class MediaElement : ILoggingHandler, ILoggingSource, INotifyPropertyChanged
     {
-        private readonly AtomicBoolean m_IsSourceChangingViaCommand = new AtomicBoolean(false);
-
         /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => this;
 
@@ -20,17 +17,7 @@
         /// Provides access to the underlying media engine driving this control.
         /// This property is intended for advanced usages only.
         /// </summary>
-        internal MediaEngine MediaCore { get; private set; }
-
-        /// <summary>
-        /// Gets a value indicating whether the source is either opening or closing via a command
-        /// to prevent the source property to handle open or close operations.
-        /// </summary>
-        internal bool IsSourceChangingViaCommand
-        {
-            get => m_IsSourceChangingViaCommand.Value;
-            private set => m_IsSourceChangingViaCommand.Value = value;
-        }
+        internal MediaEngine MediaCore { get; }
 
         #region Public API
 
@@ -126,7 +113,6 @@
         {
             try { return await MediaCore.Open(uri); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
-            finally { await UpdateSourceFromMediaCore(); }
 
             return false;
         }).ConfigureAwait(true);
@@ -140,7 +126,6 @@
         {
             try { return await MediaCore.Open(stream); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
-            finally { await UpdateSourceFromMediaCore(); }
 
             return false;
         }).ConfigureAwait(true);
@@ -153,7 +138,6 @@
         {
             try { return await MediaCore.Close(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
-            finally { await UpdateSourceFromMediaCore(); }
 
             return false;
         }).ConfigureAwait(true);
@@ -163,19 +147,5 @@
         /// <inheritdoc />
         void ILoggingHandler.HandleLogMessage(LoggingMessage message) =>
             RaiseMessageLoggedEvent(message);
-
-        /// <summary>
-        /// Updates the source property from the media core state.
-        /// </summary>
-        /// <returns>The awaitable task.</returns>
-        private ConfiguredTaskAwaitable UpdateSourceFromMediaCore()
-        {
-            return Library.GuiContext.InvokeAsync(() =>
-            {
-                IsSourceChangingViaCommand = true;
-                Source = MediaCore?.State.Source;
-                IsSourceChangingViaCommand = false;
-            });
-        }
     }
 }

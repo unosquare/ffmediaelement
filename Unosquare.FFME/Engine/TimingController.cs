@@ -187,6 +187,8 @@
                     Offsets[MediaType.None] = Offsets[ReferenceType];
 
                     IsReady = true;
+
+                    MediaCore.State.ReportTimingStatus();
                 }
             }
         }
@@ -196,11 +198,18 @@
         /// </summary>
         public void Reset()
         {
-            lock (SyncLock)
+            try
             {
-                IsReady = false;
-                Clocks.Clear();
-                Offsets.Clear();
+                lock (SyncLock)
+                {
+                    IsReady = false;
+                    Clocks.Clear();
+                    Offsets.Clear();
+                }
+            }
+            finally
+            {
+                MediaCore.State.ReportTimingStatus();
             }
         }
 
@@ -235,27 +244,34 @@
         /// <param name="t">The clock's media type.</param>
         public void Update(TimeSpan position, MediaType t)
         {
-            lock (SyncLock)
+            try
             {
-                if (!IsReady)
-                    return;
-
-                if (t == MediaType.None)
+                lock (SyncLock)
                 {
-                    Clocks[MediaType.Audio].Update(TimeSpan.FromTicks(
-                        position.Ticks -
-                        Offsets[HasDisconnectedClocks ? MediaType.Audio : ReferenceType].Ticks));
+                    if (!IsReady)
+                        return;
 
-                    Clocks[MediaType.Video].Update(TimeSpan.FromTicks(
-                        position.Ticks -
-                        Offsets[HasDisconnectedClocks ? MediaType.Video : ReferenceType].Ticks));
+                    if (t == MediaType.None)
+                    {
+                        Clocks[MediaType.Audio].Update(TimeSpan.FromTicks(
+                            position.Ticks -
+                            Offsets[HasDisconnectedClocks ? MediaType.Audio : ReferenceType].Ticks));
 
-                    return;
+                        Clocks[MediaType.Video].Update(TimeSpan.FromTicks(
+                            position.Ticks -
+                            Offsets[HasDisconnectedClocks ? MediaType.Video : ReferenceType].Ticks));
+
+                        return;
+                    }
+
+                    Clocks[t].Update(TimeSpan.FromTicks(
+                        position.Ticks -
+                        Offsets[HasDisconnectedClocks ? t : ReferenceType].Ticks));
                 }
-
-                Clocks[t].Update(TimeSpan.FromTicks(
-                    position.Ticks -
-                    Offsets[HasDisconnectedClocks ? t : ReferenceType].Ticks));
+            }
+            finally
+            {
+                MediaCore.State.ReportTimingStatus();
             }
         }
 
@@ -265,17 +281,24 @@
         /// <param name="t">The clock type.</param>
         public void Pause(MediaType t)
         {
-            lock (SyncLock)
+            try
             {
-                if (!IsReady) return;
-                if (t == MediaType.None)
+                lock (SyncLock)
                 {
-                    Clocks[MediaType.Audio].Pause();
-                    Clocks[MediaType.Video].Pause();
-                    return;
-                }
+                    if (!IsReady) return;
+                    if (t == MediaType.None)
+                    {
+                        Clocks[MediaType.Audio].Pause();
+                        Clocks[MediaType.Video].Pause();
+                        return;
+                    }
 
-                Clocks[t].Pause();
+                    Clocks[t].Pause();
+                }
+            }
+            finally
+            {
+                MediaCore.State.ReportTimingStatus();
             }
         }
 
@@ -285,17 +308,24 @@
         /// <param name="t">The media type.</param>
         public void Reset(MediaType t)
         {
-            lock (SyncLock)
+            try
             {
-                if (!IsReady) return;
-                if (t == MediaType.None)
+                lock (SyncLock)
                 {
-                    Clocks[MediaType.Audio].Reset();
-                    Clocks[MediaType.Video].Reset();
-                    return;
-                }
+                    if (!IsReady) return;
+                    if (t == MediaType.None)
+                    {
+                        Clocks[MediaType.Audio].Reset();
+                        Clocks[MediaType.Video].Reset();
+                        return;
+                    }
 
-                Clocks[t].Reset();
+                    Clocks[t].Reset();
+                }
+            }
+            finally
+            {
+                MediaCore.State.ReportTimingStatus();
             }
         }
 
@@ -305,17 +335,24 @@
         /// <param name="t">The media type.</param>
         public void Play(MediaType t)
         {
-            lock (SyncLock)
+            try
             {
-                if (!IsReady) return;
-                if (t == MediaType.None)
+                lock (SyncLock)
                 {
-                    Clocks[MediaType.Audio].Play();
-                    Clocks[MediaType.Video].Play();
-                    return;
-                }
+                    if (!IsReady) return;
+                    if (t == MediaType.None)
+                    {
+                        Clocks[MediaType.Audio].Play();
+                        Clocks[MediaType.Video].Play();
+                        return;
+                    }
 
-                Clocks[t].Play();
+                    Clocks[t].Play();
+                }
+            }
+            finally
+            {
+                MediaCore.State.ReportTimingStatus();
             }
         }
 

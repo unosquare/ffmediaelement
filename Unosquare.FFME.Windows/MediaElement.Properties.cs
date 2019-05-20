@@ -31,12 +31,19 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty VolumeProperty = DependencyProperty.Register(
             nameof(Volume), typeof(double), typeof(MediaElement),
-            new FrameworkPropertyMetadata(Constants.DefaultVolume, OnVolumePropertyChanged));
+            new FrameworkPropertyMetadata(Constants.DefaultVolume, null, OnVolumePropertyChanging));
 
-        private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static object OnVolumePropertyChanging(DependencyObject d, object value)
         {
-            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
-                m.MediaCore.State.Volume = v;
+            if (d == null || d is MediaElement == false)
+                return Constants.DefaultVolume;
+
+            var element = (MediaElement)d;
+            if (element.IsStateUpdating)
+                return value;
+
+            element.MediaCore.State.Volume = (double)value;
+            return element.MediaCore.State.Volume;
         }
 
         #endregion
@@ -59,12 +66,19 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty BalanceProperty = DependencyProperty.Register(
             nameof(Balance), typeof(double), typeof(MediaElement),
-            new FrameworkPropertyMetadata(Constants.DefaultBalance, OnBalancePropertyChanged));
+            new FrameworkPropertyMetadata(Constants.DefaultBalance, null, OnBalancePropertyChanging));
 
-        private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static object OnBalancePropertyChanging(DependencyObject d, object value)
         {
-            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
-                m.MediaCore.State.Balance = v;
+            if (d == null || d is MediaElement == false)
+                return Constants.DefaultBalance;
+
+            var element = (MediaElement)d;
+            if (element.IsStateUpdating)
+                return value;
+
+            element.MediaCore.State.Balance = (double)value;
+            return element.MediaCore.State.Balance;
         }
 
         #endregion
@@ -87,12 +101,19 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty IsMutedProperty = DependencyProperty.Register(
             nameof(IsMuted), typeof(bool), typeof(MediaElement),
-            new FrameworkPropertyMetadata(false, OnIsMutedPropertyChanged));
+            new FrameworkPropertyMetadata(false, null, OnIsMutedPropertyChanging));
 
-        private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static object OnIsMutedPropertyChanging(DependencyObject d, object value)
         {
-            if (d is MediaElement m && m.MediaCore != null && e.NewValue is bool v)
-                m.MediaCore.State.IsMuted = v;
+            if (d == null || d is MediaElement == false)
+                return false;
+
+            var element = (MediaElement)d;
+            if (element.IsStateUpdating)
+                return value;
+
+            element.MediaCore.State.IsMuted = (bool)value;
+            return element.MediaCore.State.IsMuted;
         }
 
         #endregion
@@ -115,12 +136,19 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty SpeedRatioProperty = DependencyProperty.Register(
             nameof(SpeedRatio), typeof(double), typeof(MediaElement),
-            new FrameworkPropertyMetadata(Constants.DefaultSpeedRatio, OnSpeedRatioPropertyChanged));
+            new FrameworkPropertyMetadata(Constants.DefaultSpeedRatio, null, OnSpeedRatioPropertyChanging));
 
-        private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static object OnSpeedRatioPropertyChanging(DependencyObject d, object value)
         {
-            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
-                m.MediaCore.State.SpeedRatio = v;
+            if (d == null || d is MediaElement == false)
+                return Constants.DefaultSpeedRatio;
+
+            var element = (MediaElement)d;
+            if (element.IsStateUpdating)
+                return value;
+
+            element.MediaCore.State.SpeedRatio = (double)value;
+            return element.MediaCore.State.SpeedRatio;
         }
 
         #endregion
@@ -152,7 +180,7 @@ namespace Unosquare.FFME
                 return null;
 
             var element = (MediaElement)d;
-            if (element.IsSourceChangingViaCommand)
+            if (element.IsStateUpdating)
                 return value;
 
             var uri = value as Uri;
@@ -160,11 +188,13 @@ namespace Unosquare.FFME
             if (mediaCore == null) return null;
 
             if (uri == null)
-                mediaCore.Close().ConfigureAwait(true).GetAwaiter().GetResult();
-            else
-                mediaCore.Open(uri).ConfigureAwait(true).GetAwaiter().GetResult();
+            {
+                mediaCore.Close();
+                return null;
+            }
 
-            return mediaCore.State.Source;
+            mediaCore.Open(uri);
+            return uri;
         }
 
         #endregion
@@ -198,35 +228,27 @@ namespace Unosquare.FFME
             var element = (MediaElement)d;
             var mediaCore = element.MediaCore;
 
-            if (mediaCore == null || mediaCore.IsDisposed || mediaCore.MediaInfo == null)
+            if (mediaCore == null || mediaCore.IsDisposed || mediaCore.MediaInfo == null || !element.IsOpen)
                 return TimeSpan.Zero;
 
-            if (!element.IsOpen)
-                return TimeSpan.Zero;
-
-            if (mediaCore.State.IsSeekable == false)
-                return mediaCore.State.Position;
-
-            var valueComingFromEngine = element.PropertyUpdatesWorker?.IsExecutingCycle ?? true;
-
-            if (valueComingFromEngine && mediaCore.State.IsSeeking == false)
+            if (element.IsSeekable == false || element.IsStateUpdating)
                 return value;
 
-            // Clamp from 0 to duration
+            // Clamp from minimum to maximum
             var targetSeek = (TimeSpan)value;
             var minTarget = mediaCore.State.PlaybackStartTime ?? TimeSpan.Zero;
             var maxTarget = mediaCore.State.PlaybackEndTime ?? TimeSpan.Zero;
             var hasValidTaget = maxTarget > minTarget;
 
             if (hasValidTaget)
-                targetSeek = ((TimeSpan)value).Clamp(minTarget, maxTarget);
-
-            if (valueComingFromEngine)
-                return targetSeek;
-
-            // coming in as a seek from user
-            if (hasValidTaget)
+            {
+                targetSeek = targetSeek.Clamp(minTarget, maxTarget);
                 mediaCore?.Seek(targetSeek);
+            }
+            else
+            {
+                targetSeek = mediaCore.State.Position;
+            }
 
             return targetSeek;
         }

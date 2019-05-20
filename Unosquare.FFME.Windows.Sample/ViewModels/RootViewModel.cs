@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
+    using Common;
     using Foundation;
     using System;
     using System.Diagnostics;
@@ -179,7 +180,7 @@
             Controller.OnApplicationLoaded();
 
             var m = MediaElement;
-            new Action(UpdateWindowTitle).WhenChanged(m,
+            m.WhenChanged(UpdateWindowTitle,
                 nameof(m.IsOpen),
                 nameof(m.IsOpening),
                 nameof(m.MediaState),
@@ -193,7 +194,7 @@
                 // Update the Controls
                 Playlist.IsInOpenMode = false;
                 IsPlaylistPanelOpen = false;
-                Playlist.OpenMediaSource = m.Source?.ToString();
+                Playlist.OpenMediaSource = e.Info.MediaSource;
             };
 
             IsPlaylistPanelOpen = true;
