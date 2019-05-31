@@ -372,7 +372,7 @@
                 {
                     IsStateUpdating = false;
                 }
-            }), DispatcherPriority.Background);
+            }), DispatcherPriority.DataBind);
         }
 
         /// <summary>
