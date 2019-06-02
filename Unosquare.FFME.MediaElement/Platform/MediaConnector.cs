@@ -43,17 +43,18 @@
             Library.GuiContext.EnqueueInvoke(async () =>
             {
                 Parent.PostMediaEndedEvent();
+                var behavior = Parent.LoopingBehavior;
 
-                if (Parent.UnloadedBehavior == MediaPlaybackState.Close)
+                if (behavior == MediaPlaybackState.Close)
                 {
                     await sender.Close();
                 }
-                else if (Parent.UnloadedBehavior == MediaPlaybackState.Play)
+                else if (behavior == MediaPlaybackState.Play)
                 {
                     await sender.Stop();
                     await sender.Play();
                 }
-                else if (Parent.UnloadedBehavior == MediaPlaybackState.Stop)
+                else if (behavior == MediaPlaybackState.Stop)
                 {
                     await sender.Stop();
                 }

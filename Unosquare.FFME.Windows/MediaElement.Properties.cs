@@ -308,11 +308,11 @@ namespace Unosquare.FFME
         #region UnoadedBahavior Dependency Property
 
         /// <summary>
-        /// Specifies how the underlying media should behave when
-        /// it has ended. The default behavior is to Pause the media.
+        /// Specifies how the underlying media engine's resources should be handled when
+        /// the unloaded event gets fired. The default behavior is to Close and release the resources.
         /// </summary>
         [Category(nameof(MediaElement))]
-        [Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
+        [Description("Specifies how the underlying media engine's resources should be handled when the unloaded event gets fired.")]
         public MediaPlaybackState UnloadedBehavior
         {
             get => (MediaPlaybackState)GetValue(UnloadedBehaviorProperty);
@@ -324,6 +324,28 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty UnloadedBehaviorProperty = DependencyProperty.Register(
             nameof(UnloadedBehavior), typeof(MediaPlaybackState), typeof(MediaElement),
+            new FrameworkPropertyMetadata(MediaPlaybackState.Close));
+
+        #endregion
+
+        #region LoopingBehavior Dependency Property
+
+        /// <summary>
+        /// Specifies how the media should behave when it has ended. The default behavior is to Pause the media.
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("Specifies how the media should behave when it has ended. The default behavior is to Pause the media.")]
+        public MediaPlaybackState LoopingBehavior
+        {
+            get => (MediaPlaybackState)GetValue(LoopingBehaviorProperty);
+            set => SetValue(LoopingBehaviorProperty, value);
+        }
+
+        /// <summary>
+        /// The DependencyProperty for the MediaElement.LoopingBehavior property.
+        /// </summary>
+        public static readonly DependencyProperty LoopingBehaviorProperty = DependencyProperty.Register(
+            nameof(LoopingBehavior), typeof(MediaPlaybackState), typeof(MediaElement),
             new FrameworkPropertyMetadata(MediaPlaybackState.Pause));
 
         #endregion

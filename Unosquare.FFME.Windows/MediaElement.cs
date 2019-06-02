@@ -87,13 +87,17 @@
                     // Setup the media engine and property updates timer
                     MediaCore = new MediaEngine(this, new MediaConnector(this));
                     MediaCore.State.PropertyChanged += (s, e) => NotifyMediaCoreStateChanged(e.PropertyName);
+
+                    // When the media element is removed from the visual tree
+                    // we want to close the current media to prevent memory leaks
+                    Unloaded += async (s, e) =>
+                    {
+                        if (UnloadedBehavior == MediaPlaybackState.Close)
+                            await Close();
+                    };
                 }
 
                 InitializeComponent();
-
-                // When the media element is removed from the visual tree
-                // we want to close the current media to prevent memory leaks
-                Unloaded += async (s, e) => await Close();
             }
             finally
             {
