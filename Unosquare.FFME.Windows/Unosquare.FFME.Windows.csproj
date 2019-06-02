@@ -11,7 +11,7 @@
     <AssemblyName>ffme.win</AssemblyName>
     <Product>FFME: The Adavanced WPF MediaElement Alternative</Product>
     <Company>Unosquare SA de CV</Company>
-    <CodeAnalysisRuleSet>$(SolutionDir)\Analyzers.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\Analyzers.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
 
