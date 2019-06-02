@@ -1,11 +1,11 @@
 ﻿namespace Unosquare.FFME.Engine
 {
     using Common;
-    using Container;
     using Diagnostics;
     using Primitives;
     using System;
     using System.Runtime.CompilerServices;
+    using Unosquare.FFME.Container;
 
     /// <summary>
     /// Implements a real-time clock controller capable of handling independent
@@ -92,22 +92,22 @@
         private MediaEngine MediaCore { get; }
 
         /// <summary>
-        /// Gets the media options.
-        /// </summary>
-        private MediaOptions Options => MediaCore.MediaOptions;
-
-        /// <summary>
-        /// Gets the components.
-        /// </summary>
-        private MediaComponentSet Components => MediaCore.Container.Components;
-
-        /// <summary>
         /// Sets up timing and clocks. Call this method when media components change.
         /// </summary>
         public void Setup()
         {
             lock (SyncLock)
             {
+                var options = MediaCore?.MediaOptions;
+                var components = MediaCore?.Container?.Components;
+
+                if (components == null || options == null)
+                {
+                    MediaCore?.LogError(Aspects.Timing, "Unable to setup the timing controller. No components or options found.");
+                    Reset();
+                    return;
+                }
+
                 // Save the current clocks so they can be recreated with the
                 // same properties (position and speed ratio)
                 var lastClocks = new MediaTypeDictionary<RealTimeClock>();
@@ -116,7 +116,7 @@
 
                 try
                 {
-                    if (Options.IsTimeSyncDisabled)
+                    if (options.IsTimeSyncDisabled)
                     {
                         if (!MediaCore.Container.IsLiveStream)
                         {
@@ -127,7 +127,7 @@
                         return;
                     }
 
-                    if (!Components.HasAudio || !Components.HasVideo)
+                    if (!components.HasAudio || !components.HasVideo)
                         return;
 
                     var audioStartTime = GetComponentStartOffset(MediaType.Audio);
@@ -140,12 +140,12 @@
                             $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been ignored because the " +
                             $"streams seem to have unrelated timing information. Time Difference: {startTimeDifference.Format()} s.");
 
-                        Options.IsTimeSyncDisabled = true;
+                        options.IsTimeSyncDisabled = true;
                     }
                 }
                 finally
                 {
-                    if (Components.HasAudio && Components.HasVideo)
+                    if (components.HasAudio && components.HasVideo)
                     {
                         Clocks[MediaType.Audio] = new RealTimeClock();
                         Clocks[MediaType.Video] = new RealTimeClock();
@@ -158,7 +158,7 @@
                         Clocks[MediaType.Audio] = new RealTimeClock();
                         Clocks[MediaType.Video] = Clocks[MediaType.Audio];
 
-                        Offsets[MediaType.Audio] = GetComponentStartOffset(Components.HasAudio ? MediaType.Audio : MediaType.Video);
+                        Offsets[MediaType.Audio] = GetComponentStartOffset(components.HasAudio ? MediaType.Audio : MediaType.Video);
                         Offsets[MediaType.Video] = Offsets[MediaType.Audio];
                     }
 
@@ -174,12 +174,12 @@
                     }
 
                     // By default the continuous type is the audio component if it's a live stream
-                    var continuousType = Components.HasAudio && !MediaCore.Container.IsStreamSeekable
+                    var continuousType = components.HasAudio && !MediaCore.Container.IsStreamSeekable
                         ? MediaType.Audio
-                        : Components.MainMediaType;
+                        : components.MainMediaType;
 
-                    var discreteType = Components.MainMediaType;
-                    HasDisconnectedClocks = Options.IsTimeSyncDisabled && Clocks[MediaType.Audio] != Clocks[MediaType.Video];
+                    var discreteType = components.MainMediaType;
+                    HasDisconnectedClocks = options.IsTimeSyncDisabled && Clocks[MediaType.Audio] != Clocks[MediaType.Video];
                     ReferenceType = HasDisconnectedClocks ? continuousType : discreteType;
 
                     // The default data is what the clock reference contains
@@ -362,7 +362,12 @@
         /// <param name="t">The component media type.</param>
         /// <returns>The component start time.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private TimeSpan GetComponentStartOffset(MediaType t) =>
-            Components[t].StartTime == TimeSpan.MinValue ? TimeSpan.Zero : Components[t].StartTime;
+        private TimeSpan GetComponentStartOffset(MediaType t)
+        {
+            if (MediaCore?.Container?.Components is MediaComponentSet components && components[t] is MediaComponent component)
+                return component.StartTime == TimeSpan.MinValue ? TimeSpan.Zero : component.StartTime;
+
+            return TimeSpan.Zero;
+        }
     }
 }
