@@ -229,7 +229,7 @@
 
                     // Create the blocks from the obtained seek frames
                     MediaCore.Blocks[firstFrame.MediaType]?.Add(firstFrame, MediaCore.Container);
-                    hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, main, mainBlocks, targetPosition, hasSeekBlocks);
+                    hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
 
                     // Decode all available queued packets into the media component blocks
                     foreach (var mt in all)
@@ -239,7 +239,7 @@
                             var frame = MediaCore.Container.Components[mt].ReceiveNextFrame();
                             if (frame == null) break;
                             MediaCore.Blocks[mt].Add(frame, MediaCore.Container);
-                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, main, mainBlocks, targetPosition, hasSeekBlocks);
+                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
                         }
                     }
 
@@ -247,7 +247,7 @@
                     while (MediaCore.ShouldReadMorePackets && ct.IsCancellationRequested == false && hasSeekBlocks == false)
                     {
                         // Check if we are already in range
-                        hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, main, mainBlocks, targetPosition, hasSeekBlocks);
+                        hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
 
                         // Read the next packet
                         var packetType = MediaCore.Container.Read();
@@ -258,7 +258,7 @@
                         if (blocks.RangeEndTime.Ticks < targetPosition.Ticks || blocks.IsFull == false)
                         {
                             blocks.Add(MediaCore.Container.Components[packetType].ReceiveNextFrame(), MediaCore.Container);
-                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, main, mainBlocks, targetPosition, hasSeekBlocks);
+                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
                         }
                     }
                 }
@@ -310,10 +310,10 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool TrySignalBlocksAvailable(SeekMode mode, MediaType main, MediaBlockBuffer mainBlocks, TimeSpan targetPosition, bool hasSeekBlocks)
+        private bool TrySignalBlocksAvailable(SeekMode mode, MediaBlockBuffer mainBlocks, TimeSpan targetPosition, bool hasSeekBlocks)
         {
             // signal that thesere is a main block available
-            if (hasSeekBlocks == false && main == MediaType.Video && mainBlocks.IsInRange(targetPosition))
+            if (hasSeekBlocks == false && mainBlocks.IsInRange(targetPosition))
             {
                 // We need to update the clock immediately because
                 // the renderer will need this position
