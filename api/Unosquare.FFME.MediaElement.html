@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class MediaElement
    | FFME: WPF MediaElement replacement based on FFmpeg ">
-    <meta name="generator" content="docfx 2.41.0.0">
+    <meta name="generator" content="docfx 2.42.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -199,6 +199,31 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static readonly DependencyProperty LoadedBehaviorProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_LoopingBehaviorProperty" data-uid="Unosquare.FFME.MediaElement.LoopingBehaviorProperty">LoopingBehaviorProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.LoopingBehavior property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty LoopingBehaviorProperty</code></pre>
   </div>
   <h5 class="fieldValue">Field Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -529,6 +554,32 @@ also set, then the loaded behavior takes control.</p>
   </table>
   
   
+  <a id="Unosquare_FFME_MediaElement_LoopingBehavior_" data-uid="Unosquare.FFME.MediaElement.LoopingBehavior*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_LoopingBehavior" data-uid="Unosquare.FFME.MediaElement.LoopingBehavior">LoopingBehavior</h4>
+  <div class="markdown level1 summary"><p>Specifies how the media should behave when it has ended. The default behavior is to Pause the media.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MediaPlaybackState LoopingBehavior { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">MediaPlaybackState</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_MediaElement_Position_" data-uid="Unosquare.FFME.MediaElement.Position*"></a>
   <h4 id="Unosquare_FFME_MediaElement_Position" data-uid="Unosquare.FFME.MediaElement.Position">Position</h4>
   <div class="markdown level1 summary"><p>Gets/Sets the Position property on the MediaElement.</p>
@@ -722,8 +773,8 @@ its native size.</p>
   
   <a id="Unosquare_FFME_MediaElement_UnloadedBehavior_" data-uid="Unosquare.FFME.MediaElement.UnloadedBehavior*"></a>
   <h4 id="Unosquare_FFME_MediaElement_UnloadedBehavior" data-uid="Unosquare.FFME.MediaElement.UnloadedBehavior">UnloadedBehavior</h4>
-  <div class="markdown level1 summary"><p>Specifies how the underlying media should behave when
-it has ended. The default behavior is to Pause the media.</p>
+  <div class="markdown level1 summary"><p>Specifies how the underlying media engine&apos;s resources should be handled when
+the unloaded event gets fired. The default behavior is to Close and release the resources.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>

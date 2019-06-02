@@ -1176,6 +1176,25 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.LoadedBehaviorProperty
   fullName: Unosquare.FFME.MediaElement.LoadedBehaviorProperty
   nameWithType: MediaElement.LoadedBehaviorProperty
+- uid: Unosquare.FFME.MediaElement.LoopingBehavior
+  name: LoopingBehavior
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LoopingBehavior
+  commentId: P:Unosquare.FFME.MediaElement.LoopingBehavior
+  fullName: Unosquare.FFME.MediaElement.LoopingBehavior
+  nameWithType: MediaElement.LoopingBehavior
+- uid: Unosquare.FFME.MediaElement.LoopingBehavior*
+  name: LoopingBehavior
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LoopingBehavior_
+  commentId: Overload:Unosquare.FFME.MediaElement.LoopingBehavior
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.LoopingBehavior
+  nameWithType: MediaElement.LoopingBehavior
+- uid: Unosquare.FFME.MediaElement.LoopingBehaviorProperty
+  name: LoopingBehaviorProperty
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LoopingBehaviorProperty
+  commentId: F:Unosquare.FFME.MediaElement.LoopingBehaviorProperty
+  fullName: Unosquare.FFME.MediaElement.LoopingBehaviorProperty
+  nameWithType: MediaElement.LoopingBehaviorProperty
 - uid: Unosquare.FFME.MediaElement.Position
   name: Position
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Position
