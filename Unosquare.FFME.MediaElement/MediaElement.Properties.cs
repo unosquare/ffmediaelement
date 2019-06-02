@@ -46,11 +46,18 @@
             get
             {
                 if (PlaybackEndTime.HasValue == false || IsSeekable == false) return default;
-                return PlaybackEndTime.Value.Ticks < Position.Ticks
+                return PlaybackEndTime.Value.Ticks <= Position.Ticks
                     ? TimeSpan.Zero
                     : TimeSpan.FromTicks(PlaybackEndTime.Value.Ticks - Position.Ticks);
             }
         }
+
+        /// <summary>
+        /// Gets the actual playback position. Differently from the <see cref="Position"/> property,
+        /// this is not a dependency property. Reading this property will return the media engine's
+        /// internal position.
+        /// </summary>
+        public TimeSpan? ActualPosition => MediaCore?.PlaybackPosition ?? default;
 
         /// <summary>
         /// Gets the discrete time position of the start of the current

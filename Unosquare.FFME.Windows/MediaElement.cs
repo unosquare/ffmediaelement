@@ -343,6 +343,7 @@
                                 Position = MediaCore.State.Position;
 
                             NotifyPropertyChangedEvent(nameof(RemainingDuration));
+                            NotifyPropertyChangedEvent(nameof(ActualPosition));
                         }
                         else if (p == nameof(Volume))
                         {
