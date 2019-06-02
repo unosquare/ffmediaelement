@@ -198,6 +198,9 @@
             // Setting Advanced Video Stream Options is also possible
             if (e.Options.VideoStream is StreamInfo videoStream)
             {
+                // Example of forcing a codec for a stream
+                // e.Options.DecoderCodec[videoStream.StreamIndex] = "mjpeg";
+
                 // If we have a valid seek index let's use it!
                 if (string.IsNullOrWhiteSpace(mediaFilePath) == false)
                 {
