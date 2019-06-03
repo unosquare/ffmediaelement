@@ -5,6 +5,7 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Linq;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Provides audio sample extraction, decoding and scaling functionality.
@@ -13,8 +14,6 @@
     internal sealed unsafe class AudioComponent : MediaComponent
     {
         #region Private Declarations
-
-        private readonly string FilterString;
 
         /// <summary>
         /// Holds a reference to the audio re-sampler
@@ -33,6 +32,7 @@
         private AVFilterInOut* SinkInput;
         private AVFilterInOut* SourceOutput;
 
+        private string AppliedFilterString;
         private string CurrentFilterArguments;
 
         #endregion
@@ -50,7 +50,6 @@
             Channels = Stream->codec->channels;
             SampleRate = Stream->codec->sample_rate;
             BitsPerSample = ffmpeg.av_samples_get_buffer_size(null, 1, 1, Stream->codec->sample_fmt, 1) * 8;
-            FilterString = container.MediaOptions.AudioFilter;
         }
 
         #endregion
@@ -71,6 +70,11 @@
         /// Gets the bits per sample.
         /// </summary>
         public int BitsPerSample { get; }
+
+        /// <summary>
+        /// Provides access to the AudioFilter string of the container's MediaOptions.
+        /// </summary>
+        private string FilterString => Container?.MediaOptions?.AudioFilter;
 
         #endregion
 
@@ -175,8 +179,8 @@
             if (framePointer == IntPtr.Zero || frame->channels <= 0 || frame->nb_samples <= 0 || frame->sample_rate <= 0)
                 return null;
 
-            if (string.IsNullOrWhiteSpace(FilterString) == false)
-                InitializeFilterGraph(frame);
+            // Init the filter graph for the frame
+            InitializeFilterGraph(frame);
 
             AVFrame* outputFrame;
 
@@ -243,16 +247,25 @@
         /// <summary>
         /// Destroys the filter graph releasing unmanaged resources.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void DestroyFilterGraph()
         {
-            if (FilterGraph == null) return;
-            RC.Current.Remove(FilterGraph);
-            var filterGraphRef = FilterGraph;
-            ffmpeg.avfilter_graph_free(&filterGraphRef);
+            try
+            {
+                if (FilterGraph == null) return;
+                RC.Current.Remove(FilterGraph);
+                var filterGraphRef = FilterGraph;
+                ffmpeg.avfilter_graph_free(&filterGraphRef);
 
-            FilterGraph = null;
-            SinkInput = null;
-            SourceOutput = null;
+                FilterGraph = null;
+                SinkInput = null;
+                SourceOutput = null;
+            }
+            finally
+            {
+                AppliedFilterString = null;
+                CurrentFilterArguments = null;
+            }
         }
 
         /// <summary>
@@ -260,6 +273,7 @@
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <returns>The base filter arguments.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string ComputeFilterArguments(AVFrame* frame)
         {
             var hexChannelLayout = BitConverter.ToString(
@@ -291,6 +305,7 @@
         /// or
         /// avfilter_graph_config.
         /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InitializeFilterGraph(AVFrame* frame)
         {
             // References: https://www.ffmpeg.org/doxygen/2.0/doc_2examples_2filtering_audio_8c-example.html
@@ -299,15 +314,29 @@
             const string SinkFilterName = "abuffersink";
             const string SinkFilterInstance = "audio_buffersink";
 
-            var frameArguments = ComputeFilterArguments(frame);
-            if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments != CurrentFilterArguments)
+            // Get a snapshot of the FilterString
+            var filterString = FilterString;
+
+            // For empty filter strings ensure filtegraph is destroyed
+            if (string.IsNullOrWhiteSpace(filterString))
+            {
+                DestroyFilterGraph();
+                return;
+            }
+
+            // Recreate the filtergraph if we have to
+            if (filterString != AppliedFilterString)
+                DestroyFilterGraph();
+
+            // Ensure the filtergraph is compatible with the frame
+            var filterArguments = ComputeFilterArguments(frame);
+            if (filterArguments != CurrentFilterArguments)
                 DestroyFilterGraph();
             else
                 return;
 
             FilterGraph = ffmpeg.avfilter_graph_alloc();
             RC.Current.Add(FilterGraph);
-            CurrentFilterArguments = frameArguments;
 
             try
             {
@@ -315,7 +344,7 @@
                 AVFilterContext* sinkFilterRef = null;
 
                 var result = ffmpeg.avfilter_graph_create_filter(
-                    &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, CurrentFilterArguments, null, FilterGraph);
+                    &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, filterArguments, null, FilterGraph);
                 if (result != 0)
                 {
                     throw new MediaContainerException(
@@ -333,7 +362,7 @@
                 SourceFilter = sourceFilterRef;
                 SinkFilter = sinkFilterRef;
 
-                if (string.IsNullOrWhiteSpace(FilterString))
+                if (string.IsNullOrWhiteSpace(filterString))
                 {
                     result = ffmpeg.avfilter_link(SourceFilter, 0, SinkFilter, 0);
                     if (result != 0)
@@ -355,7 +384,7 @@
                     SinkInput->pad_idx = 0;
                     SinkInput->next = null;
 
-                    result = ffmpeg.avfilter_graph_parse(FilterGraph, FilterString, SinkInput, SourceOutput, null);
+                    result = ffmpeg.avfilter_graph_parse(FilterGraph, filterString, SinkInput, SourceOutput, null);
                     if (result != 0)
                         throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_parse)} failed. Error {result}: {FFInterop.DecodeMessage(result)}");
 
@@ -375,8 +404,13 @@
             }
             catch (Exception ex)
             {
-                this.LogError(Aspects.Component, $"Audio filter graph could not be built: {FilterString}.", ex);
+                this.LogError(Aspects.Component, $"Audio filter graph could not be built: {filterString}.", ex);
                 DestroyFilterGraph();
+            }
+            finally
+            {
+                CurrentFilterArguments = filterArguments;
+                AppliedFilterString = filterString;
             }
         }
 

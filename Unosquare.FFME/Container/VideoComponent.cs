@@ -18,6 +18,7 @@
         #region Private State Variables
 
         private readonly AVRational BaseFrameRateQ;
+
         private string AppliedFilterString;
         private string CurrentFilterArguments;
 

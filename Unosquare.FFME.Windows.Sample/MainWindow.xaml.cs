@@ -381,6 +381,9 @@
                 Media.Volume = 1.0;
                 Media.Balance = 0;
                 Media.IsMuted = false;
+                ViewModel.Controller.VideoContrast = 1;
+                ViewModel.Controller.VideoBrightness = 0;
+                ViewModel.Controller.VideoSaturation = 1;
                 ViewModel.Controller.MediaElementZoom = 1.0;
                 ViewModel.NotificationMessage = "Defaults applied.";
                 return;
@@ -422,6 +425,31 @@
             if (e.Key == Key.K)
             {
                 ViewModel.Controller.VideoSaturation -= 0.05;
+                return;
+            }
+
+            // Example of cycling through audio filters
+            if (e.Key == Key.E)
+            {
+                var mediaOptions = ViewModel.CurrentMediaOptions;
+                if (mediaOptions == null) return;
+
+                if (string.IsNullOrWhiteSpace(mediaOptions.AudioFilter))
+                {
+                    mediaOptions.AudioFilter = "aecho=0.8:0.9:1000:0.3";
+                    ViewModel.NotificationMessage = "Applied echo audio filter.";
+                }
+                else if (mediaOptions.AudioFilter == "aecho=0.8:0.9:1000:0.3")
+                {
+                    mediaOptions.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
+                    ViewModel.NotificationMessage = "Applied chorus audio filter.";
+                }
+                else
+                {
+                    mediaOptions.AudioFilter = string.Empty;
+                    ViewModel.NotificationMessage = "Cleared audio filter.";
+                }
+
                 return;
             }
 
