@@ -169,6 +169,12 @@
         }
 
         /// <summary>
+        /// Provides access to the current media options.
+        /// This is an unsupported usage of media options.
+        /// </summary>
+        public MediaOptions CurrentMediaOptions { get; set; }
+
+        /// <summary>
         /// Called when application has finished loading.
         /// </summary>
         internal void OnApplicationLoaded()

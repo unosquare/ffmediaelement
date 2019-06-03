@@ -7,6 +7,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Performs video picture decoding, scaling and extraction logic.
@@ -16,8 +17,8 @@
     {
         #region Private State Variables
 
-        private readonly string FilterString;
         private readonly AVRational BaseFrameRateQ;
+        private string AppliedFilterString;
         private string CurrentFilterArguments;
 
         private SwsContext* Scaler = null;
@@ -40,7 +41,6 @@
         internal VideoComponent(MediaContainer container, int streamIndex)
             : base(container, streamIndex)
         {
-            FilterString = container.MediaOptions.VideoFilter;
             BaseFrameRateQ = Stream->r_frame_rate;
 
             if (BaseFrameRateQ.den == 0 || BaseFrameRateQ.num == 0)
@@ -143,6 +143,11 @@
         /// Returns null if it was not set in the media options.
         /// </summary>
         public ReadOnlyCollection<VideoSeekIndexEntry> SeekIndex { get; }
+
+        /// <summary>
+        /// Provides access to the VideoFilter string of the container's MediaOptions.
+        /// </summary>
+        private string FilterString => Container?.MediaOptions?.VideoFilter;
 
         #endregion
 
@@ -339,8 +344,7 @@
             }
 
             // Init the filter graph for the frame
-            if (string.IsNullOrWhiteSpace(FilterString) == false)
-                InitializeFilterGraph(frame);
+            InitializeFilterGraph(frame);
 
             AVFrame* outputFrame;
 
@@ -470,16 +474,15 @@
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
         /// <returns>The length of the hypotenuse.</returns>
-        private static double ComputeHypotenuse(double a, double b)
-        {
-            return Math.Sqrt((a * a) + (b * b));
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double ComputeHypotenuse(double a, double b) => Math.Sqrt((a * a) + (b * b));
 
         /// <summary>
         /// Computes the frame filter arguments that are appropriate for the video filtering chain.
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <returns>The base filter arguments.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string ComputeFilterArguments(AVFrame* frame)
         {
             var arguments =
@@ -508,6 +511,7 @@
         /// or
         /// avfilter_graph_config.
         /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InitializeFilterGraph(AVFrame* frame)
         {
             /*
@@ -522,15 +526,29 @@
             const string SinkFilterName = "buffersink";
             const string SinkFilterInstance = "video_buffersink";
 
-            var frameArguments = ComputeFilterArguments(frame);
-            if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments != CurrentFilterArguments)
+            // Get a snapshot of the FilterString
+            var filterString = FilterString;
+
+            // For empty filter strings ensure filtegraph is destroyed
+            if (string.IsNullOrWhiteSpace(filterString))
+            {
+                DestroyFilterGraph();
+                return;
+            }
+
+            // Recreate the filtergraph if we have to
+            if (filterString != AppliedFilterString)
+                DestroyFilterGraph();
+
+            // Ensure the filtergraph is compatible with the frame
+            var filterArguments = ComputeFilterArguments(frame);
+            if (filterArguments != CurrentFilterArguments)
                 DestroyFilterGraph();
             else
                 return;
 
             FilterGraph = ffmpeg.avfilter_graph_alloc();
             RC.Current.Add(FilterGraph);
-            CurrentFilterArguments = frameArguments;
 
             try
             {
@@ -540,7 +558,7 @@
 
                 // Create the source filter
                 var result = ffmpeg.avfilter_graph_create_filter(
-                    &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, CurrentFilterArguments, null, FilterGraph);
+                    &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, filterArguments, null, FilterGraph);
 
                 // Check filter creation
                 if (result != 0)
@@ -567,7 +585,7 @@
                 SinkFilter = sinkFilterRef;
 
                 // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pixel_formats", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN)
-                if (string.IsNullOrWhiteSpace(FilterString))
+                if (string.IsNullOrWhiteSpace(filterString))
                 {
                     result = ffmpeg.avfilter_link(SourceFilter, 0, SinkFilter, 0);
                     if (result != 0)
@@ -593,7 +611,7 @@
                     SinkInput->pad_idx = 0;
                     SinkInput->next = null;
 
-                    result = ffmpeg.avfilter_graph_parse(FilterGraph, FilterString, SinkInput, SourceOutput, null);
+                    result = ffmpeg.avfilter_graph_parse(FilterGraph, filterString, SinkInput, SourceOutput, null);
                     if (result != 0)
                         throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_parse)} failed. Error {result}: {FFInterop.DecodeMessage(result)}");
 
@@ -613,7 +631,13 @@
             }
             catch (Exception ex)
             {
-                this.LogError(Aspects.Component, $"Video filter graph could not be built: {FilterString}.", ex);
+                this.LogError(Aspects.Component, $"Video filter graph could not be built: {filterString}.", ex);
+                DestroyFilterGraph();
+            }
+            finally
+            {
+                CurrentFilterArguments = filterArguments;
+                AppliedFilterString = filterString;
             }
         }
 
@@ -624,16 +648,25 @@
         /// <summary>
         /// Destroys the filter graph releasing unmanaged resources.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void DestroyFilterGraph()
         {
-            if (FilterGraph == null) return;
-            RC.Current.Remove(FilterGraph);
-            var filterGraphRef = FilterGraph;
-            ffmpeg.avfilter_graph_free(&filterGraphRef);
+            try
+            {
+                if (FilterGraph == null) return;
+                RC.Current.Remove(FilterGraph);
+                var filterGraphRef = FilterGraph;
+                ffmpeg.avfilter_graph_free(&filterGraphRef);
 
-            FilterGraph = null;
-            SinkInput = null;
-            SourceOutput = null;
+                FilterGraph = null;
+                SinkInput = null;
+                SourceOutput = null;
+            }
+            finally
+            {
+                AppliedFilterString = null;
+                CurrentFilterArguments = null;
+            }
         }
 
         #endregion

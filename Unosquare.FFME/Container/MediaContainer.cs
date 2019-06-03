@@ -193,7 +193,8 @@
 
         /// <summary>
         /// Represents options that applied before initializing media components and their corresponding
-        /// codecs. Once the container has created the media components, changing these options will have no effect.
+        /// codecs. Once the container has created the media components, changing these options may produce unintended side effects
+        /// and is not supported or recommended.
         /// </summary>
         public MediaOptions MediaOptions { get; } = new MediaOptions();
 

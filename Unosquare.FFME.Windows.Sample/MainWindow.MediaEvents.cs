@@ -122,6 +122,10 @@
         /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpening(object sender, MediaOpeningEventArgs e)
         {
+            // Capture a reference to the MediaOptions object for real-time change
+            // This usage of MediaOptions is unsupported.
+            ViewModel.CurrentMediaOptions = e.Options;
+
             // the event sender is the MediaElement itself
             var media = sender as MediaElement;
 
@@ -321,6 +325,7 @@
                 StreamRecorder = null;
             }
 
+            ViewModel.CurrentMediaOptions = null;
             ViewModel.NotificationMessage = "Media closed.";
         }
 

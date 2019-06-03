@@ -45,7 +45,7 @@
         </DockPanel>
 
         <Grid Name="NotificationsGrid"
-              MaxWidth="300" MaxHeight="46" VerticalAlignment="Top"
+              MaxWidth="300" MaxHeight="56" VerticalAlignment="Top"
               HorizontalAlignment="Left" Margin="10,10,0,0">
             <Grid.Style>
                 <Style TargetType="Grid">

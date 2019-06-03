@@ -386,6 +386,45 @@
                 return;
             }
 
+            // Contrast Controls
+            if (e.Key == Key.Y)
+            {
+                ViewModel.Controller.VideoContrast += 0.05;
+                return;
+            }
+
+            if (e.Key == Key.H)
+            {
+                ViewModel.Controller.VideoContrast -= 0.05;
+                return;
+            }
+
+            // Brightness Controls
+            if (e.Key == Key.U)
+            {
+                ViewModel.Controller.VideoBrightness += 0.05;
+                return;
+            }
+
+            if (e.Key == Key.J)
+            {
+                ViewModel.Controller.VideoBrightness -= 0.05;
+                return;
+            }
+
+            // Saturation Controls
+            if (e.Key == Key.I)
+            {
+                ViewModel.Controller.VideoSaturation += 0.05;
+                return;
+            }
+
+            if (e.Key == Key.K)
+            {
+                ViewModel.Controller.VideoSaturation -= 0.05;
+                return;
+            }
+
             // Capture Screenshot to desktop
             if (e.Key == Key.T)
             {

@@ -2,6 +2,8 @@
 {
     using Common;
     using Foundation;
+    using System;
+    using System.Globalization;
     using System.Windows;
     using System.Windows.Media;
 
@@ -11,6 +13,10 @@
     /// <seealso cref="AttachedViewModel" />
     public sealed class ControllerViewModel : AttachedViewModel
     {
+        private const string VideoEqContrast = "eq=contrast=";
+        private const string VideoEqBrightness = ":brightness=";
+        private const string VideoEqSaturation = ":saturation=";
+
         private Visibility m_IsMediaOpenVisibility = Visibility.Visible;
         private bool m_IsAudioControlEnabled = true;
         private bool m_IsSpeedRatioEnabled = true;
@@ -33,6 +39,33 @@
             : base(root)
         {
             // placeholder
+        }
+
+        /// <summary>
+        /// Gets or sets the video contrast.
+        /// </summary>
+        public double VideoContrast
+        {
+            get => ParseVideoEqualizerFilter().Contrast;
+            set => ApplyVideoEqualizerFilter(value, null, null);
+        }
+
+        /// <summary>
+        /// Gets or sets the video brightness.
+        /// </summary>
+        public double VideoBrightness
+        {
+            get => ParseVideoEqualizerFilter().Brightness;
+            set => ApplyVideoEqualizerFilter(null, value, null);
+        }
+
+        /// <summary>
+        /// Gets or sets the video saturation.
+        /// </summary>
+        public double VideoSaturation
+        {
+            get => ParseVideoEqualizerFilter().Saturation;
+            set => ApplyVideoEqualizerFilter(null, null, value);
         }
 
         /// <summary>
@@ -275,6 +308,70 @@
             m.WhenChanged(() => OpenButtonVisibility = m.IsOpening == false ? Visibility.Visible : Visibility.Hidden, nameof(m.IsOpening));
 
             m.WhenChanged(() => IsSpeedRatioEnabled = m.IsOpening == false, nameof(m.IsOpen), nameof(m.IsSeekable));
+        }
+
+        private (double Contrast, double Brightness, double Saturation) ParseVideoEqualizerFilter()
+        {
+            var result = (contrast: 1d, brightness: 0d, saturation: 1d);
+
+            if (Root.MediaElement == null || Root.MediaElement.HasVideo == false) return result;
+
+            var currentFilter = Root.CurrentMediaOptions?.VideoFilter;
+            if (string.IsNullOrWhiteSpace(currentFilter)) return result;
+
+            var cIx = currentFilter.LastIndexOf(VideoEqContrast, StringComparison.Ordinal);
+            var bIx = currentFilter.LastIndexOf(VideoEqBrightness, StringComparison.Ordinal);
+            var sIx = currentFilter.LastIndexOf(VideoEqSaturation, StringComparison.Ordinal);
+
+            if (cIx < 0 || bIx < 0 || sIx < 0) return result;
+
+            var cLiteral = currentFilter.Substring(cIx + VideoEqContrast.Length, 6);
+            var bLiteral = currentFilter.Substring(bIx + VideoEqBrightness.Length, 6);
+            var sLiteral = currentFilter.Substring(sIx + VideoEqSaturation.Length, 6);
+
+            result.contrast = double.Parse(cLiteral, CultureInfo.InvariantCulture);
+            result.brightness = double.Parse(bLiteral, CultureInfo.InvariantCulture);
+            result.saturation = double.Parse(sLiteral, CultureInfo.InvariantCulture);
+
+            return result;
+        }
+
+        private void ApplyVideoEqualizerFilter(double? contrast, double? brightness, double? saturation)
+        {
+            if (Root.MediaElement == null || Root.MediaElement.HasVideo == false || Root.CurrentMediaOptions == null)
+                return;
+
+            try
+            {
+                var currentValues = ParseVideoEqualizerFilter();
+
+                contrast = contrast == null ? currentValues.Contrast : contrast < -2d ? -2d : contrast > 2d ? 2d : contrast;
+                brightness = brightness == null ? currentValues.Brightness : brightness < -1d ? -1d : brightness > 1d ? 1d : brightness;
+                saturation = saturation == null ? currentValues.Saturation : saturation < 0d ? 0d : saturation > 3d ? 3d : saturation;
+
+                var targetFilter = $"{VideoEqContrast}{contrast:+0.000;-0.000}{VideoEqBrightness}{brightness:+0.000;-0.000}{VideoEqSaturation}{saturation:+0.000;-0.000}";
+                var currentFilter = Root.CurrentMediaOptions?.VideoFilter;
+
+                if (string.IsNullOrWhiteSpace(currentFilter))
+                {
+                    Root.CurrentMediaOptions.VideoFilter = targetFilter;
+                    return;
+                }
+
+                var cIx = currentFilter.LastIndexOf(VideoEqContrast, StringComparison.Ordinal);
+                Root.CurrentMediaOptions.VideoFilter = cIx < 0
+                    ? $"{currentFilter},{targetFilter}"
+                    : currentFilter.Substring(0, cIx) + targetFilter;
+            }
+            finally
+            {
+                NotifyPropertyChanged(nameof(VideoContrast));
+                NotifyPropertyChanged(nameof(VideoBrightness));
+                NotifyPropertyChanged(nameof(VideoSaturation));
+
+                // Notify a change in Video Equalizer
+                Root.NotificationMessage = $"Contrast:   {contrast:+0.000;-0.000}\r\nBrightness: {brightness:+0.000;-0.000}\r\nSaturation: {saturation:+0.000;-0.000}";
+            }
         }
     }
 }
