@@ -5,7 +5,6 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -20,13 +19,13 @@
         private static readonly object SyncLock = new object();
         private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
-        private static ReadOnlyCollection<string> m_InputFormatNames;
-        private static ReadOnlyCollection<OptionMetadata> m_GlobalInputFormatOptions;
-        private static ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> m_InputFormatOptions;
-        private static ReadOnlyCollection<string> m_DecoderNames;
-        private static ReadOnlyCollection<string> m_EncoderNames;
-        private static ReadOnlyCollection<OptionMetadata> m_GlobalDecoderOptions;
-        private static ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> m_DecoderOptions;
+        private static IReadOnlyList<string> m_InputFormatNames;
+        private static IReadOnlyList<OptionMetadata> m_GlobalInputFormatOptions;
+        private static IReadOnlyDictionary<string, IReadOnlyList<OptionMetadata>> m_InputFormatOptions;
+        private static IReadOnlyList<string> m_DecoderNames;
+        private static IReadOnlyList<string> m_EncoderNames;
+        private static IReadOnlyList<OptionMetadata> m_GlobalDecoderOptions;
+        private static IReadOnlyDictionary<string, IReadOnlyList<OptionMetadata>> m_DecoderOptions;
         private static unsafe AVCodec*[] m_AllCodecs;
 
         /// <summary>
@@ -91,8 +90,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_InputFormatNames ?? (m_InputFormatNames =
-                        new ReadOnlyCollection<string>(FFInterop.RetrieveInputFormatNames()));
+                    return m_InputFormatNames ?? (m_InputFormatNames = FFInterop.RetrieveInputFormatNames());
                 }
             }
         }
@@ -110,8 +108,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_GlobalInputFormatOptions ?? (m_GlobalInputFormatOptions =
-                        new ReadOnlyCollection<OptionMetadata>(FFInterop.RetrieveGlobalFormatOptions().ToArray()));
+                    return m_GlobalInputFormatOptions ?? (m_GlobalInputFormatOptions = FFInterop.RetrieveGlobalFormatOptions());
                 }
             }
         }
@@ -120,7 +117,7 @@
         /// Gets the input format options.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static IReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> InputFormatOptions
+        public static IReadOnlyDictionary<string, IReadOnlyList<OptionMetadata>> InputFormatOptions
         {
             get
             {
@@ -132,14 +129,14 @@
                     if (m_InputFormatOptions != null)
                         return m_InputFormatOptions;
 
-                    var result = new Dictionary<string, ReadOnlyCollection<OptionMetadata>>(InputFormatNames.Count);
+                    var result = new Dictionary<string, IReadOnlyList<OptionMetadata>>(InputFormatNames.Count);
                     foreach (var formatName in InputFormatNames)
                     {
                         var optionsInfo = FFInterop.RetrieveInputFormatOptions(formatName);
-                        result[formatName] = new ReadOnlyCollection<OptionMetadata>(optionsInfo);
+                        result[formatName] = optionsInfo;
                     }
 
-                    m_InputFormatOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>>(result);
+                    m_InputFormatOptions = new Dictionary<string, IReadOnlyList<OptionMetadata>>(result);
 
                     return m_InputFormatOptions;
                 }
@@ -159,8 +156,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_DecoderNames ?? (m_DecoderNames =
-                        new ReadOnlyCollection<string>(FFInterop.RetrieveDecoderNames(AllCodecs)));
+                    return m_DecoderNames ?? (m_DecoderNames = FFInterop.RetrieveDecoderNames(AllCodecs));
                 }
             }
         }
@@ -178,8 +174,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_EncoderNames ?? (m_EncoderNames =
-                        new ReadOnlyCollection<string>(FFInterop.RetrieveEncoderNames(AllCodecs)));
+                    return m_EncoderNames ?? (m_EncoderNames = FFInterop.RetrieveEncoderNames(AllCodecs));
                 }
             }
         }
@@ -197,8 +192,8 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_GlobalDecoderOptions ?? (m_GlobalDecoderOptions = new ReadOnlyCollection<OptionMetadata>(
-                        FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray()));
+                    return m_GlobalDecoderOptions ??
+                        (m_GlobalDecoderOptions = FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray());
                 }
             }
         }
@@ -207,7 +202,7 @@
         /// Gets the decoder specific options.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static unsafe IReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> DecoderOptions
+        public static unsafe IReadOnlyDictionary<string, IReadOnlyList<OptionMetadata>> DecoderOptions
         {
             get
             {
@@ -219,17 +214,16 @@
                     if (m_DecoderOptions != null)
                         return m_DecoderOptions;
 
-                    var result = new Dictionary<string, ReadOnlyCollection<OptionMetadata>>(DecoderNames.Count);
+                    var result = new Dictionary<string, IReadOnlyList<OptionMetadata>>(DecoderNames.Count);
                     foreach (var c in AllCodecs)
                     {
                         if (c->decode.Pointer == IntPtr.Zero)
                             continue;
 
-                        result[Utilities.PtrToStringUTF8(c->name)] =
-                            new ReadOnlyCollection<OptionMetadata>(FFInterop.RetrieveCodecOptions(c));
+                        result[Utilities.PtrToStringUTF8(c->name)] = FFInterop.RetrieveCodecOptions(c);
                     }
 
-                    m_DecoderOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>>(result);
+                    m_DecoderOptions = new Dictionary<string, IReadOnlyList<OptionMetadata>>(result);
 
                     return m_DecoderOptions;
                 }

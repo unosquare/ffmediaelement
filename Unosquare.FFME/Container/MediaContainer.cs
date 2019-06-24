@@ -6,7 +6,6 @@
     using Primitives;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
@@ -217,7 +216,7 @@
         /// <summary>
         /// Holds the metadata of the media file when the stream is initialized.
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata { get; private set; }
+        public IReadOnlyDictionary<string, string> Metadata { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether an Input Context has been initialize.
@@ -422,7 +421,7 @@
         /// freed from memory.
         /// </summary>
         /// <returns>The list of media frames.</returns>
-        public List<MediaFrame> Decode()
+        public IList<MediaFrame> Decode()
         {
             lock (DecodeSyncRoot)
             {
@@ -730,7 +729,7 @@
                 if (InputContext->pb != null) InputContext->pb->eof_reached = 0;
 
                 // Setup initial state variables
-                Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(InputContext->metadata));
+                Metadata = FFDictionary.ToDictionary(InputContext->metadata);
 
                 // If read_play is set, it is only relevant to network streams
                 IsNetworkStream = false;

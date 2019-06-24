@@ -4,7 +4,6 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
 
     /// <summary>
@@ -30,10 +29,10 @@
             Duration = ic->duration != ffmpeg.AV_NOPTS_VALUE ? ic->duration.ToTimeSpan() : TimeSpan.MinValue;
             BitRate = ic->bit_rate < 0 ? 0 : ic->bit_rate;
 
-            Streams = new ReadOnlyDictionary<int, StreamInfo>(ExtractStreams(ic).ToDictionary(k => k.StreamIndex, v => v));
-            Chapters = new ReadOnlyCollection<ChapterInfo>(ExtractChapters(ic));
-            Programs = new ReadOnlyCollection<ProgramInfo>(ExtractPrograms(ic, Streams));
-            BestStreams = new ReadOnlyDictionary<AVMediaType, StreamInfo>(FindBestStreams(ic, Streams));
+            Streams = ExtractStreams(ic).ToDictionary(k => k.StreamIndex, v => v);
+            Chapters = ExtractChapters(ic);
+            Programs = ExtractPrograms(ic, Streams);
+            BestStreams = FindBestStreams(ic, Streams);
         }
 
         #endregion
@@ -54,7 +53,7 @@
         /// Gets the metadata for the input. This may include stuff like title, creation date, company name, etc.
         /// Individual stream components, chapters and programs may contain additional metadata.
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata { get; }
+        public IReadOnlyDictionary<string, string> Metadata { get; }
 
         /// <summary>
         /// Gets the duration of the input as reported by the container format.
@@ -78,23 +77,23 @@
         /// <summary>
         /// Gets a list of chapters.
         /// </summary>
-        public ReadOnlyCollection<ChapterInfo> Chapters { get; }
+        public IReadOnlyList<ChapterInfo> Chapters { get; }
 
         /// <summary>
         /// Gets a list of programs with their associated streams.
         /// </summary>
-        public ReadOnlyCollection<ProgramInfo> Programs { get; }
+        public IReadOnlyList<ProgramInfo> Programs { get; }
 
         /// <summary>
         /// Gets the dictionary of stream information components by stream index.
         /// </summary>
-        public ReadOnlyDictionary<int, StreamInfo> Streams { get; }
+        public IReadOnlyDictionary<int, StreamInfo> Streams { get; }
 
         /// <summary>
         /// Provides access to the best streams of each media type found in the container.
         /// This uses some internal FFmpeg heuristics.
         /// </summary>
-        public ReadOnlyDictionary<AVMediaType, StreamInfo> BestStreams { get; }
+        public IReadOnlyDictionary<AVMediaType, StreamInfo> BestStreams { get; }
 
         #endregion
 
@@ -147,7 +146,7 @@
                 {
                     StreamId = s->id,
                     StreamIndex = s->index,
-                    Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(s->metadata)),
+                    Metadata = FFDictionary.ToDictionary(s->metadata),
                     CodecType = codecContext->codec_type,
                     CodecTypeName = ffmpeg.av_get_media_type_string(codecContext->codec_type),
                     Codec = codecContext->codec_id,
@@ -184,11 +183,8 @@
                 };
 
                 // Extract valid hardware configurations
-                stream.HardwareDevices = new ReadOnlyCollection<HardwareDeviceInfo>(
-                    HardwareAccelerator.GetCompatibleDevices(stream.Codec));
-
-                stream.HardwareDecoders = new ReadOnlyCollection<string>(
-                    GetHardwareDecoders(stream.Codec));
+                stream.HardwareDevices = HardwareAccelerator.GetCompatibleDevices(stream.Codec);
+                stream.HardwareDecoders = GetHardwareDecoders(stream.Codec);
 
                 // TODO: I chose not to include Side data but I could easily do so
                 // https://ffmpeg.org/doxygen/3.2/dump_8c_source.html
@@ -207,7 +203,7 @@
         /// <param name="ic">The ic.</param>
         /// <param name="streams">The streams.</param>
         /// <returns>The star infos.</returns>
-        private static Dictionary<AVMediaType, StreamInfo> FindBestStreams(AVFormatContext* ic, ReadOnlyDictionary<int, StreamInfo> streams)
+        private static Dictionary<AVMediaType, StreamInfo> FindBestStreams(AVFormatContext* ic, IReadOnlyDictionary<int, StreamInfo> streams)
         {
             // Initialize and clear all the stream indexes.
             var streamIndexes = new Dictionary<AVMediaType, int>();
@@ -278,7 +274,7 @@
                     EndTime = c->end.ToTimeSpan(c->time_base),
                     Index = i,
                     ChapterId = c->id,
-                    Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(c->metadata))
+                    Metadata = FFDictionary.ToDictionary(c->metadata)
                 };
 
                 result.Add(chapter);
@@ -293,7 +289,7 @@
         /// <param name="ic">The ic.</param>
         /// <param name="streams">The streams.</param>
         /// <returns>The program information.</returns>
-        private static List<ProgramInfo> ExtractPrograms(AVFormatContext* ic, ReadOnlyDictionary<int, StreamInfo> streams)
+        private static List<ProgramInfo> ExtractPrograms(AVFormatContext* ic, IReadOnlyDictionary<int, StreamInfo> streams)
         {
             var result = new List<ProgramInfo>(128);
             if (ic->programs == null) return result;
@@ -304,7 +300,7 @@
 
                 var program = new ProgramInfo
                 {
-                    Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(p->metadata)),
+                    Metadata = FFDictionary.ToDictionary(p->metadata),
                     ProgramId = p->id,
                     ProgramNumber = p->program_num
                 };
@@ -317,7 +313,7 @@
                         associatedStreams.Add(streams[streamIndex]);
                 }
 
-                program.Streams = new ReadOnlyCollection<StreamInfo>(associatedStreams);
+                program.Streams = associatedStreams;
 
                 result.Add(program);
             }
@@ -535,17 +531,17 @@
         /// <summary>
         /// Gets the stream's metadata.
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata { get; internal set; }
+        public IReadOnlyDictionary<string, string> Metadata { get; internal set; }
 
         /// <summary>
         /// Gets the compatible hardware device configurations for the stream's codec.
         /// </summary>
-        public ReadOnlyCollection<HardwareDeviceInfo> HardwareDevices { get; internal set; }
+        public IReadOnlyList<HardwareDeviceInfo> HardwareDevices { get; internal set; }
 
         /// <summary>
         /// Gets a list of compatible hardware decoder names.
         /// </summary>
-        public ReadOnlyCollection<string> HardwareDecoders { get; internal set; }
+        public IReadOnlyList<string> HardwareDecoders { get; internal set; }
 
         /// <summary>
         /// Gets the language string from the stream's metadata.
@@ -582,7 +578,7 @@
         /// <summary>
         /// Gets the chapter metadata.
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata { get; internal set; }
+        public IReadOnlyDictionary<string, string> Metadata { get; internal set; }
     }
 
     /// <summary>
@@ -603,12 +599,12 @@
         /// <summary>
         /// Gets the program metadata.
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata { get; internal set; }
+        public IReadOnlyDictionary<string, string> Metadata { get; internal set; }
 
         /// <summary>
         /// Gets the associated program streams.
         /// </summary>
-        public ReadOnlyCollection<StreamInfo> Streams { get; internal set; }
+        public IReadOnlyList<StreamInfo> Streams { get; internal set; }
 
         /// <summary>
         /// Gets the name of the program. Empty if unavailable.

@@ -3,7 +3,6 @@
     using Common;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Globalization;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -24,16 +23,15 @@
         /// <exception cref="KeyNotFoundException">When a property exposed by the underlying MediaCore is not mapped.</exception>
         static PropertyMapper()
         {
-            MissingPropertyMappings = new ReadOnlyCollection<string>(
-                MediaEngineProxy.PropertyNames
+            MissingPropertyMappings = MediaEngineProxy.PropertyNames
                 .Where(p => !MediaElementProxy.PropertyNames.Contains(p))
-                .ToArray());
+                .ToArray();
         }
 
         /// <summary>
         /// Contains the property names found in the Media Engine State type, but not found in the Media Element.
         /// </summary>
-        public static IReadOnlyCollection<string> MissingPropertyMappings { get; }
+        public static IReadOnlyList<string> MissingPropertyMappings { get; }
 
         /// <summary>
         /// Sets the value for the specified property name on the given instance.

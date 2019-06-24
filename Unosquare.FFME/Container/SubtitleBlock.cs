@@ -23,12 +23,12 @@
         /// <summary>
         /// Gets the lines of text for this subtitle frame with all formatting stripped out.
         /// </summary>
-        public List<string> Text { get; } = new List<string>(16);
+        public IList<string> Text { get; } = new List<string>(16);
 
         /// <summary>
         /// Gets the original text in SRT or ASS format.
         /// </summary>
-        public List<string> OriginalText { get; } = new List<string>(16);
+        public IList<string> OriginalText { get; } = new List<string>(16);
 
         /// <summary>
         /// Gets the type of the original text.

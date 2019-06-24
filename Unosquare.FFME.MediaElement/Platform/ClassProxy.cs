@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Reflection;
 
@@ -37,14 +36,14 @@
                 proxies[property.Name] = proxy;
             }
 
-            Properties = new ReadOnlyDictionary<string, IPropertyProxy>(proxies);
-            PropertyNames = new ReadOnlyCollection<string>(Properties.Keys.ToArray());
-            ReadOnlyPropertyNames = new ReadOnlyCollection<string>(Properties
+            Properties = proxies;
+            PropertyNames = Properties.Keys.ToArray();
+            ReadOnlyPropertyNames = Properties
                 .Where(kvp => kvp.Value.CanRead && !kvp.Value.CanWrite)
-                .Select(kvp => kvp.Key).OrderBy(s => s).ToArray());
-            ReadWritePropertyNames = new ReadOnlyCollection<string>(Properties
+                .Select(kvp => kvp.Key).OrderBy(s => s).ToArray();
+            ReadWritePropertyNames = Properties
                 .Where(kvp => kvp.Value.CanRead && kvp.Value.CanWrite)
-                .Select(kvp => kvp.Key).OrderBy(s => s).ToArray());
+                .Select(kvp => kvp.Key).OrderBy(s => s).ToArray();
         }
 
         /// <summary>

@@ -1,12 +1,11 @@
 ﻿namespace Unosquare.FFME.Container
 {
-    using ClosedCaptions;
     using Common;
     using Diagnostics;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -76,8 +75,8 @@
 
             var seekIndex = container.MediaOptions.VideoSeekIndex;
             SeekIndex = seekIndex != null && seekIndex.StreamIndex == StreamIndex ?
-                new ReadOnlyCollection<VideoSeekIndexEntry>(seekIndex.Entries) :
-                new ReadOnlyCollection<VideoSeekIndexEntry>(new List<VideoSeekIndexEntry>(0));
+                seekIndex.Entries :
+                new List<VideoSeekIndexEntry>(0);
         }
 
         #endregion
@@ -143,7 +142,7 @@
         /// Gets the video seek index for this component.
         /// Returns null if it was not set in the media options.
         /// </summary>
-        public ReadOnlyCollection<VideoSeekIndexEntry> SeekIndex { get; }
+        public IList<VideoSeekIndexEntry> SeekIndex { get; }
 
         /// <summary>
         /// Provides access to the VideoFilter string of the container's MediaOptions.
@@ -306,7 +305,7 @@
             target.CompressedSize = source.CompressedSize;
             target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = source.StreamIndex;
-            target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptionPacket>(source.ClosedCaptions);
+            target.ClosedCaptions = source.ClosedCaptions.ToList();
 
             // Update the stream info object if we get Closed Caption Data
             if (StreamInfo.HasClosedCaptions == false && target.ClosedCaptions.Count > 0)

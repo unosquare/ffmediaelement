@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Common
 {
     using System;
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Provides Media Engine state as read-only properties.
@@ -203,7 +203,7 @@
         /// <summary>
         /// Gets the media metadata such as title, language, etc.
         /// </summary>
-        ReadOnlyDictionary<string, string> Metadata { get; }
+        IReadOnlyDictionary<string, string> Metadata { get; }
 
         /// <summary>
         /// Gets the duration of the media.

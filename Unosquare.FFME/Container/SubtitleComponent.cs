@@ -55,7 +55,11 @@
 
             target.OriginalText.Clear();
             if (source.Text.Count > 0)
-                target.OriginalText.AddRange(source.Text);
+            {
+                foreach (var t in source.Text)
+                    target.OriginalText.Add(t);
+            }
+
             target.OriginalTextType = source.TextType;
 
             target.Text.Clear();

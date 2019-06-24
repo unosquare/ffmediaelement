@@ -72,7 +72,7 @@
         /// <summary>
         /// Gets lines of text that the subtitle frame contains.
         /// </summary>
-        public List<string> Text { get; } = new List<string>(16);
+        public IList<string> Text { get; } = new List<string>(16);
 
         /// <summary>
         /// Gets the type of the text.

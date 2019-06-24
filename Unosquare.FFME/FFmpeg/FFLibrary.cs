@@ -3,7 +3,6 @@
     using FFmpeg.AutoGen.Native;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
 
     /// <summary>
     /// Defines FFmpeg library metadata and access.
@@ -28,7 +27,7 @@
         static FFLibrary()
         {
             // Populate libraries in order of dependency (from least dependent to more dependent)
-            All = new ReadOnlyCollection<FFLibrary>(new List<FFLibrary>(16)
+            All = new List<FFLibrary>(new List<FFLibrary>(16)
             {
                 LibAVUtil,
                 LibSWResample,
@@ -61,7 +60,7 @@
         /// <summary>
         /// Gets all the libraries as a collection.
         /// </summary>
-        public static ReadOnlyCollection<FFLibrary> All { get; }
+        public static IReadOnlyList<FFLibrary> All { get; }
 
         /// <summary>
         /// Gets the AVCodec library.

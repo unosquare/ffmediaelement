@@ -3,7 +3,7 @@
     using ClosedCaptions;
     using Common;
     using FFmpeg.AutoGen;
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
 
     /// <inheritdoc />
     /// <summary>
@@ -74,7 +74,7 @@
         /// <summary>
         /// Gets the closed caption packets for this video block.
         /// </summary>
-        public ReadOnlyCollection<ClosedCaptionPacket> ClosedCaptions { get; internal set; }
+        public IReadOnlyList<ClosedCaptionPacket> ClosedCaptions { get; internal set; }
 
         /// <summary>
         /// Gets the picture buffer stride.

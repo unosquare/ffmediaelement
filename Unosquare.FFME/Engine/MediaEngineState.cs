@@ -5,7 +5,6 @@
     using Primitives;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -15,8 +14,7 @@
     {
         #region Property Backing and Private State
 
-        private static readonly ReadOnlyDictionary<string, string> EmptyDictionary
-            = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+        private static readonly IReadOnlyDictionary<string, string> EmptyDictionary = new Dictionary<string, string>(0);
 
         private readonly MediaEngine MediaCore;
         private readonly AtomicInteger m_MediaState = new AtomicInteger((int)MediaPlaybackState.Close);
@@ -40,7 +38,7 @@
         private bool m_IsOpen;
         private TimeSpan m_PositionStep;
         private long m_BitRate;
-        private ReadOnlyDictionary<string, string> m_Metadata = EmptyDictionary;
+        private IReadOnlyDictionary<string, string> m_Metadata = EmptyDictionary;
         private bool m_CanPause;
         private string m_MediaFormat;
         private long m_MediaStreamSize;
@@ -252,7 +250,7 @@
         }
 
         /// <inheritdoc />
-        public ReadOnlyDictionary<string, string> Metadata
+        public IReadOnlyDictionary<string, string> Metadata
         {
             get => m_Metadata;
             private set => SetProperty(ref m_Metadata, value);

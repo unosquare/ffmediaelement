@@ -22,8 +22,8 @@
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
         internal RenderingSubtitlesEventArgs(
-            List<string> text,
-            List<string> originalText,
+            IList<string> text,
+            IList<string> originalText,
             AVSubtitleType format,
             IMediaEngineState engineState,
             StreamInfo stream,
@@ -42,13 +42,13 @@
         /// This is what the default subtitle renderer will display
         /// on the screen.
         /// </summary>
-        public List<string> Text { get; }
+        public IList<string> Text { get; }
 
         /// <summary>
         /// Gets the text as originally decoded including
         /// all markup and formatting.
         /// </summary>
-        public List<string> OriginalText { get; }
+        public IList<string> OriginalText { get; }
 
         /// <summary>
         /// Gets the type of subtitle format the original

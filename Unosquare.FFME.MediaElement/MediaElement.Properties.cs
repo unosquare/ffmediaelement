@@ -2,7 +2,7 @@
 {
     using Common;
     using System;
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
 
     public partial class MediaElement
     {
@@ -81,7 +81,7 @@
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata => MediaCore?.State.Metadata;
+        public IReadOnlyDictionary<string, string> Metadata => MediaCore?.State.Metadata;
 
         /// <summary>
         /// Provides stream, chapter and program info of the underlying media.

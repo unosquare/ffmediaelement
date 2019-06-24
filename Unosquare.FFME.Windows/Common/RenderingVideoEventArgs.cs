@@ -2,7 +2,7 @@
 {
     using ClosedCaptions;
     using System;
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The video rendering event arguments.
@@ -24,7 +24,7 @@
         /// <param name="clock">The clock.</param>
         internal RenderingVideoEventArgs(
             BitmapDataBuffer bitmap,
-            ReadOnlyCollection<ClosedCaptionPacket> closedCaptions,
+            IReadOnlyList<ClosedCaptionPacket> closedCaptions,
             string smtpeTimeCode,
             long pictureNumber,
             IMediaEngineState engineState,
@@ -49,7 +49,7 @@
         /// <summary>
         /// Gets the closed caption decoded packets.
         /// </summary>
-        public ReadOnlyCollection<ClosedCaptionPacket> ClosedCaptions { get; }
+        public IReadOnlyList<ClosedCaptionPacket> ClosedCaptions { get; }
 
         /// <summary>
         /// Gets the display picture number (frame number).

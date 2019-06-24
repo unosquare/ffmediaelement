@@ -5,7 +5,6 @@
     using Primitives;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -23,8 +22,8 @@
         private readonly object BufferSyncLock = new object();
         private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
-        private ReadOnlyCollection<MediaComponent> m_All = new ReadOnlyCollection<MediaComponent>(new List<MediaComponent>(0));
-        private ReadOnlyCollection<MediaType> m_MediaTypes = new ReadOnlyCollection<MediaType>(new List<MediaType>(0));
+        private IReadOnlyList<MediaComponent> m_All = new List<MediaComponent>(0);
+        private IReadOnlyList<MediaType> m_MediaTypes = new List<MediaType>(0);
 
         private int m_Count;
         private TimeSpan? m_PlaybackStartTime;
@@ -81,7 +80,7 @@
         /// <summary>
         /// Gets the available component media types.
         /// </summary>
-        public ReadOnlyCollection<MediaType> MediaTypes
+        public IReadOnlyList<MediaType> MediaTypes
         {
             get { lock (ComponentSyncLock) return m_MediaTypes; }
         }
@@ -89,7 +88,7 @@
         /// <summary>
         /// Gets all the components in a read-only collection.
         /// </summary>
-        public ReadOnlyCollection<MediaComponent> All
+        public IReadOnlyList<MediaComponent> All
         {
             get { lock (ComponentSyncLock) return m_All; }
         }
@@ -541,8 +540,8 @@
                 allMediaTypes.Add(MediaType.Subtitle);
             }
 
-            m_All = new ReadOnlyCollection<MediaComponent>(allComponents);
-            m_MediaTypes = new ReadOnlyCollection<MediaType>(allMediaTypes);
+            m_All = allComponents;
+            m_MediaTypes = allMediaTypes;
             m_Count = allComponents.Count;
 
             // Find Start time, duration and end time

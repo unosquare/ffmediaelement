@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -23,18 +22,17 @@
 
         private static readonly object FFmpegLogBufferSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>(1024);
-        private static readonly ReadOnlyDictionary<int, MediaLogMessageType> FFmpegLogLevels =
-            new ReadOnlyDictionary<int, MediaLogMessageType>(
-                new Dictionary<int, MediaLogMessageType>
-                {
-                    { ffmpeg.AV_LOG_DEBUG, MediaLogMessageType.Debug },
-                    { ffmpeg.AV_LOG_ERROR, MediaLogMessageType.Error },
-                    { ffmpeg.AV_LOG_FATAL, MediaLogMessageType.Error },
-                    { ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info },
-                    { ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error },
-                    { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
-                    { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning }
-                });
+        private static readonly IReadOnlyDictionary<int, MediaLogMessageType> FFmpegLogLevels =
+            new Dictionary<int, MediaLogMessageType>
+            {
+                { ffmpeg.AV_LOG_DEBUG, MediaLogMessageType.Debug },
+                { ffmpeg.AV_LOG_ERROR, MediaLogMessageType.Error },
+                { ffmpeg.AV_LOG_FATAL, MediaLogMessageType.Error },
+                { ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info },
+                { ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error },
+                { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
+                { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning }
+            };
 
         private static readonly object SyncLock = new object();
         private static readonly List<OptionMetadata> EmptyOptionMetaList = new List<OptionMetadata>(0);
@@ -107,7 +105,7 @@
                     // Load FFmpeg binaries by Library ID
                     foreach (var lib in FFLibrary.All)
                     {
-                        if ((lib.FlagId & libIdentifiers) != 0 && lib.Load(ffmpegPath))
+                        if ((lib.FlagId & libIdentifiers) != 0 && (lib.IsLoaded || lib.Load(ffmpegPath)))
                             registrationIds |= lib.FlagId;
                     }
 
