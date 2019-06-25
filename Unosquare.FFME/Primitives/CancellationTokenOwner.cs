@@ -55,7 +55,10 @@
                 if (!m_IsDisposed)
                 {
                     if (alsoManaged)
+                    {
                         TokenSource.Cancel();
+                        TokenSource.Dispose();
+                    }
 
                     m_IsDisposed = true;
                 }
