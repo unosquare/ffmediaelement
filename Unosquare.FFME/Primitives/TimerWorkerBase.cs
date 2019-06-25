@@ -126,9 +126,16 @@
 
             lock (SyncLock)
             {
-                if (!IsTimerAlive) return;
-                IsTimerAlive = false;
-                Timer.Dispose();
+                try
+                {
+                    if (!IsTimerAlive) return;
+                    IsTimerAlive = false;
+                    Timer.Dispose();
+                }
+                finally
+                {
+                    CycleCancellation.Dispose();
+                }
             }
         }
 

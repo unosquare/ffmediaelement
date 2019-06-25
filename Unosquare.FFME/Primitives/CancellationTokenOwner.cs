@@ -37,7 +37,6 @@
             {
                 if (m_IsDisposed) return;
                 TokenSource.Cancel();
-                TokenSource.Dispose();
                 TokenSource = new CancellationTokenSource();
             }
         }
@@ -56,10 +55,7 @@
                 if (!m_IsDisposed)
                 {
                     if (alsoManaged)
-                    {
                         TokenSource.Cancel();
-                        TokenSource.Dispose();
-                    }
 
                     m_IsDisposed = true;
                 }
