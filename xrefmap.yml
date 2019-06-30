@@ -1132,6 +1132,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
   fullName: Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
   nameWithType: MediaElement.ClosedCaptionsChannelProperty
+- uid: Unosquare.FFME.MediaElement.Dispose
+  name: Dispose()
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Dispose
+  commentId: M:Unosquare.FFME.MediaElement.Dispose
+  fullName: Unosquare.FFME.MediaElement.Dispose()
+  nameWithType: MediaElement.Dispose()
+- uid: Unosquare.FFME.MediaElement.Dispose*
+  name: Dispose
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Dispose_
+  commentId: Overload:Unosquare.FFME.MediaElement.Dispose
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.Dispose
+  nameWithType: MediaElement.Dispose
 - uid: Unosquare.FFME.MediaElement.FFmpegMessageLogged
   name: FFmpegMessageLogged
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegMessageLogged

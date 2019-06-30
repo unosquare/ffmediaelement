@@ -94,11 +94,12 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   <div classs="implements">
     <h5>Implements</h5>
     <div><span class="xref">IUriContext</span></div>
+    <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.html">Unosquare.FFME</a></h6>
   <h5 id="Unosquare_FFME_MediaElement_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class MediaElement : UserControl, IUriContext</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class MediaElement : UserControl, IUriContext, IDisposable</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -852,6 +853,16 @@ Note: Valid values are from 0 to 1.</p>
       </tr>
     </tbody>
   </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Dispose_" data-uid="Unosquare.FFME.MediaElement.Dispose*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Dispose" data-uid="Unosquare.FFME.MediaElement.Dispose">Dispose()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
+  </div>
   <h3 id="events">Events
   </h3>
   
@@ -996,6 +1007,9 @@ Ensure you handle this very quickly as it runs on the UI thread.</p>
   <h3 id="implements">Implements</h3>
   <div>
       <span class="xref">IUriContext</span>
+  </div>
+  <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.idisposable">System.IDisposable</a>
   </div>
 
 <h3 id="disqus_thread">Comments</h3>
