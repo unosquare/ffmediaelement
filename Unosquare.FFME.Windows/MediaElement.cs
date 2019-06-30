@@ -31,7 +31,7 @@
     /// <seealso cref="IUriContext" />
     [Localizability(LocalizationCategory.NeverLocalize)]
     [DefaultProperty(nameof(Source))]
-    public sealed partial class MediaElement : UserControl, IUriContext
+    public sealed partial class MediaElement : UserControl, IUriContext, IDisposable
     {
         #region Fields and Property Backing
 
@@ -48,6 +48,8 @@
 
         private readonly ConcurrentBag<string> PropertyUpdates = new ConcurrentBag<string>();
         private readonly AtomicBoolean m_IsStateUpdating = new AtomicBoolean(false);
+
+        private bool m_IsDisposed = false;
 
         #endregion
 
@@ -92,8 +94,17 @@
                     // we want to close the current media to prevent memory leaks
                     Unloaded += async (s, e) =>
                     {
-                        if (UnloadedBehavior == MediaPlaybackState.Close)
+                        if (UnloadedBehavior != MediaPlaybackState.Close)
+                            return;
+
+                        try
+                        {
                             await Close();
+                        }
+                        finally
+                        {
+                            Dispose();
+                        }
                     };
                 }
 
@@ -183,6 +194,9 @@
 
             return retrievedBitmap;
         }).ConfigureAwait(true);
+
+        /// <inheritdoc />
+        public void Dispose() => Dispose(true);
 
         #endregion
 
@@ -439,6 +453,24 @@
                 SubtitlesView.Width = 0;
                 SubtitlesView.Height = 0;
                 SubtitlesView.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool alsoManaged)
+        {
+            if (!m_IsDisposed)
+            {
+                if (alsoManaged)
+                {
+                    MediaCore.Dispose();
+                    VideoView.Dispose();
+                }
+
+                m_IsDisposed = true;
             }
         }
 

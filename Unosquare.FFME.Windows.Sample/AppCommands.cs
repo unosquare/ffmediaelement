@@ -82,6 +82,9 @@
             {
                 // App.ViewModel.MediaElement.Source = null; // You can also set the source to null to close.
                 await App.ViewModel.MediaElement.Close();
+
+                // or, you can totally dispose manually:
+                // App.ViewModel.MediaElement.Dispose();
             }));
 
         /// <summary>

@@ -25,6 +25,7 @@
         #region Private State
 
         private const double DefaultDpi = 96.0;
+        private static readonly TimeSpan CaptionsLayoutTimeout = TimeSpan.FromMilliseconds(15);
 
         /// <summary>
         /// Contains an equivalence lookup of FFmpeg pixel format and WPF pixel formats.
@@ -222,7 +223,8 @@
                     {
                         try
                         {
-                            foregroundTask.Wait();
+                            if (foregroundTask.Wait(CaptionsLayoutTimeout) != DispatcherOperationStatus.Completed)
+                                this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} layout/CC timed out.");
                         }
                         catch (Exception ex)
                         {

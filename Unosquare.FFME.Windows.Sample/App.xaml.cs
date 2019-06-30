@@ -31,7 +31,7 @@
             // dispatcher threads to render video frames. This is an experimental feature
             // and might become deprecated in the future as no real performance enhancements
             // have been detected.
-            Library.EnableWpfMultiThreadedVideo = !Debugger.IsAttached;
+            Library.EnableWpfMultiThreadedVideo = !Debugger.IsAttached; // test with true and false
         }
 
         /// <summary>

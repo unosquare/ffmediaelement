@@ -17,7 +17,7 @@
     /// </summary>
     /// <typeparam name="T">The contained framework element.</typeparam>
     /// <seealso cref="FrameworkElement" />
-    internal abstract class ElementHostBase<T> : FrameworkElement
+    internal abstract class ElementHostBase<T> : FrameworkElement, IDisposable
         where T : FrameworkElement
     {
         /// <summary>
@@ -28,6 +28,9 @@
             RoutingStrategy.Bubble,
             typeof(RoutedEventHandler),
             typeof(ElementHostBase<T>));
+
+        private readonly object UnloadLock = new object();
+        private bool m_IsDisposed = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementHostBase{T}"/> class.
@@ -141,6 +144,30 @@
         }
 
         /// <inheritdoc />
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool alsoManaged)
+        {
+            lock (UnloadLock)
+            {
+                if (!m_IsDisposed)
+                {
+                    if (alsoManaged)
+                        HandleUnloadedEvent(this, EventArgs.Empty);
+
+                    m_IsDisposed = true;
+                }
+            }
+        }
+
+        /// <inheritdoc />
         protected override void OnInitialized(EventArgs e)
         {
             if (HasOwnDispatcher)
@@ -227,14 +254,24 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected virtual void HandleUnloadedEvent(object sender, EventArgs e)
         {
-            if (ElementDispatcher == null)
-                return;
+            lock (UnloadLock)
+            {
+                if (!HasOwnDispatcher || ElementDispatcher == null || ElementDispatcher.HasShutdownStarted || ElementDispatcher.HasShutdownFinished)
+                    return;
 
-            ElementDispatcher.InvokeShutdown();
-            RemoveLogicalChild(Host);
-            RemoveVisualChild(Host);
-            ElementDispatcher = null;
-            Element = null;
+                ElementDispatcher.ShutdownFinished += (s, ev) =>
+                {
+                    lock (UnloadLock)
+                    {
+                        ElementDispatcher = null;
+                        Element = null;
+                    }
+                };
+
+                RemoveLogicalChild(Host);
+                RemoveVisualChild(Host);
+                ElementDispatcher.BeginInvokeShutdown(DispatcherPriority.Loaded);
+            }
         }
 
         /// <summary>
@@ -297,10 +334,10 @@
                 doneCreating.Complete();
                 Element = CreateHostedElement();
                 PresentationSource.RootVisual = Element;
-                Element.SizeChanged += (snd, eva) =>
+                Element.SizeChanged += async (snd, eva) =>
                 {
                     if (eva.PreviousSize == default || eva.NewSize == default)
-                        Dispatcher.Invoke(InvalidateMeasure);
+                        await Dispatcher.InvokeAsync(InvalidateMeasure);
                 };
 
                 // Running the dispatcher makes it run on its own thread
