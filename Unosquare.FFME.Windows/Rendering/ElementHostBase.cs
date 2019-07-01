@@ -57,6 +57,12 @@
         public bool HasOwnDispatcher { get; }
 
         /// <summary>
+        /// Gets or sets if the independent dispatcher should be prevented
+        /// from being shutdown when the host visual is removed from the visual tree (unloaded).
+        /// </summary>
+        public bool PreventShutdown { get; set; }
+
+        /// <summary>
         /// Gets the dispatcher this element is hosted on.
         /// </summary>
         public Dispatcher ElementDispatcher { get; private set; }
@@ -160,7 +166,10 @@
                 if (!m_IsDisposed)
                 {
                     if (alsoManaged)
+                    {
+                        PreventShutdown = false;
                         HandleUnloadedEvent(this, EventArgs.Empty);
+                    }
 
                     m_IsDisposed = true;
                 }
@@ -256,8 +265,14 @@
         {
             lock (UnloadLock)
             {
-                if (!HasOwnDispatcher || ElementDispatcher == null || ElementDispatcher.HasShutdownStarted || ElementDispatcher.HasShutdownFinished)
+                if (PreventShutdown ||
+                    !HasOwnDispatcher ||
+                    ElementDispatcher == null ||
+                    ElementDispatcher.HasShutdownStarted ||
+                    ElementDispatcher.HasShutdownFinished)
+                {
                     return;
+                }
 
                 ElementDispatcher.ShutdownFinished += (s, ev) =>
                 {

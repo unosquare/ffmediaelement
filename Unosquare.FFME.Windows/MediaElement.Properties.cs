@@ -324,7 +324,19 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty UnloadedBehaviorProperty = DependencyProperty.Register(
             nameof(UnloadedBehavior), typeof(MediaPlaybackState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(MediaPlaybackState.Close));
+            new FrameworkPropertyMetadata(MediaPlaybackState.Close, OnUnloadedBehaviorPropertyChanged));
+
+        private static void OnUnloadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d == null || d is MediaElement == false)
+                return;
+
+            var element = (MediaElement)d;
+            if (element.VideoView == null) return;
+
+            var behavior = element.UnloadedBehavior;
+            element.VideoView.PreventShutdown = behavior != MediaPlaybackState.Close;
+        }
 
         #endregion
 

@@ -34,7 +34,7 @@
     <PackageIconUrl>https://github.com/unosquare/ffmediaelement/raw/master/Support/ffme.png</PackageIconUrl>
     <PackageTags>ffme hls wpf ffmpeg mediaelement h264 h265 hevc audio video decoding playback frame</PackageTags>
     <PackageReleaseNotes>
-      This is a release package of the Floyd Engine build referencing bindings to FFmpeg version 4.1.1
+      This is a release package of the Floyd Engine build referencing bindings to FFmpeg version 4.1.3
       This package does not contain the required FFmpeg binaries. Please refer to the following URL for instructions on how to obtain the binaries: https://github.com/unosquare/ffmediaelement
       Release details: https://github.com/unosquare/ffmediaelement/milestone/12?closed=1
     </PackageReleaseNotes>

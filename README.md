@@ -13,9 +13,9 @@
 
 ## Current NuGet Release Status
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2019-04-19) - Release 4.1.300 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2019-06-30) - Release 4.1.310 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: 4.1.1 <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1.1-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.1.1-win64-shared.zip">64-bit</a>
+- FFmpeg Version: 4.1.3 <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1.3-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.1.3-win64-shared.zip">64-bit</a>
 
 *Please note the current NuGet realease might require a different version of the FFmpeg binaries than the ones of the current state of the source code.*
 
@@ -94,7 +94,7 @@ A high-level diagram is provided as additional reference below.
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.*
 
 1. Clone this repository.
-2. Download the FFmpeg **shared** binaries for your target architecture: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1.1-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.1.1-win64-shared.zip">64-bit</a>.
+2. Download the FFmpeg **shared** binaries for your target architecture: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1.3-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.1.3-win64-shared.zip">64-bit</a>.
 3. Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and multiple <code>dll</code> files. Select and copy all of them.
 4. Now paste all files from the prior step onto a well-known folder. Take note of the full path. (I used `c:\ffmpeg\`)
 5. Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>. Please note that you will need Visual Studio 2019 with dotnet Core 3.0 SDK for your target architecture installed.
