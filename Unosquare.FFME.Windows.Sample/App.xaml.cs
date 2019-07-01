@@ -24,6 +24,8 @@
             Library.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
+            // For more specific control (issue #414) you can set Library.FFmpegLoadModeFlags to:
+            // FFmpegLoadMode.LibraryFlags["avcodec"] | FFmpegLoadMode.LibraryFlags["avfilter"] | ... etc.
             // Full Features is already the default.
             Library.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 

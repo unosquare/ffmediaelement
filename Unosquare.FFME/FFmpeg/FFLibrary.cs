@@ -27,7 +27,7 @@
         static FFLibrary()
         {
             // Populate libraries in order of dependency (from least dependent to more dependent)
-            All = new List<FFLibrary>(new List<FFLibrary>(16)
+            All = new List<FFLibrary>(16)
             {
                 LibAVUtil,
                 LibSWResample,
@@ -37,7 +37,7 @@
                 LibPostProc,
                 LibAVFilter,
                 LibAVDevice
-            });
+            };
         }
 
         /// <summary>
@@ -93,15 +93,14 @@
         public static FFLibrary LibAVDevice { get; } = new FFLibrary(Names.AVDevice, 58, 32);
 
         /// <summary>
-        /// Gets the AVFilter library.
-        /// </summary>
-        public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 7, 64);
-
-        /// <summary>
-        /// Gets the Postprocessing library. The flagId is the same as avfilter
-        /// as this is a dependent library.
+        /// Gets the Post-processing library.
         /// </summary>
         public static FFLibrary LibPostProc { get; } = new FFLibrary(Names.PostProc, 55, 64);
+
+        /// <summary>
+        /// Gets the AVFilter library.
+        /// </summary>
+        public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 7, 128);
 
         #endregion
 
@@ -158,11 +157,13 @@
             lock (LoadLock)
             {
                 if (Reference != IntPtr.Zero)
-                    throw new InvalidOperationException($"Library {Name} was already loaded.");
+                    return true;
 
                 var result = LibraryLoader.LoadNativeLibrary(basePath, Name, Version);
 
-                if (result == IntPtr.Zero) return false;
+                if (result == IntPtr.Zero)
+                    return false;
+
                 Reference = result;
                 BasePath = basePath;
                 LoadErrorCode = 0;

@@ -105,7 +105,7 @@
                     // Load FFmpeg binaries by Library ID
                     foreach (var lib in FFLibrary.All)
                     {
-                        if ((lib.FlagId & libIdentifiers) != 0 && (lib.IsLoaded || lib.Load(ffmpegPath)))
+                        if ((lib.FlagId & libIdentifiers) != 0 && lib.Load(ffmpegPath))
                             registrationIds |= lib.FlagId;
                     }
 
