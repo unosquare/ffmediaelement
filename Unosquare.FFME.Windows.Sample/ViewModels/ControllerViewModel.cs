@@ -310,9 +310,9 @@
             m.WhenChanged(() => IsSpeedRatioEnabled = m.IsOpening == false, nameof(m.IsOpen), nameof(m.IsSeekable));
         }
 
-        private (double Contrast, double Brightness, double Saturation) ParseVideoEqualizerFilter()
+        private EqualizerFilterValues ParseVideoEqualizerFilter()
         {
-            var result = (contrast: 1d, brightness: 0d, saturation: 1d);
+            var result = new EqualizerFilterValues() { Contrast = 1d, Brightness = 0d, Saturation = 1d };
 
             if (Root.MediaElement == null || Root.MediaElement.HasVideo == false) return result;
 
@@ -329,9 +329,9 @@
             var bLiteral = currentFilter.Substring(bIx + VideoEqBrightness.Length, 6);
             var sLiteral = currentFilter.Substring(sIx + VideoEqSaturation.Length, 6);
 
-            result.contrast = double.Parse(cLiteral, CultureInfo.InvariantCulture);
-            result.brightness = double.Parse(bLiteral, CultureInfo.InvariantCulture);
-            result.saturation = double.Parse(sLiteral, CultureInfo.InvariantCulture);
+            result.Contrast = double.Parse(cLiteral, CultureInfo.InvariantCulture);
+            result.Brightness = double.Parse(bLiteral, CultureInfo.InvariantCulture);
+            result.Saturation = double.Parse(sLiteral, CultureInfo.InvariantCulture);
 
             return result;
         }
@@ -372,6 +372,13 @@
                 // Notify a change in Video Equalizer
                 Root.NotificationMessage = $"Contrast:   {contrast:+0.000;-0.000}\r\nBrightness: {brightness:+0.000;-0.000}\r\nSaturation: {saturation:+0.000;-0.000}";
             }
+        }
+
+        private struct EqualizerFilterValues
+        {
+            public double Contrast;
+            public double Brightness;
+            public double Saturation;
         }
     }
 }
