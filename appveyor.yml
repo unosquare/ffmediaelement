@@ -1,4 +1,4 @@
-version: '4.1.310.{build}'
+version: '4.1.320.{build}'
 image: Visual Studio 2019 Preview
 configuration:
 - Release

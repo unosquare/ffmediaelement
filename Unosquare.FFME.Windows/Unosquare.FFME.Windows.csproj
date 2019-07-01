@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <!-- Assembly Properties -->
-    <TargetFrameworks>net472;net461;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -16,14 +16,14 @@
     <NeutralLanguage>en</NeutralLanguage>
 
     <!-- Assembly Version Information -->
-    <AssemblyVersion>4.1.310.0</AssemblyVersion>
-    <FileVersion>4.1.310.0</FileVersion>
+    <AssemblyVersion>4.1.320.0</AssemblyVersion>
+    <FileVersion>4.1.320.0</FileVersion>
 
     <!-- NuGet Package Properties -->
     <!-- https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target -->
     <PackageId>FFME.Windows</PackageId>
-    <PackageVersion>4.1.310</PackageVersion>
-    <Version>4.1.310</Version>
+    <PackageVersion>4.1.320</PackageVersion>
+    <Version>4.1.320</Version>
     <Authors>Mario Di Vece, and Contributors to the FFME project</Authors>
     <Title>FFME: The Adavanced WPF MediaElement Alternative</Title>
     <Description>FFME is an advanced WPF MediaElement alternative. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses FFmpeg to read and decode audio and video.</Description>
