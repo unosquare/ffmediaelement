@@ -5,6 +5,7 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -27,6 +28,7 @@
         private static IReadOnlyList<OptionMetadata> m_GlobalDecoderOptions;
         private static IReadOnlyDictionary<string, IReadOnlyList<OptionMetadata>> m_DecoderOptions;
         private static unsafe AVCodec*[] m_AllCodecs;
+        private static int m_FFmpegLogLevel = Debugger.IsAttached ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING;
 
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
@@ -69,6 +71,24 @@
                     return;
 
                 m_FFmpegLoadModeFlags = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the FFmpeg log level.
+        /// </summary>
+        public static int FFmpegLogLevel
+        {
+            get
+            {
+                return IsInitialized
+                    ? ffmpeg.av_log_get_level()
+                    : m_FFmpegLogLevel;
+            }
+            set
+            {
+                if (IsInitialized) ffmpeg.av_log_set_level(value);
+                m_FFmpegLogLevel = value;
             }
         }
 

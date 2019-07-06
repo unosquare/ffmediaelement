@@ -119,7 +119,7 @@
 
                     // Set logging levels and callbacks
                     ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
-                    ffmpeg.av_log_set_level(Debugger.IsAttached ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
+                    ffmpeg.av_log_set_level(Library.FFmpegLogLevel);
                     ffmpeg.av_log_set_callback(FFmpegLogCallback);
 
                     // set the static environment properties
