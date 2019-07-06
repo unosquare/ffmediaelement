@@ -1151,6 +1151,25 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.FFmpegMessageLogged
   fullName: Unosquare.FFME.MediaElement.FFmpegMessageLogged
   nameWithType: MediaElement.FFmpegMessageLogged
+- uid: Unosquare.FFME.MediaElement.IsDesignPreviewEnabled
+  name: IsDesignPreviewEnabled
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDesignPreviewEnabled
+  commentId: P:Unosquare.FFME.MediaElement.IsDesignPreviewEnabled
+  fullName: Unosquare.FFME.MediaElement.IsDesignPreviewEnabled
+  nameWithType: MediaElement.IsDesignPreviewEnabled
+- uid: Unosquare.FFME.MediaElement.IsDesignPreviewEnabled*
+  name: IsDesignPreviewEnabled
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDesignPreviewEnabled_
+  commentId: Overload:Unosquare.FFME.MediaElement.IsDesignPreviewEnabled
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.IsDesignPreviewEnabled
+  nameWithType: MediaElement.IsDesignPreviewEnabled
+- uid: Unosquare.FFME.MediaElement.IsDesignPreviewEnabledProperty
+  name: IsDesignPreviewEnabledProperty
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDesignPreviewEnabledProperty
+  commentId: F:Unosquare.FFME.MediaElement.IsDesignPreviewEnabledProperty
+  fullName: Unosquare.FFME.MediaElement.IsDesignPreviewEnabledProperty
+  nameWithType: MediaElement.IsDesignPreviewEnabledProperty
 - uid: Unosquare.FFME.MediaElement.IsMuted
   name: IsMuted
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsMuted
