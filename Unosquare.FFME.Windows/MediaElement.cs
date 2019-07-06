@@ -48,6 +48,7 @@
 
         private readonly ConcurrentBag<string> PropertyUpdates = new ConcurrentBag<string>();
         private readonly AtomicBoolean m_IsStateUpdating = new AtomicBoolean(false);
+        private readonly DispatcherTimer UpdatesTimer;
 
         private bool m_IsDisposed = false;
 
@@ -88,7 +89,7 @@
                 {
                     // Setup the media engine and property updates timer
                     MediaCore = new MediaEngine(this, new MediaConnector(this));
-                    MediaCore.State.PropertyChanged += (s, e) => NotifyMediaCoreStateChanged(e.PropertyName);
+                    MediaCore.State.PropertyChanged += (s, e) => PropertyUpdates.Add(e.PropertyName);
 
                     // When the media element is removed from the visual tree
                     // we want to close the current media to prevent memory leaks
@@ -106,6 +107,14 @@
                             Dispose();
                         }
                     };
+
+                    UpdatesTimer = new DispatcherTimer(DispatcherPriority.DataBind)
+                    {
+                        Interval = TimeSpan.FromMilliseconds(15),
+                    };
+
+                    UpdatesTimer.Tick += CoerceMediaCoreState;
+                    UpdatesTimer.Start();
                 }
 
                 InitializeComponent();
@@ -334,64 +343,55 @@
             BindProperty(VideoView, VerticalAlignmentProperty, this, nameof(VerticalContentAlignment), BindingMode.OneWay);
         }
 
-        /// <summary>
-        /// Queues a property notification change from the state on to the UI thread.
-        /// </summary>
-        /// <param name="propertyName">The media state property that has changed.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void NotifyMediaCoreStateChanged(string propertyName)
+        private void CoerceMediaCoreState(object sender, EventArgs e)
         {
-            PropertyUpdates.Add(propertyName);
-
             // The notifications occur in the Background priority
             // which is below the Input priority.
-            Dispatcher.BeginInvoke((Action)(() =>
+            try
             {
-                try
-                {
-                    if (PropertyUpdates.Count <= 0)
-                        return;
+                if (PropertyUpdates.Count <= 0)
+                    return;
 
-                    IsStateUpdating = true;
-                    while (PropertyUpdates.TryTake(out var p))
+                IsStateUpdating = true;
+                while (PropertyUpdates.TryTake(out var p))
+                {
+                    if (p == nameof(Position))
                     {
-                        if (p == nameof(Position))
-                        {
-                            if (!IsSeeking)
-                                Position = MediaCore.State.Position;
+                        if (!IsSeeking)
+                            Position = MediaCore.State.Position;
 
-                            NotifyPropertyChangedEvent(nameof(RemainingDuration));
-                            NotifyPropertyChangedEvent(nameof(ActualPosition));
-                        }
-                        else if (p == nameof(Volume))
-                        {
-                            Volume = MediaCore.State.Volume;
-                        }
-                        else if (p == nameof(Balance))
-                        {
-                            Balance = MediaCore.State.Balance;
-                        }
-                        else if (p == nameof(IsMuted))
-                        {
-                            IsMuted = MediaCore.State.IsMuted;
-                        }
-                        else if (p == nameof(SpeedRatio))
-                        {
-                            SpeedRatio = MediaCore.State.SpeedRatio;
-                        }
-                        else if (p == nameof(Source))
-                        {
-                            Source = MediaCore.State.Source;
-                        }
-
-                        NotifyPropertyChangedEvent(p);
+                        NotifyPropertyChangedEvent(nameof(RemainingDuration));
+                        NotifyPropertyChangedEvent(nameof(ActualPosition));
                     }
+                    else if (p == nameof(Volume))
+                    {
+                        Volume = MediaCore.State.Volume;
+                    }
+                    else if (p == nameof(Balance))
+                    {
+                        Balance = MediaCore.State.Balance;
+                    }
+                    else if (p == nameof(IsMuted))
+                    {
+                        IsMuted = MediaCore.State.IsMuted;
+                    }
+                    else if (p == nameof(SpeedRatio))
+                    {
+                        SpeedRatio = MediaCore.State.SpeedRatio;
+                    }
+                    else if (p == nameof(Source))
+                    {
+                        Source = MediaCore.State.Source;
+                    }
+
+                    NotifyPropertyChangedEvent(p);
                 }
-                finally
-                {
+            }
+            finally
+            {
+                if (PropertyUpdates.Count <= 0)
                     IsStateUpdating = false;
-                }
-            }), DispatcherPriority.Background);
+            }
         }
 
         /// <summary>
@@ -468,6 +468,7 @@
                 {
                     MediaCore.Dispose();
                     VideoView.Dispose();
+                    UpdatesTimer.Stop();
                 }
 
                 m_IsDisposed = true;
