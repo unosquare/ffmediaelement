@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Unosquare.FFME.Windows.Sample": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
