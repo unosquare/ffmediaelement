@@ -15,7 +15,6 @@
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Data;
-    using System.Windows.Interop;
     using System.Windows.Markup;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -318,16 +317,10 @@
             ContentGrid.Children.Add(SubtitlesView);
             ContentGrid.Children.Add(CaptionsView);
 
+            UpdateDesignView();
+
             // Display the control (or not)
-            if (Library.IsInDesignMode)
-            {
-                var bitmap = Properties.Resources.FFmpegMediaElementBackground;
-                var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
-                    bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                var controlBitmap = new WriteableBitmap(bitmapSource);
-                VideoView.Source = controlBitmap;
-            }
-            else
+            if (!Library.IsInDesignMode)
             {
                 // Check that all properties map back to the media state
                 if (PropertyMapper.MissingPropertyMappings.Count > 0)
@@ -454,6 +447,17 @@
                 SubtitlesView.Height = 0;
                 SubtitlesView.Visibility = Visibility.Collapsed;
             }
+
+            UpdateDesignView();
+        }
+
+        private void UpdateDesignView()
+        {
+            if (!Library.IsInDesignMode) return;
+
+            var isPreviewEnabled = IsDesignPreviewEnabled;
+            var eventArgs = new DependencyPropertyChangedEventArgs(IsDesignPreviewEnabledProperty, isPreviewEnabled, isPreviewEnabled);
+            OnIsDesignPreviewEnabledPropertyChanged(this, eventArgs);
         }
 
         /// <summary>

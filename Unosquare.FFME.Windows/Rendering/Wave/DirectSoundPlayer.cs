@@ -62,7 +62,7 @@
         {
             Renderer = renderer;
             DeviceId = deviceId == Guid.Empty ? DefaultPlaybackDeviceId : deviceId;
-            DesiredLatency = 40;
+            DesiredLatency = 50;
             WaveFormat = renderer.WaveFormat;
         }
 

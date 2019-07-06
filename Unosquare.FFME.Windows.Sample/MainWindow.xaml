@@ -24,7 +24,7 @@
         <TaskbarItemInfo ProgressValue="{Binding PlaybackProgress}" ProgressState="{Binding PlaybackProgressState}" />
     </Window.TaskbarItemInfo>
     <Grid Name="Player">
-        <ffme:MediaElement Name="Media" Background="Black" LoadedBehavior="Play" />
+        <ffme:MediaElement Name="Media" Background="Black" LoadedBehavior="Play" IsDesignPreviewEnabled="True" />
 
         <DockPanel x:Name="LayoutPanel" LastChildFill="False">
 

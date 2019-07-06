@@ -8,10 +8,68 @@ namespace Unosquare.FFME
     using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Interop;
     using System.Windows.Media;
+    using System.Windows.Media.Imaging;
 
     public partial class MediaElement
     {
+        #region IsDesignPreviewEnabled Dependency Property
+
+        /// <summary>
+        /// Gets or sets a value that indicates whether the MediaElement will display
+        /// a preview image in design time. This is a dependency property.
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("Gets or sets a value that indicates whether the MediaElement will display a preview image in design time.")]
+        public bool IsDesignPreviewEnabled
+        {
+            get => (bool)GetValue(IsDesignPreviewEnabledProperty);
+            set => SetValue(IsDesignPreviewEnabledProperty, value);
+        }
+
+        /// <summary>
+        /// The DependencyProperty for the MediaElement.IsDesignPreviewEnabled property.
+        /// </summary>
+        public static readonly DependencyProperty IsDesignPreviewEnabledProperty = DependencyProperty.Register(
+            nameof(IsDesignPreviewEnabled), typeof(bool), typeof(MediaElement),
+            new FrameworkPropertyMetadata(true, OnIsDesignPreviewEnabledPropertyChanged));
+
+        private static void OnIsDesignPreviewEnabledPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d == null || d is MediaElement == false)
+                return;
+
+            if (!Library.IsInDesignMode)
+                return;
+
+            var element = (MediaElement)d;
+            if (element.VideoView == null) return;
+
+            if ((bool)e.NewValue)
+            {
+                if (element.VideoView.Source == null)
+                {
+                    var bitmap = Properties.Resources.FFmpegMediaElementBackground;
+                    var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
+                        bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    var controlBitmap = new WriteableBitmap(bitmapSource);
+                    element.VideoView.Source = controlBitmap;
+                }
+
+                element.CaptionsView.Visibility = Visibility.Visible;
+                element.SubtitlesView.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                element.VideoView.Source = null;
+                element.CaptionsView.Visibility = Visibility.Collapsed;
+                element.SubtitlesView.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        #endregion
+
         #region Volume Dependency Property
 
         /// <summary>
