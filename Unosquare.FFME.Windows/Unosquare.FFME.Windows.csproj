@@ -65,7 +65,7 @@
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="4.1.0.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.3">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
