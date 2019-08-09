@@ -15,14 +15,14 @@
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
 - Current Status: (2019-06-30) - Release 4.1.310 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: 4.1.3 <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1.3-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.1.3-win64-shared.zip">64-bit</a>
+- FFmpeg Version: 4.2.0 <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip">64-bit</a>
 
 *Please note the current NuGet realease might require a different version of the FFmpeg binaries than the ones of the current state of the source code.*
 
 ## Quick Usage Guide for WPF Apps
 
 Here is a quick guide on how to get started.
-1. Open Visual Studio (v2019 recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above.
+1. Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above, or .Net Core 3.0.
 2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
 3. You need FFmpeg **shared** binaries (64 or 32 bit, depending on your app's target architecture). Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](https://ffmpeg.zeranoe.com/builds/).
 4. Your FFmpeg build should have a `bin` folder with 3 exe files and some dll files. Copy all those files to a folder such as `c:\ffmpeg`
@@ -93,8 +93,8 @@ A high-level diagram is provided as additional reference below.
 
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.*
 
-1. Clone this repository.
-2. Download the FFmpeg **shared** binaries for your target architecture: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1.3-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.1.3-win64-shared.zip">64-bit</a>.
+1. Clone this repository and make sure you have <a href="https://dotnet.microsoft.com/download/dotnet-core/3.0">.Net Core 3.0 preview 7 SDK or above</a> installed.
+2. Download the FFmpeg **shared** binaries for your target architecture: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip">64-bit</a>.
 3. Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and multiple <code>dll</code> files. Select and copy all of them.
 4. Now paste all files from the prior step onto a well-known folder. Take note of the full path. (I used `c:\ffmpeg\`)
 5. Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>. Please note that you will need Visual Studio 2019 with dotnet Core 3.0 SDK for your target architecture installed.

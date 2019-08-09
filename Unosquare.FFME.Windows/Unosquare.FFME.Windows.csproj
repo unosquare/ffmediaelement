@@ -4,6 +4,8 @@
   <PropertyGroup>
     <!-- Assembly Properties -->
     <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -16,14 +18,14 @@
     <NeutralLanguage>en</NeutralLanguage>
 
     <!-- Assembly Version Information -->
-    <AssemblyVersion>4.1.320.0</AssemblyVersion>
-    <FileVersion>4.1.320.0</FileVersion>
+    <AssemblyVersion>4.2.320.0</AssemblyVersion>
+    <FileVersion>4.2.320.0</FileVersion>
 
     <!-- NuGet Package Properties -->
     <!-- https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target -->
     <PackageId>FFME.Windows</PackageId>
-    <PackageVersion>4.1.320</PackageVersion>
-    <Version>4.1.320</Version>
+    <PackageVersion>4.2.320</PackageVersion>
+    <Version>4.2.320</Version>
     <Authors>Mario Di Vece, and Contributors to the FFME project</Authors>
     <Title>FFME: The Adavanced WPF MediaElement Alternative</Title>
     <Description>FFME is an advanced WPF MediaElement alternative. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses FFmpeg to read and decode audio and video.</Description>
@@ -34,9 +36,9 @@
     <PackageIconUrl>https://github.com/unosquare/ffmediaelement/raw/master/Support/ffme.png</PackageIconUrl>
     <PackageTags>ffme hls wpf ffmpeg mediaelement h264 h265 hevc audio video decoding playback frame</PackageTags>
     <PackageReleaseNotes>
-      This is a release package of the Floyd Engine build referencing bindings to FFmpeg version 4.1.3
+      This is a release package of the Floyd Engine build referencing bindings to FFmpeg version 4.2.0
       This package does not contain the required FFmpeg binaries. Please refer to the following URL for instructions on how to obtain the binaries: https://github.com/unosquare/ffmediaelement
-      Release details: https://github.com/unosquare/ffmediaelement/milestone/12?closed=1
+      Release details: https://github.com/unosquare/ffmediaelement/milestone/13?closed=1
     </PackageReleaseNotes>
     <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
