@@ -736,7 +736,12 @@
                 if (InputContext->iformat->read_play.Pointer != IntPtr.Zero)
                 {
                     IsNetworkStream = true;
-                    ffmpeg.av_read_play(InputContext);
+
+                    // The following line seems to have negative or no effect.
+                    // Safe to comment out as the read thread will always try to read packets depending on the state
+                    // of the buffer and not the state of the playback itself.
+                    // It also has caused problems with RTSP streams. See #431 and possibly the root cause of #415
+                    // ffmpeg.av_read_play(InputContext)
                 }
 
                 if (IsNetworkStream == false && Uri.TryCreate(MediaSource, UriKind.RelativeOrAbsolute, out var uri))
