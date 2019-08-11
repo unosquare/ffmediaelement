@@ -318,7 +318,8 @@
             if (RC.Current.InstancesByLocation.Count <= 0) return;
 
             var builder = new StringBuilder();
-            builder.AppendLine("Unmanaged references were left alive. This is an indication that there is a memory leak.");
+            builder.AppendLine("Unmanaged references are still alive. If there are no further media container instances to be disposed,");
+            builder.AppendLine("this is an indication that there is a memory leak. Otherwise, this message can be ignored.");
             foreach (var kvp in RC.Current.InstancesByLocation)
                 builder.AppendLine($"    {kvp.Key,30} - Instances: {kvp.Value}");
 
