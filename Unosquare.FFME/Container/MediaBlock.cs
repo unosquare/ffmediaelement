@@ -4,6 +4,7 @@
     using FFmpeg.AutoGen;
     using Primitives;
     using System;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// A base class for blocks of the different MediaTypes.
@@ -272,6 +273,7 @@
         /// </summary>
         /// <param name="bufferLength">Length of the buffer.</param>
         /// <returns>True if the buffer is successfully allocated.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual unsafe bool Allocate(int bufferLength)
         {
             if (bufferLength <= 0)
@@ -290,6 +292,7 @@
 
                 using (writeLock)
                 {
+                    Deallocate();
                     m_Buffer = (IntPtr)ffmpeg.av_malloc((ulong)bufferLength);
                     m_BufferLength = bufferLength;
                     return true;
@@ -321,6 +324,7 @@
         /// <summary>
         /// De-allocates the picture buffer and resets the related buffer properties.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual unsafe void Deallocate()
         {
             if (m_Buffer == IntPtr.Zero) return;
