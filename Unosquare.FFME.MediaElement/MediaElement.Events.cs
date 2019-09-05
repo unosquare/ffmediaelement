@@ -90,6 +90,15 @@
         public event EventHandler<SubtitleDecodedEventArgs> SubtitleDecoded;
 
         /// <summary>
+        /// Raised when a data frame is decoded from input stream. Useful for capturing streams.
+        /// This event is not raised on the UI thread and the pointers in the event arguments
+        /// are only valid for the call. If you need to keep a queue you will need to clone and
+        /// release the allocated memory yourself by using clone and release methods in the native
+        /// FFmpeg API.
+        /// </summary>
+        public event EventHandler<FrameDecodedEventArgs> DataFrameDecoded;
+
+        /// <summary>
         /// Occurs when buffering of packets was started
         /// </summary>
         public event EventHandler BufferingStarted;
@@ -222,6 +231,15 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void RaiseSubtitleDecodedEvent(AVSubtitle* subtitle, AVFormatContext* context) =>
             SubtitleDecoded?.Invoke(this, new SubtitleDecodedEventArgs(subtitle, context));
+
+        /// <summary>
+        /// Raises the data frame decoded event.
+        /// </summary>
+        /// <param name="frame">The frame pointer.</param>
+        /// <param name="context">The input context pointer.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal unsafe void RaiseDataFrameDecodedEvent(AVFrame* frame, AVFormatContext* context) =>
+            DataFrameDecoded?.Invoke(this, new FrameDecodedEventArgs(frame, context));
 
         #endregion
 

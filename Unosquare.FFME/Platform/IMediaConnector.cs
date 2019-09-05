@@ -138,7 +138,7 @@
         unsafe void OnVideoFrameDecoded(AVFrame* videoFrame, AVFormatContext* context);
 
         /// <summary>
-        /// Called when a video frame is decoded.
+        /// Called when a audio frame is decoded.
         /// </summary>
         /// <param name="audioFrame">The unmanaged audio frame pointer.</param>
         /// <param name="context">The unmanaged input format context.</param>
@@ -150,5 +150,12 @@
         /// <param name="subtitle">The unmanaged subtitle pointer.</param>
         /// <param name="context">The unmanaged input format context.</param>
         unsafe void OnSubtitleDecoded(AVSubtitle* subtitle, AVFormatContext* context);
+
+        /// <summary>
+        /// Called when a data frame is decoded.
+        /// </summary>
+        /// <param name="dataFrame">The unmanaged data pointer.</param>
+        /// <param name="context">The unmanaged input format context.</param>
+        unsafe void OnDataFrameDecoded(AVFrame* dataFrame, AVFormatContext* context);
     }
 }

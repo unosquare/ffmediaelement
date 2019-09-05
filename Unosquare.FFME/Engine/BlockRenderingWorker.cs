@@ -255,7 +255,7 @@
 
             foreach (var t in all)
             {
-                if (t == MediaType.Subtitle || t == main)
+                if (t == MediaType.Subtitle || t == MediaType.Data || t == main)
                     continue;
 
                 // We don't want to sync-buffer on attached pictures

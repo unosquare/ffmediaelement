@@ -51,7 +51,7 @@
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
         /// <param name="mediaType">Type of the media.</param>
-        private MediaFrame(void* pointer, MediaComponent component, MediaType mediaType)
+        protected MediaFrame(void* pointer, MediaComponent component, MediaType mediaType)
         {
             InternalPointer = new IntPtr(pointer);
             StreamTimeBase = component.Stream->time_base;

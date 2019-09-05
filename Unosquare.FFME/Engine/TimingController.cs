@@ -162,6 +162,12 @@
                         Offsets[MediaType.Video] = Offsets[MediaType.Audio];
                     }
 
+                    if (components.HasData)
+                    {
+                        Clocks[MediaType.Data] = Clocks[MediaType.Video];
+                        Offsets[MediaType.Data] = Offsets[MediaType.Video];
+                    }
+
                     // Subtitles will always be whatever the video data is.
                     Clocks[MediaType.Subtitle] = Clocks[MediaType.Video];
                     Offsets[MediaType.Subtitle] = Offsets[MediaType.Video];

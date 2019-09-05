@@ -153,5 +153,9 @@
         /// <inheritdoc />
         public unsafe void OnSubtitleDecoded(AVSubtitle* subtitle, AVFormatContext* context) =>
             Parent?.RaiseSubtitleDecodedEvent(subtitle, context);
+
+        /// <inheritdoc />
+        public unsafe void OnDataFrameDecoded(AVFrame* dataFrame, AVFormatContext* context) =>
+            Parent?.RaiseDataFrameDecodedEvent(dataFrame, context);
     }
 }

@@ -62,6 +62,14 @@
                 }
             };
 
+            Container.Components.OnDataFrameDecoded = (frame, type, mediaFrame) =>
+            {
+                unsafe
+                {
+                    MediaCore.Connector?.OnDataFrameDecoded((AVFrame*)frame.ToPointer(), Container.InputContext);
+                }
+            };
+
             Container.Components.OnSubtitleDecoded = (subtitle) =>
             {
                 unsafe

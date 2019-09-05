@@ -66,6 +66,14 @@
         public bool IsSubtitleDisabled { get; set; }
 
         /// <summary>
+        /// Prevent reading from data stream components.
+        /// Port of data_disable
+        /// Datas are not yet first-class citizens in FFmpeg and
+        /// this is why they are disabled by default.
+        /// </summary>
+        public bool IsDataDisabled { get; set; }
+
+        /// <summary>
         /// Allows for a custom video filter string.
         /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Video-Filters.
         /// </summary>
@@ -109,6 +117,11 @@
         public StreamInfo SubtitleStream { get; set; }
 
         /// <summary>
+        /// Contains additional data stream.
+        /// </summary>
+        public StreamInfo DataStream { get; set; }
+
+        /// <summary>
         /// Gets or sets the subtitles URL.
         /// If set, the subtitles will be side-loaded and the loaded media
         /// subtitles (if any) will be ignored.
@@ -135,6 +148,13 @@
         /// blocks, significantly increases RAM usage.
         /// </summary>
         public int SubtitleBlockCache { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the number of data blocks to cache in the decoder.
+        /// Leave as -1 for auto. Please note that increasing the amount of
+        /// blocks, significantly increases RAM usage.
+        /// </summary>
+        public int DataBlockCache { get; set; } = -1;
 
         /// <summary>
         /// Only recommended for live streams. Gets or sets a value indicating whether each component needs to run

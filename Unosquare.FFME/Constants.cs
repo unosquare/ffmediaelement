@@ -160,6 +160,7 @@
             const int MinVideoBlocks = 8;
             const int MinAudioBlocks = 48;
             const int MinSubtitleBlocks = 4;
+            const int MinDataBlocks = 48;
 
             var result = 0;
 
@@ -177,6 +178,11 @@
             {
                 result = mediaCore.MediaOptions.SubtitleBlockCache;
                 if (result < MinSubtitleBlocks) result = MinSubtitleBlocks;
+            }
+            else if (t == MediaType.Data)
+            {
+                result = mediaCore.MediaOptions.DataBlockCache;
+                if (result < MinDataBlocks) result = MinDataBlocks;
             }
 
             return result;

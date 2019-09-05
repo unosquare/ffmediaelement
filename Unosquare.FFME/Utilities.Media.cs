@@ -33,6 +33,7 @@
                 tempContainer.MediaOptions.IsAudioDisabled = sourceType != MediaType.Audio;
                 tempContainer.MediaOptions.IsVideoDisabled = sourceType != MediaType.Video;
                 tempContainer.MediaOptions.IsSubtitleDisabled = sourceType != MediaType.Subtitle;
+                tempContainer.MediaOptions.IsDataDisabled = sourceType != MediaType.Data;
 
                 // Open the container
                 tempContainer.Open();

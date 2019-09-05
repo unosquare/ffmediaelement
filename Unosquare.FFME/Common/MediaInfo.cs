@@ -245,6 +245,15 @@
                     &requestedCodec,
                     0);
 
+            streamIndexes[AVMediaType.AVMEDIA_TYPE_DATA] =
+                ffmpeg.av_find_best_stream(
+                    ic,
+                    AVMediaType.AVMEDIA_TYPE_DATA,
+                    -1,
+                    -1,
+                    null,
+                    0);
+
             var result = new Dictionary<AVMediaType, StreamInfo>();
             foreach (var kvp in streamIndexes.Where(n => n.Value >= 0))
             {

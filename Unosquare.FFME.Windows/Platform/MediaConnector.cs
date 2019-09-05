@@ -18,6 +18,8 @@
                     return new VideoRenderer(mediaCore);
                 case MediaType.Subtitle:
                     return new SubtitleRenderer(mediaCore);
+                case MediaType.Data:
+                    return new DataRenderer(mediaCore);
                 default:
                     throw new NotSupportedException($"No suitable renderer for Media Type '{mediaType}'");
             }

@@ -42,6 +42,11 @@
         public event EventHandler<RenderingSubtitlesEventArgs> RenderingSubtitles;
 
         /// <summary>
+        /// Occurs right before the data are rendered.
+        /// </summary>
+        public event EventHandler<RenderingDataEventArgs> RenderingData;
+
+        /// <summary>
         /// Occurs when the currently selected audio device stops or loses its buffer.
         /// Call the <see cref="ChangeMedia"/> method and select a new audio device
         /// in order to output to a new audio device
@@ -130,6 +135,27 @@
 
             RenderingSubtitles?.Invoke(this, e);
             return e.Cancel;
+        }
+
+        /// <summary>
+        /// Raises the rendering data event.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <param name="clock">The clock.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseRenderingDataEvent(DataBlock block, TimeSpan clock)
+        {
+            if (RenderingData == null) return;
+
+            var e = new RenderingDataEventArgs(
+                    MediaCore.State,
+                    block,
+                    MediaCore.MediaInfo.Streams[block.StreamIndex],
+                    block.StartTime,
+                    block.Duration,
+                    clock);
+
+            RenderingData?.Invoke(this, e);
         }
 
         /// <summary>

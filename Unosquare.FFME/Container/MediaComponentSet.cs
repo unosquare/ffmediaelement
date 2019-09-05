@@ -33,6 +33,7 @@
         private AudioComponent m_Audio;
         private VideoComponent m_Video;
         private SubtitleComponent m_Subtitle;
+        private DataComponent m_Data;
         private PacketBufferState BufferState;
 
         #endregion
@@ -43,6 +44,7 @@
             PacketQueueOp operation, MediaPacket avPacket, MediaType mediaType, PacketBufferState bufferState);
 
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
+        public delegate void OnDataFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType, MediaFrame mediaFrame);
         public delegate void OnSubtitleDecodedDelegate(IntPtr avSubtitle);
 
         #endregion
@@ -58,6 +60,11 @@
         /// Gets or sets a method that gets called when an audio or video frame gets decoded.
         /// </summary>
         public OnFrameDecodedDelegate OnFrameDecoded { get; set; }
+
+        /// <summary>
+        /// Gets or sets a method that gets called when a data frame gets decoded.
+        /// </summary>
+        public OnDataFrameDecodedDelegate OnDataFrameDecoded { get; set; }
 
         /// <summary>
         /// Gets or sets a method that gets called when a subtitle frame gets decoded.
@@ -138,6 +145,15 @@
         }
 
         /// <summary>
+        /// Gets the data component.
+        /// Returns null when there is no such stream component.
+        /// </summary>
+        public DataComponent Data
+        {
+            get { lock (ComponentSyncLock) return m_Data; }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this instance has a video component.
         /// </summary>
         public bool HasVideo
@@ -159,6 +175,14 @@
         public bool HasSubtitles
         {
             get { lock (ComponentSyncLock) return m_Subtitle != null; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance has a data component.
+        /// </summary>
+        public bool HasData
+        {
+            get { lock (ComponentSyncLock) return m_Data != null; }
         }
 
         /// <summary>
@@ -247,6 +271,7 @@
                         case MediaType.Audio: return m_Audio;
                         case MediaType.Video: return m_Video;
                         case MediaType.Subtitle: return m_Subtitle;
+                        case MediaType.Data: return m_Data;
                         default: return null;
                     }
                 }
@@ -374,6 +399,11 @@
 
                         m_Video = component as VideoComponent;
                         break;
+                    case MediaType.Data:
+                        if (m_Data != null)
+                            throw new ArgumentException(errorMessage);
+                        m_Data = component as DataComponent;
+                        break;
                     case MediaType.Subtitle:
                         if (m_Subtitle != null)
                             throw new ArgumentException(errorMessage);
@@ -413,6 +443,11 @@
                 {
                     component = m_Subtitle;
                     m_Subtitle = null;
+                }
+                else if (mediaType == MediaType.Data)
+                {
+                    m_Data.Dispose();
+                    m_Data = null;
                 }
 
                 component?.Dispose();
@@ -538,6 +573,12 @@
             {
                 allComponents.Add(m_Subtitle);
                 allMediaTypes.Add(MediaType.Subtitle);
+            }
+
+            if (m_Data != null)
+            {
+                allComponents.Add(m_Data);
+                allMediaTypes.Add(MediaType.Data);
             }
 
             m_All = allComponents;

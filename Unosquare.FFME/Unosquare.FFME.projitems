@@ -10,6 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Common\ViewModelBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Container\DataBlock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Container\DataComponent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Container\DataFrame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Aspects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClosedCaptions\CaptionsChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClosedCaptions\CaptionsColor.cs" />

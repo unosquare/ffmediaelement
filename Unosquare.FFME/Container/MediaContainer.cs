@@ -493,6 +493,9 @@
                         case MediaType.Subtitle:
                             return Components.HasSubtitles && Components.Subtitles.MaterializeFrame(input, ref output, previousBlock);
 
+                        case MediaType.Data:
+                            return Components.HasData && Components.Data.MaterializeFrame(input, ref output, previousBlock);
+
                         default:
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
                     }
@@ -763,6 +766,8 @@
                         MediaOptions.AudioStream = s.Value;
                     else if (s.Key == AVMediaType.AVMEDIA_TYPE_SUBTITLE)
                         MediaOptions.SubtitleStream = s.Value;
+                    else if (s.Key == AVMediaType.AVMEDIA_TYPE_DATA)
+                        MediaOptions.DataStream = s.Value;
                 }
 
                 // Set disabled audio or video if scaling libs not found
@@ -873,6 +878,9 @@
                 case MediaType.Subtitle:
                     isDisabled = MediaOptions.IsSubtitleDisabled;
                     break;
+                case MediaType.Data:
+                    isDisabled = MediaOptions.IsDataDisabled;
+                    break;
                 default:
                     return MediaType.None;
             }
@@ -892,6 +900,8 @@
                         Components.AddComponent(new VideoComponent(this, stream.StreamIndex));
                     else if (t == MediaType.Subtitle)
                         Components.AddComponent(new SubtitleComponent(this, stream.StreamIndex));
+                    else if (t == MediaType.Data)
+                        Components.AddComponent(new DataComponent(this, stream.StreamIndex));
                 }
             }
             catch (Exception ex)
@@ -914,6 +924,7 @@
             StreamCreateComponent(MediaType.Audio, MediaOptions.AudioStream);
             StreamCreateComponent(MediaType.Video, MediaOptions.VideoStream);
             StreamCreateComponent(MediaType.Subtitle, MediaOptions.SubtitleStream);
+            StreamCreateComponent(MediaType.Data, MediaOptions.DataStream);
 
             // Verify we have at least 1 stream component to work with.
             if (Components.HasVideo == false && Components.HasAudio == false && Components.HasSubtitles == false)

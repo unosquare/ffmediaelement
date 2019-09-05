@@ -490,6 +490,7 @@
             if (mediaType == MediaType.Video) return new VideoBlock();
             if (mediaType == MediaType.Audio) return new AudioBlock();
             if (mediaType == MediaType.Subtitle) return new SubtitleBlock();
+            if (mediaType == MediaType.Data) return new DataBlock();
 
             throw new InvalidCastException($"No {nameof(MediaBlock)} constructor for {nameof(MediaType)} '{mediaType}'");
         }
