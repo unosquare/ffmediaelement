@@ -35,6 +35,11 @@
         int SubtitleStreamIndex { get; }
 
         /// <summary>
+        /// Gets the index of the data stream.
+        /// </summary>
+        int DataStreamIndex { get; }
+
+        /// <summary>
         /// Gets the audio bit rate.
         /// </summary>
         long AudioBitRate { get; }
@@ -108,6 +113,11 @@
         /// Gets a value indicating whether the media has subtitles.
         /// </summary>
         bool HasSubtitles { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the media has data.
+        /// </summary>
+        bool HasData { get; }
 
         /// <summary>
         /// Gets a value indicating whether the media has video.
@@ -240,6 +250,12 @@
         /// frame of the main component.
         /// </summary>
         TimeSpan FramePosition { get; }
+
+        /// <summary>
+        /// Gets the discrete time position of the start of the current
+        /// frame of the data component.
+        /// </summary>
+        TimeSpan DataPosition { get; }
 
         /// <summary>
         /// Gets the URL of the open or opening media.

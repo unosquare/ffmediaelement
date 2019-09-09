@@ -116,6 +116,11 @@
                         </DockPanel>
 
                         <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Data Position</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding DataPosition, Mode=OneWay, Converter={StaticResource TimeSpanFormatter}}" />
+                        </DockPanel>
+
+                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Is Open</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding IsOpen, Mode=OneWay}" />
                         </DockPanel>
@@ -273,6 +278,16 @@
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Subtitle Stream Index</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding SubtitleStreamIndex, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel Background="{StaticResource KeyHeader}">
+                            <TextBlock Style="{StaticResource Key}">Has Data</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding HasData, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Data Stream Index</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding DataStreamIndex, Mode=OneWay}" />
                         </DockPanel>
                     </ItemsControl>
                 </ScrollViewer>

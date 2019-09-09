@@ -162,6 +162,11 @@
                 //    e.Text.Add("(subtitles)");
             };
 
+            Media.RenderingData += (s, e) =>
+            {
+                // it's gonna be your job to decode e.Bytes
+            };
+
             Media.AudioDeviceStopped += async (s, e) =>
             {
                 // If we detect that the audio device has stopped, simply

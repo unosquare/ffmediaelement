@@ -66,6 +66,12 @@
         public TimeSpan FramePosition => MediaCore?.State.FramePosition ?? default;
 
         /// <summary>
+        /// Gets the discrete time position of the start of the current
+        /// frame of the main component.
+        /// </summary>
+        public TimeSpan DataPosition => MediaCore?.State.DataPosition ?? default;
+
+        /// <summary>
         /// Gets the stream's total bit rate as reported by the container.
         /// Returns 0 if unavailable.
         /// </summary>
@@ -105,6 +111,11 @@
         public int SubtitleStreamIndex => MediaCore?.State.SubtitleStreamIndex ?? -1;
 
         /// <summary>
+        /// Gets the index of the data stream.
+        /// </summary>
+        public int DataStreamIndex => MediaCore?.State.DataStreamIndex ?? -1;
+
+        /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
         public string MediaFormat => MediaCore?.State.MediaFormat;
@@ -139,6 +150,12 @@
         /// MediaOpened event has fired.
         /// </summary>
         public bool HasSubtitles => MediaCore?.State.HasSubtitles ?? false;
+
+        /// <summary>
+        /// Returns whether the given media has data. Only valid after the
+        /// MediaOpened event has fired.
+        /// </summary>
+        public bool HasData => MediaCore?.State.HasData ?? false;
 
         /// <summary>
         /// Gets the video codec.

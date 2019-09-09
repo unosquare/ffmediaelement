@@ -29,6 +29,7 @@
 
         private readonly AtomicTimeSpan m_FramePosition = new AtomicTimeSpan(default);
         private readonly AtomicTimeSpan m_Position = new AtomicTimeSpan(default);
+        private readonly AtomicTimeSpan m_DataPosition = new AtomicTimeSpan(default);
         private readonly AtomicDouble m_SpeedRatio = new AtomicDouble(Constants.DefaultSpeedRatio);
         private readonly AtomicDouble m_Volume = new AtomicDouble(Constants.DefaultVolume);
         private readonly AtomicDouble m_Balance = new AtomicDouble(Constants.DefaultBalance);
@@ -45,9 +46,11 @@
         private int m_VideoStreamIndex;
         private int m_AudioStreamIndex;
         private int m_SubtitleStreamIndex;
+        private int m_DataStreamIndex;
         private bool m_HasAudio;
         private bool m_HasVideo;
         private bool m_HasSubtitles;
+        private bool m_HasData;
         private string m_VideoCodec;
         private long m_VideoBitRate;
         private double m_VideoRotation;
@@ -159,6 +162,13 @@
         {
             get => m_FramePosition.Value;
             private set => SetProperty(m_FramePosition, value);
+        }
+
+        /// <inheritdoc />
+        public TimeSpan DataPosition
+        {
+            get => m_DataPosition.Value;
+            private set => SetProperty(m_DataPosition, value);
         }
 
         /// <inheritdoc />
@@ -299,6 +309,13 @@
         }
 
         /// <inheritdoc />
+        public int DataStreamIndex
+        {
+            get => m_DataStreamIndex;
+            private set => SetProperty(ref m_DataStreamIndex, value);
+        }
+
+        /// <inheritdoc />
         public bool HasAudio
         {
             get => m_HasAudio;
@@ -317,6 +334,13 @@
         {
             get => m_HasSubtitles;
             private set => SetProperty(ref m_HasSubtitles, value);
+        }
+
+        /// <inheritdoc />
+        public bool HasData
+        {
+            get => m_HasData;
+            private set => SetProperty(ref m_HasData, value);
         }
 
         /// <inheritdoc />
@@ -526,11 +550,13 @@
             VideoStreamIndex = MediaCore.Container?.Components.Video?.StreamIndex ?? -1;
             AudioStreamIndex = MediaCore.Container?.Components.Audio?.StreamIndex ?? -1;
             SubtitleStreamIndex = MediaCore.Container?.Components.Subtitles?.StreamIndex ?? -1;
+            DataStreamIndex = MediaCore.Container?.Components.Data?.StreamIndex ?? -1;
             HasAudio = MediaCore.Container?.Components.HasAudio ?? default;
             HasVideo = MediaCore.Container?.Components.HasVideo ?? default;
             HasClosedCaptions = MediaCore.Container?.Components.Video?.StreamInfo?.HasClosedCaptions ?? default;
             HasSubtitles = (MediaCore.PreloadedSubtitles?.Count ?? 0) > 0
                 || (MediaCore.Container?.Components.HasSubtitles ?? false);
+            HasData = MediaCore.Container?.Components.HasData ?? default;
             VideoCodec = MediaCore.Container?.Components.Video?.CodecName;
             VideoBitRate = MediaCore.Container?.Components.Video?.BitRate ?? default;
             VideoRotation = MediaCore.Container?.Components.Video?.DisplayRotation ?? default;
@@ -589,6 +615,10 @@
             // Update the discrete frame position upon rendering
             if (block.MediaType == (MediaCore.Container?.Components.MainMediaType ?? MediaType.None))
                 FramePosition = block.StartTime;
+
+            // Updata data block properties
+            if (block.MediaType == MediaType.Data)
+                DataPosition = block.StartTime;
 
             // Update video block properties
             if (block is VideoBlock == false) return;
@@ -660,6 +690,7 @@
             // Reset Method-controlled properties
             Position = default;
             FramePosition = default;
+            DataPosition = default;
             HasMediaEnded = default;
 
             // Reset decoder and buffering
