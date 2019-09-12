@@ -15,7 +15,7 @@
         #region Private Members
 
         private readonly object DisposeLock = new object();
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         #endregion
 
@@ -72,8 +72,6 @@
                 InternalPointer = IntPtr.Zero;
                 IsDisposed = true;
             }
-
-            GC.SuppressFinalize(this);
         }
 
         #endregion
