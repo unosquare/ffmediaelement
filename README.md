@@ -104,6 +104,35 @@ A high-level diagram is provided as additional reference below.
 9. The file or URL should play immediately, and all the properties should display to the right of the media display by clicking on the <code>Info</code> icon.
 10. You can use the resulting compiled assemblies in your project without further dependencies. Look for ```ffme.win.dll```.
 
+### ffmeplay.exe Sample Application
+
+The source code for this project contains a lot of use case for the `FFME` control. If you are just checking things out, here is a quick set of shortcut keys that `ffmeplay` accepts.
+
+| Shortcut Key | Function Description |
+| --- | --- |
+| G | Example of toggling subtitle color |
+| Left | Seek 1 frame to the left |
+| Right | Seek 1 frame to the right |
+| + / Volume Up | Increase Audio Volume |
+| - / Volume Down | Decrease Audio Volume |
+| M / Volume Mute | Mute Audio |
+| Up | Increase playback Speed |
+| Down | Decrease playback speed |
+| A | Cycle Through Audio Streams |
+| S | Cycle Through Subtitle Streams |
+| Q | Cycle Through Video Streams |
+| C | Cycle Through Closed Caption Channels |
+| R | Reset Changes |
+| Y / H | Contrast: Increase / Decrease |
+| U / J | Brightness: Increase / Decrease |
+| I / K | Saturation: Increase / Decrease |
+| E | Example of cycling through audio filters |
+| T | Capture Screenshot to `desktop/ffplay` folder |
+| W | Start/Stop recording packets (no transcoding) into a transport stream to `desktop/ffplay` folder. |
+| Double-click | Enter fullscreen |
+| Escape | Exit fullscreen |
+| Mouse Wheel Up / Down | Zoom: In / Out |
+
 ## Thanks
 *In no particular order*
 
