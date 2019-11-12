@@ -178,7 +178,7 @@
             HasTakenThumbnail = false;
             var m = App.ViewModel.MediaElement;
 
-            Entries.AddOrUpdateEntry(m.MediaInfo);
+            Entries.AddOrUpdateEntry(m.Source, m.MediaInfo);
             Entries.SaveEntries();
         }
 

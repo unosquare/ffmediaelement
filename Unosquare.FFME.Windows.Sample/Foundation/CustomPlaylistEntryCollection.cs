@@ -62,21 +62,21 @@
         /// <summary>
         /// Adds or updates an entry.
         /// </summary>
+        /// <param name="mediaSource">The current media source URI.</param>
         /// <param name="info">The media information.</param>
-        public void AddOrUpdateEntry(MediaInfo info)
+        public void AddOrUpdateEntry(Uri mediaSource, MediaInfo info)
         {
             lock (SyncRoot)
             {
-                var mediaSource = info.MediaSource;
-                var entry = FindEntryByMediaSource(mediaSource);
+                var entry = FindEntryByMediaSource(mediaSource.OriginalString);
                 if (entry == null)
                 {
                     // Create a new entry with default values
                     entry = new CustomPlaylistEntry
                     {
-                        MediaSource = mediaSource,
-                        Title = Uri.TryCreate(mediaSource, UriKind.RelativeOrAbsolute, out var entryUri)
-                            ? Path.GetFileNameWithoutExtension(Uri.UnescapeDataString(entryUri.AbsolutePath))
+                        MediaSource = mediaSource.OriginalString,
+                        Title = (mediaSource.IsFile || mediaSource.IsUnc)
+                            ? Path.GetFileNameWithoutExtension(mediaSource.ToString())
                             : $"Media File {DateTime.Now}"
                     };
 
