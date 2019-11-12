@@ -194,10 +194,8 @@
             if (HasTakenThumbnail) return;
 
             var state = e.EngineState;
-            var mediaElement = sender as MediaElement;
-            var info = mediaElement?.MediaInfo;
 
-            if (string.IsNullOrWhiteSpace(info?.MediaSource))
+            if (state.Source == null)
                 return;
 
             if (!state.HasMediaEnded && state.Position.TotalSeconds < snapshotPosition &&
@@ -205,7 +203,7 @@
                 return;
 
             HasTakenThumbnail = true;
-            Entries.AddOrUpdateEntryThumbnail(info, e.Bitmap);
+            Entries.AddOrUpdateEntryThumbnail(state.Source, e.Bitmap);
             Entries.SaveEntries();
         }
     }

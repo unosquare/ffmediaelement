@@ -164,8 +164,11 @@
             {
                 if (arg is CustomPlaylistEntry entry)
                 {
-                    App.ViewModel.Playlist.Entries.RemoveEntryByMediaSource(entry.MediaSource);
-                    App.ViewModel.Playlist.Entries.SaveEntries();
+                    if (Uri.TryCreate(entry.MediaSource, UriKind.RelativeOrAbsolute, out var mediaSource))
+                    {
+                        App.ViewModel.Playlist.Entries.RemoveEntryByMediaSource(mediaSource);
+                        App.ViewModel.Playlist.Entries.SaveEntries();
+                    }
                 }
             }));
     }

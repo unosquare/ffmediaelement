@@ -44,11 +44,11 @@
         /// </summary>
         /// <param name="mediaSource">The media URL.</param>
         /// <returns>The playlist entry or null if not found.</returns>
-        public CustomPlaylistEntry FindEntryByMediaSource(string mediaSource)
+        public CustomPlaylistEntry FindEntryByMediaSource(Uri mediaSource)
         {
             lock (SyncRoot)
             {
-                var lookupMediaSource = mediaSource?.Trim() ?? string.Empty;
+                var lookupMediaSource = mediaSource?.OriginalString ?? string.Empty;
                 foreach (var entry in this)
                 {
                     if (lookupMediaSource.Equals(entry.MediaSource, StringComparison.OrdinalIgnoreCase))
@@ -68,7 +68,7 @@
         {
             lock (SyncRoot)
             {
-                var entry = FindEntryByMediaSource(mediaSource.OriginalString);
+                var entry = FindEntryByMediaSource(mediaSource);
                 if (entry == null)
                 {
                     // Create a new entry with default values
@@ -130,13 +130,12 @@
         /// Sets the entry thumbnail.
         /// Deletes the prior thumbnail file is found or previously set.
         /// </summary>
-        /// <param name="info">The media info.</param>
+        /// <param name="mediaSource">The media info.</param>
         /// <param name="bitmap">The bitmap.</param>
-        public void AddOrUpdateEntryThumbnail(MediaInfo info, BitmapDataBuffer bitmap)
+        public void AddOrUpdateEntryThumbnail(Uri mediaSource, BitmapDataBuffer bitmap)
         {
             lock (SyncRoot)
             {
-                var mediaSource = info.MediaSource;
                 var entry = FindEntryByMediaSource(mediaSource);
                 if (entry == null) return;
 
@@ -160,7 +159,7 @@
         /// Removes the entry.
         /// </summary>
         /// <param name="mediaSource">The media source.</param>
-        public void RemoveEntryByMediaSource(string mediaSource)
+        public void RemoveEntryByMediaSource(Uri mediaSource)
         {
             lock (SyncRoot)
             {
