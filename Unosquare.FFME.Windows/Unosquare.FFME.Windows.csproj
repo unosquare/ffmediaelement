@@ -38,7 +38,7 @@
     <PackageReleaseNotes>
       This is a release package of the Floyd Engine build referencing bindings to FFmpeg version 4.2.0
       This package does not contain the required FFmpeg binaries. Please refer to the following URL for instructions on how to obtain the binaries: https://github.com/unosquare/ffmediaelement
-      Release details: https://github.com/unosquare/ffmediaelement/milestone/13?closed=1
+      Release details: https://github.com/unosquare/ffmediaelement/milestone/14?closed=1
     </PackageReleaseNotes>
     <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
