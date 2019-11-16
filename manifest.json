@@ -86,7 +86,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Common.BitmapDataBuffer.html",
-          "hash": "xeRP+EXDTZJdCRUtbGS+lQ=="
+          "hash": "DtypQKwwKZJ1F1fL+i1Ibg=="
         }
       },
       "is_incremental": false,
@@ -110,7 +110,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Common.LegacyAudioDeviceInfo.html",
-          "hash": "/JauXCJW7UI1NTGIzkhWew=="
+          "hash": "aEpNbpXUSaLtX5KcHodrkg=="
         }
       },
       "is_incremental": false,
@@ -146,7 +146,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Common.RendererOptions.html",
-          "hash": "1ZXhhwdT8v7cALpfI8UJmA=="
+          "hash": "JDAyDvZmXhdvRXbKPiSqMA=="
         }
       },
       "is_incremental": false,
@@ -158,7 +158,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Common.RenderingAudioEventArgs.html",
-          "hash": "J1If2OWEoucZ8vJt09FWdA=="
+          "hash": "WRWslkRaBFG9SjXaLo1U7g=="
         }
       },
       "is_incremental": false,
@@ -303,10 +303,11 @@
           "total_file_count": 0,
           "skipped_file_count": 0
         },
-        "ManagedReferenceDocumentProcessor": {
+        "ResourceDocumentProcessor": {
           "can_incremental": false,
+          "details": "Processor ResourceDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build",
-          "total_file_count": 16,
+          "total_file_count": 0,
           "skipped_file_count": 0
         },
         "ConceptualDocumentProcessor": {
@@ -315,11 +316,10 @@
           "total_file_count": 1,
           "skipped_file_count": 0
         },
-        "ResourceDocumentProcessor": {
+        "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
-          "details": "Processor ResourceDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build",
-          "total_file_count": 0,
+          "total_file_count": 16,
           "skipped_file_count": 0
         }
       }
