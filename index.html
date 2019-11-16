@@ -81,7 +81,7 @@
 <h2 id="current-nuget-release-status">Current NuGet Release Status</h2>
 <ul>
 <li>If you would like to support this project, you can show your appreciation via <a href="https://www.paypal.me/mariodivece/50usd">PayPal.Me</a></li>
-<li>Current Status: (2019-06-30) - Release 4.1.310 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
+<li>Current Status: (2019-11-16) - Release 4.1.320 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
 <li>NuGet Package available here: <a href="https://www.nuget.org/packages/FFME.Windows/">https://www.nuget.org/packages/FFME.Windows/</a></li>
 <li>FFmpeg Version: 4.2.0 <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip">64-bit</a></li>
 </ul>
@@ -89,7 +89,7 @@
 <h2 id="quick-usage-guide-for-wpf-apps">Quick Usage Guide for WPF Apps</h2>
 <p>Here is a quick guide on how to get started.</p>
 <ol>
-<li>Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above, or .Net Core 3.0.</li>
+<li>Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above, or .Net Core 3.0 or above.</li>
 <li>Install the NuGet Package from your Package Manager Console: <code>PM&gt; Install-Package FFME.Windows</code></li>
 <li>You need FFmpeg <strong>shared</strong> binaries (64 or 32 bit, depending on your app&#39;s target architecture). Build your own or download a compatible build from <a href="https://ffmpeg.zeranoe.com/builds/">Zeranoe FFmpeg Builds site</a>.</li>
 <li>Your FFmpeg build should have a <code>bin</code> folder with 3 exe files and some dll files. Copy all those files to a folder such as <code>c:\ffmpeg</code></li>
@@ -156,7 +156,7 @@ device://gdigrab?desktop
 <h2 id="windows-compiling-running-and-testing">Windows: Compiling, Running and Testing</h2>
 <p><em>Please note that I am unable to distribute FFmpeg&#39;s binaries because I don&#39;t know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.</em></p>
 <ol>
-<li>Clone this repository and make sure you have <a href="https://dotnet.microsoft.com/download/dotnet-core/3.0">.Net Core 3.0 preview 7 SDK or above</a> installed.</li>
+<li>Clone this repository and make sure you have <a href="https://dotnet.microsoft.com/download/dotnet-core/3.1">.Net Core 3.1 preview or above</a> installed.</li>
 <li>Download the FFmpeg <strong>shared</strong> binaries for your target architecture: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip">64-bit</a>.</li>
 <li>Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and multiple <code>dll</code> files. Select and copy all of them.</li>
 <li>Now paste all files from the prior step onto a well-known folder. Take note of the full path. (I used <code>c:\ffmpeg\</code>)</li>
