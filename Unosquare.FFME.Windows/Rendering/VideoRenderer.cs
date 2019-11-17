@@ -25,7 +25,6 @@
         #region Private State
 
         private const double DefaultDpi = 96.0;
-        private static readonly TimeSpan CaptionsLayoutTimeout = TimeSpan.FromMilliseconds(15);
 
         /// <summary>
         /// Contains an equivalence lookup of FFmpeg pixel format and WPF pixel formats.
@@ -50,7 +49,9 @@
         /// <summary>
         /// The bitmap that is presented to the user.
         /// </summary>
-        private WriteableBitmap TargetBitmap;
+        private WriteableBitmap m_TargetBitmap;
+
+        private BitmapDataBuffer TargetBitmapData;
 
         #endregion
 
@@ -101,6 +102,28 @@
         /// Gets the DPI along the Y axis.
         /// </summary>
         public double DpiY { get; private set; } = DefaultDpi;
+
+        private Dispatcher VideoDispatcher => MediaElement?.VideoView?.ElementDispatcher;
+
+        private Dispatcher ControlDispatcher => MediaElement?.Dispatcher;
+
+        private WriteableBitmap TargetBitmap
+        {
+            get
+            {
+                return m_TargetBitmap;
+            }
+            set
+            {
+                m_TargetBitmap = value;
+                TargetBitmapData = m_TargetBitmap != null
+                    ? new BitmapDataBuffer(m_TargetBitmap)
+                    : null;
+
+                MediaElement.VideoView.Source = m_TargetBitmap;
+                GC.Collect();
+            }
+        }
 
         #endregion
 
@@ -164,41 +187,19 @@
             // Send the packets to the CC renderer
             MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
 
-            // Create an action that holds GUI thread actions
-            var foregroundAction = new Action(() =>
+            // Prepare and write frame data
+            if (PrepareVideoFrameBuffer(block))
             {
-                MediaElement?.CaptionsView?.Render(MediaElement.ClosedCaptionsChannel, clockPosition);
-                ApplyLayoutTransforms(block);
-            });
+                WriteVideoFrameBuffer(block);
+                MediaElement?.RaiseRenderingVideoEvent(block, TargetBitmapData, clockPosition);
+            }
 
-            var canStartForegroundTask = MediaElement.VideoView.ElementDispatcher != MediaElement.Dispatcher;
-            var foregroundTask = canStartForegroundTask ?
-                MediaElement.Dispatcher.InvokeAsync(foregroundAction) : null;
-
-            // Ensure the target bitmap can be loaded
-            MediaElement?.VideoView?.InvokeAsync(DispatcherPriority.Render, () =>
+            // Queue the video image and layout updates
+            VideoDispatcher?.InvokeAsync(() =>
             {
-                if (block.IsDisposed)
-                {
-                    IsRenderingInProgress.Value = false;
-                    return;
-                }
-
-                // Run the foreground action if we could not start it in parallel.
-                if (foregroundTask == null)
-                {
-                    try
-                    {
-                        foregroundAction();
-                    }
-                    catch (Exception ex)
-                    {
-                        this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} layout/CC failed.", ex);
-                    }
-                }
-
                 try
                 {
+                    // Apply frame rate limiter (if active)
                     var frameRateLimit = MediaElement.RendererOptions.VideoRefreshRateLimit;
                     var isRenderTime = frameRateLimit <= 0 || !RenderStopwatch.IsRunning || RenderStopwatch.ElapsedMilliseconds >= 1000d / frameRateLimit;
                     if (!isRenderTime)
@@ -206,12 +207,8 @@
 
                     RenderStopwatch.Restart();
 
-                    // Render the bitmap data
-                    var bitmapData = LockTargetBitmap(block);
-                    if (bitmapData == null) return;
-                    LoadTargetBitmapBuffer(bitmapData, block);
-                    MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
-                    RenderTargetBitmap(bitmapData);
+                    // Update the picture
+                    RefreshVideoFrame();
                 }
                 catch (Exception ex)
                 {
@@ -219,23 +216,14 @@
                 }
                 finally
                 {
-                    if (foregroundTask != null)
-                    {
-                        try
-                        {
-                            if (foregroundTask.Wait(CaptionsLayoutTimeout) != DispatcherOperationStatus.Completed)
-                                this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} layout/CC timed out.");
-                        }
-                        catch (Exception ex)
-                        {
-                            this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} layout/CC failed.", ex);
-                        }
-                    }
+                    if (Dispatcher.CurrentDispatcher != ControlDispatcher)
+                        ControlDispatcher.InvokeAsync(() => UpdateLayout(block, clockPosition));
+                    else
+                        UpdateLayout(block, clockPosition);
 
-                    // Always reset the rendering state
                     IsRenderingInProgress.Value = false;
                 }
-            });
+            }, DispatcherPriority.DataBind);
         }
 
         /// <inheritdoc />
@@ -244,7 +232,6 @@
             Library.GuiContext.EnqueueInvoke(() =>
             {
                 TargetBitmap = null;
-                MediaElement.VideoView.Source = null;
                 MediaElement.CaptionsView.Reset();
 
                 // Force refresh
@@ -257,86 +244,104 @@
         /// <summary>
         /// Renders the target bitmap.
         /// </summary>
-        /// <param name="bitmapData">The bitmap data.</param>
-        private void RenderTargetBitmap(BitmapDataBuffer bitmapData)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RefreshVideoFrame()
         {
+            var bitmap = TargetBitmap;
+            if (bitmap == null)
+                return;
+
             try
             {
                 // Signal an update on the rendering surface
-                TargetBitmap?.AddDirtyRect(bitmapData.UpdateRect);
-                TargetBitmap?.Unlock();
+                bitmap.Lock();
+                bitmap.AddDirtyRect(new Int32Rect(0, 0, TargetBitmap.PixelWidth, TargetBitmap.PixelHeight));
             }
             catch (Exception ex)
             {
-                this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(RenderTargetBitmap)}", ex);
+                this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(RefreshVideoFrame)}", ex);
+            }
+            finally
+            {
+                // always unlock the buffer
+                bitmap.Unlock();
             }
         }
 
         /// <summary>
-        /// Initializes the target bitmap if not available and locks it for loading the back-buffer.
-        /// This method needs to be called from the GUI thread.
+        /// Initializes the target bitmap if not available and returns a pointer to the back-buffer for filling.
         /// </summary>
         /// <param name="block">The block.</param>
-        /// <returns>
-        /// The locking result. Returns a null pointer on back buffer for invalid.
-        /// </returns>
-        private BitmapDataBuffer LockTargetBitmap(VideoBlock block)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool PrepareVideoFrameBuffer(VideoBlock block)
         {
-            // TODO: Evaluate if we need to skip the locking if scrubbing is not enabled
-            // Example: if (!MediaElement.ScrubbingEnabled && (!MediaElement.IsPlaying || MediaElement.IsSeeking)) return result
-
             // Figure out what we need to do
-            var needsCreation = TargetBitmap == null && MediaElement.HasVideo;
-            var needsModification = MediaElement.HasVideo
-                && TargetBitmap != null
-                && (TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight);
+            var needsCreation = (TargetBitmapData == null || TargetBitmap == null) && MediaElement.HasVideo;
+            var needsModification = MediaElement.HasVideo && TargetBitmap != null && TargetBitmapData != null &&
+                (TargetBitmapData.PixelWidth != block.PixelWidth ||
+                TargetBitmapData.PixelHeight != block.PixelHeight ||
+                TargetBitmapData.Stride != block.PictureBufferStride);
 
             var hasValidDimensions = block.PixelWidth > 0 && block.PixelHeight > 0;
 
-            // Instantiate or update the target bitmap
-            if ((needsCreation || needsModification) && hasValidDimensions)
+            if ((!needsCreation && !needsModification) && hasValidDimensions)
+                return TargetBitmapData != null;
+
+            VideoDispatcher?.Invoke(() =>
             {
+                // TODO: Evaluate if we need to skip the locking if scrubbing is not enabled
+                // Example: if (!MediaElement.ScrubbingEnabled && (!MediaElement.IsPlaying || MediaElement.IsSeeking)) return result
+                if (!hasValidDimensions)
+                {
+                    TargetBitmap = null;
+                    return;
+                }
+
+                // Instantiate or update the target bitmap
                 TargetBitmap = new WriteableBitmap(
                     block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.VideoPixelFormat], null);
-            }
-            else if (hasValidDimensions == false)
-            {
-                TargetBitmap = null;
-            }
+            }, DispatcherPriority.Send);
 
-            // Update the target ViewBox image if not already set
-            if (MediaElement.VideoView.Source != TargetBitmap)
-                MediaElement.VideoView.Source = TargetBitmap;
-
-            // Lock the back-buffer and create a pointer to it
-            TargetBitmap?.Lock();
-
-            // Return the appropriate buffer result
-            return TargetBitmap != null ? new BitmapDataBuffer(TargetBitmap) : null;
+            return TargetBitmapData != null;
         }
 
         /// <summary>
         /// Loads that target data buffer with block data.
         /// </summary>
-        /// <param name="target">The target.</param>
-        /// <param name="source">The source.</param>
-        private unsafe void LoadTargetBitmapBuffer(BitmapDataBuffer target, VideoBlock source)
+        /// <param name="block">The source.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private unsafe void WriteVideoFrameBuffer(VideoBlock block)
         {
-            if (source == null || !source.TryAcquireReaderLock(out var readLock))
+            var target = TargetBitmapData;
+            if (target == null || block == null || block.IsDisposed || !block.TryAcquireReaderLock(out var readLock))
                 return;
 
             using (readLock)
             {
                 // Compute a safe number of bytes to copy
                 // At this point, we it is assumed the strides are equal
-                var bufferLength = Math.Min(source.BufferLength, target.BufferLength);
+                var bufferLength = Math.Min(block.BufferLength, target.BufferLength);
 
                 // Copy the block data into the back buffer of the target bitmap.
                 Buffer.MemoryCopy(
-                    source.Buffer.ToPointer(),
+                    block.Buffer.ToPointer(),
                     target.Scan0.ToPointer(),
                     bufferLength,
                     bufferLength);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void UpdateLayout(VideoBlock block, TimeSpan clockPosition)
+        {
+            try
+            {
+                MediaElement?.CaptionsView?.Render(MediaElement.ClosedCaptionsChannel, clockPosition);
+                ApplyLayoutTransforms(block);
+            }
+            catch (Exception ex)
+            {
+                this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} layout/CC failed.", ex);
             }
         }
 
