@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Commands
+namespace Unosquare.FFME.Commands
 {
     using Common;
     using Diagnostics;
@@ -142,38 +142,38 @@
         /// <summary>
         /// Plays the currently open media.
         /// </summary>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean result. True means success. False means failure.</returns>
         public Task<bool> PlayMediaAsync() => QueuePriorityCommand(PriorityCommandType.Play);
 
         /// <summary>
         /// Pauses the currently open media asynchronous.
         /// </summary>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean result. True means success. False means failure.</returns>
         public Task<bool> PauseMediaAsync() => QueuePriorityCommand(PriorityCommandType.Pause);
 
         /// <summary>
         /// Stops the currently open media. This seeks to the start of the input and pauses the clock.
         /// </summary>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean result. True means success. False means failure.</returns>
         public Task<bool> StopMediaAsync() => QueuePriorityCommand(PriorityCommandType.Stop);
 
         /// <summary>
         /// Queues a seek operation.
         /// </summary>
         /// <param name="seekTarget">The seek target.</param>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean result. True means success. False means failure.</returns>
         public Task<bool> SeekMediaAsync(TimeSpan seekTarget) => QueueSeekCommand(seekTarget, SeekMode.Normal);
 
         /// <summary>
         /// Queues a seek operation that steps a single frame forward.
         /// </summary>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean result. True means success. False means failure.</returns>
         public Task<bool> StepForwardAsync() => QueueSeekCommand(TimeSpan.Zero, SeekMode.StepForward);
 
         /// <summary>
         /// Queues a seek operation that steps a single frame backward.
         /// </summary>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean result. True means success. False means failure.</returns>
         public Task<bool> StepBackwardAsync() => QueueSeekCommand(TimeSpan.Zero, SeekMode.StepBackward);
 
         /// <summary>
@@ -181,7 +181,7 @@
         /// component is available.
         /// </summary>
         /// <param name="millisecondsTimeout">The timeout to wait for.</param>
-        /// <returns>If the wait completed successully.</returns>
+        /// <returns>If the wait completed successfully.</returns>
         public bool WaitForSeekBlocks(int millisecondsTimeout) => SeekBlocksAvailable.Wait(millisecondsTimeout);
 
         #endregion

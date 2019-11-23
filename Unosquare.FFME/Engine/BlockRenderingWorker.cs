@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Engine
+namespace Unosquare.FFME.Engine
 {
     using Commands;
     using Common;
@@ -490,7 +490,7 @@
             var isRepeatedBlock = lastBlockStartTime != TimeSpan.MinValue && lastBlockStartTime == currentBlock.StartTime;
             var requiresRepeatedBlocks = t == MediaType.Audio || isAttachedPicture;
 
-            // For live streams, we don't want to display previosu blocks
+            // For live streams, we don't want to display previous blocks
             if (t == MediaType.Video && !isRepeatedBlock && !isAttachedPicture && Container.IsLiveStream)
                 isRepeatedBlock = lastBlockStartTime.Ticks >= currentBlock.StartTime.Ticks;
 

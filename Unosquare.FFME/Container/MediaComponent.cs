@@ -8,7 +8,6 @@
     using System.Globalization;
     using System.Runtime.CompilerServices;
 
-    /// <inheritdoc />
     /// <summary>
     /// Represents a media component of a given media type within a
     /// media container. Derived classes must implement frame handling
