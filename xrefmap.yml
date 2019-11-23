@@ -1164,6 +1164,25 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.FFmpegMessageLogged
   fullName: Unosquare.FFME.MediaElement.FFmpegMessageLogged
   nameWithType: MediaElement.FFmpegMessageLogged
+- uid: Unosquare.FFME.MediaElement.IgnorePixelAspectRatio
+  name: IgnorePixelAspectRatio
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IgnorePixelAspectRatio
+  commentId: P:Unosquare.FFME.MediaElement.IgnorePixelAspectRatio
+  fullName: Unosquare.FFME.MediaElement.IgnorePixelAspectRatio
+  nameWithType: MediaElement.IgnorePixelAspectRatio
+- uid: Unosquare.FFME.MediaElement.IgnorePixelAspectRatio*
+  name: IgnorePixelAspectRatio
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IgnorePixelAspectRatio_
+  commentId: Overload:Unosquare.FFME.MediaElement.IgnorePixelAspectRatio
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.IgnorePixelAspectRatio
+  nameWithType: MediaElement.IgnorePixelAspectRatio
+- uid: Unosquare.FFME.MediaElement.IgnorePixelAspectRatioProperty
+  name: IgnorePixelAspectRatioProperty
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IgnorePixelAspectRatioProperty
+  commentId: F:Unosquare.FFME.MediaElement.IgnorePixelAspectRatioProperty
+  fullName: Unosquare.FFME.MediaElement.IgnorePixelAspectRatioProperty
+  nameWithType: MediaElement.IgnorePixelAspectRatioProperty
 - uid: Unosquare.FFME.MediaElement.IsDesignPreviewEnabled
   name: IsDesignPreviewEnabled
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDesignPreviewEnabled
