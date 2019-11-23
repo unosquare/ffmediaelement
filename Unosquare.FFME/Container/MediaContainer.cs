@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Container
+namespace Unosquare.FFME.Container
 {
     using Common;
     using Diagnostics;
@@ -334,7 +334,7 @@
         #region Public API
 
         /// <summary>
-        /// Initializes the container and its input context, extrancting stream information.
+        /// Initializes the container and its input context, extracting stream information.
         /// Container configuration passed on the constructor is applied.
         /// This method must be called to make the container usable.
         /// </summary>
@@ -1045,7 +1045,7 @@
         /// </summary>
         /// <param name="desiredTargetTime">The target time.</param>
         /// <returns>
-        /// The list of media frames.
+        /// The seeked media frame.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaFrame StreamSeek(TimeSpan desiredTargetTime)
