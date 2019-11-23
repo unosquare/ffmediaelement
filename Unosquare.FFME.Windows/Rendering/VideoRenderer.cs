@@ -352,12 +352,13 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ApplyLayoutTransforms(VideoBlock b)
         {
-            if (MediaElement?.VideoView == null) return;
+            var videoView = MediaElement?.VideoView;
+            if (videoView == null) return;
 
             ScaleTransform scaleTransform;
             RotateTransform rotateTransform;
 
-            if (MediaElement.VideoView.LayoutTransform is TransformGroup layoutTransforms)
+            if (videoView.LayoutTransform is TransformGroup layoutTransforms)
             {
                 scaleTransform = layoutTransforms.Children[0] as ScaleTransform;
                 rotateTransform = layoutTransforms.Children[1] as RotateTransform;
@@ -370,7 +371,7 @@
                 layoutTransforms.Children.Add(scaleTransform);
                 layoutTransforms.Children.Add(rotateTransform);
 
-                MediaElement.VideoView.LayoutTransform = layoutTransforms;
+                videoView.LayoutTransform = layoutTransforms;
             }
 
             // return if no proper transforms were found
