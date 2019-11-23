@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Diagnostics
+namespace Unosquare.FFME.Diagnostics
 {
     /// <summary>
     /// Defines interface methods for logging message handlers.
@@ -8,7 +8,7 @@
         /// <summary>
         /// Handles a log message.
         /// </summary>
-        /// <param name="message">The message object contining the data.</param>
+        /// <param name="message">The message object containing the data.</param>
         void HandleLogMessage(LoggingMessage message);
     }
 }

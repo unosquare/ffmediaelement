@@ -184,7 +184,7 @@
                     return true;
                 }
 
-                // Let consumers know main blocks are not avaiable
+                // Let consumers know main blocks are not available
                 hasDecoderSeeked = true;
 
                 // wait for the current reading and decoding cycles
@@ -312,7 +312,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool TrySignalBlocksAvailable(SeekMode mode, MediaBlockBuffer mainBlocks, TimeSpan targetPosition, bool hasSeekBlocks)
         {
-            // signal that thesere is a main block available
+            // signal that there is a main block available
             if (hasSeekBlocks == false && mainBlocks.IsInRange(targetPosition))
             {
                 // We need to update the clock immediately because
