@@ -503,6 +503,29 @@ namespace Unosquare.FFME
         }
 
         #endregion
+
+        #region IgnorePixelAspectRatio Dependency Property
+
+        /// <summary>
+        /// Gets/Sets the stretch direction of the ViewBox, which determines the restrictions on
+        /// scaling that are applied to the content inside the ViewBox.  For instance, this property
+        /// can be used to prevent the content from being smaller than its native size or larger than
+        /// its native size.
+        /// </summary>
+        public bool IgnorePixelAspectRatio
+        {
+            get => (bool)GetValue(IgnorePixelAspectRatioProperty);
+            set => SetValue(IgnorePixelAspectRatioProperty, value);
+        }
+
+        /// <summary>
+        /// DependencyProperty for StretchDirection property.
+        /// </summary>
+        public static readonly DependencyProperty IgnorePixelAspectRatioProperty = DependencyProperty.Register(
+            nameof(IgnorePixelAspectRatio), typeof(bool), typeof(MediaElement),
+            new FrameworkPropertyMetadata(false, AffectsMeasureAndRender));
+
+        #endregion
     }
 }
 #pragma warning restore SA1117 // Parameters must be on same line or separate lines

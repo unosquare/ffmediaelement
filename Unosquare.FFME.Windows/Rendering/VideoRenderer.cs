@@ -378,7 +378,7 @@
                 return;
 
             // Process Aspect Ratio according to block.
-            if (b.PixelAspectWidth != b.PixelAspectHeight)
+            if (b.PixelAspectWidth != b.PixelAspectHeight && MediaElement.IgnorePixelAspectRatio == false)
             {
                 var scaleX = b.PixelAspectWidth > b.PixelAspectHeight ? Convert.ToDouble(b.PixelAspectWidth) / Convert.ToDouble(b.PixelAspectHeight) : 1d;
                 var scaleY = b.PixelAspectHeight > b.PixelAspectWidth ? Convert.ToDouble(b.PixelAspectHeight) / Convert.ToDouble(b.PixelAspectWidth) : 1d;
