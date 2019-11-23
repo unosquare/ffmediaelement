@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Common
 {
     using ClosedCaptions;
+    using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
 
@@ -17,6 +18,7 @@
         /// <param name="closedCaptions">The closed captions.</param>
         /// <param name="smtpeTimeCode">The smtpe time code.</param>
         /// <param name="pictureNumber">The picture number.</param>
+        /// <param name="pictureType">The origination picture type.</param>
         /// <param name="engineState">The engine.</param>
         /// <param name="stream">The stream.</param>
         /// <param name="startTime">The start time.</param>
@@ -27,6 +29,7 @@
             IReadOnlyList<ClosedCaptionPacket> closedCaptions,
             string smtpeTimeCode,
             long pictureNumber,
+            AVPictureType pictureType,
             IMediaEngineState engineState,
             StreamInfo stream,
             TimeSpan startTime,
@@ -38,6 +41,7 @@
             Bitmap = bitmap;
             SmtpeTimeCode = smtpeTimeCode;
             ClosedCaptions = closedCaptions;
+            PictureType = pictureType;
         }
 
         /// <summary>
@@ -62,5 +66,10 @@
         /// Gets the SMTPE time code.
         /// </summary>
         public string SmtpeTimeCode { get; }
+
+        /// <summary>
+        /// Gets the picture type.
+        /// </summary>
+        public AVPictureType PictureType { get; }
     }
 }
