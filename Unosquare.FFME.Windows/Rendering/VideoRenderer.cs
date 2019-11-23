@@ -377,8 +377,11 @@
             if (scaleTransform == null || rotateTransform == null)
                 return;
 
+            // Check if we need to ignore pixel aspect ratio
+            var ignoreAspectRatio = MediaElement?.IgnorePixelAspectRatio ?? false;
+
             // Process Aspect Ratio according to block.
-            if (b.PixelAspectWidth != b.PixelAspectHeight && MediaElement.IgnorePixelAspectRatio == false)
+            if (!ignoreAspectRatio && b.PixelAspectWidth != b.PixelAspectHeight)
             {
                 var scaleX = b.PixelAspectWidth > b.PixelAspectHeight ? Convert.ToDouble(b.PixelAspectWidth) / Convert.ToDouble(b.PixelAspectHeight) : 1d;
                 var scaleY = b.PixelAspectHeight > b.PixelAspectWidth ? Convert.ToDouble(b.PixelAspectHeight) / Convert.ToDouble(b.PixelAspectWidth) : 1d;
@@ -392,12 +395,8 @@
             }
             else
             {
-                if (Math.Abs(scaleTransform.ScaleX - 1d) > double.Epsilon ||
-                    Math.Abs(scaleTransform.ScaleY - 1d) > double.Epsilon)
-                {
-                    scaleTransform.ScaleX = 1d;
-                    scaleTransform.ScaleY = 1d;
-                }
+                scaleTransform.ScaleX = 1d;
+                scaleTransform.ScaleY = 1d;
             }
 
             // Process Rotation
