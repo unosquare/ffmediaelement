@@ -67,6 +67,11 @@
         public long DisplayPictureNumber { get; internal set; }
 
         /// <summary>
+        /// Gets the picture type.
+        /// </summary>
+        public string PictureType { get; internal set; }
+
+        /// <summary>
         /// Gets the coded picture number set by the decoder.
         /// </summary>
         public long CodedPictureNumber { get; internal set; }

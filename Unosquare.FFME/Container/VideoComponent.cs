@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Container
+namespace Unosquare.FFME.Container
 {
     using Common;
     using Diagnostics;
@@ -306,6 +306,7 @@
             target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = source.StreamIndex;
             target.ClosedCaptions = source.ClosedCaptions.ToList();
+            target.PictureType = source.PictureType.GetDisplayString();
 
             // Update the stream info object if we get Closed Caption Data
             if (StreamInfo.HasClosedCaptions == false && target.ClosedCaptions.Count > 0)

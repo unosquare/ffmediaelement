@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME
+namespace Unosquare.FFME
 {
     using Common;
     using Container;
@@ -72,7 +72,8 @@
                 MediaCore.MediaInfo.Streams[videoBlock.StreamIndex],
                 videoBlock.StartTime,
                 videoBlock.Duration,
-                clock);
+                clock,
+                videoBlock.PictureType);
 
             RenderingVideo?.Invoke(this, e);
         }

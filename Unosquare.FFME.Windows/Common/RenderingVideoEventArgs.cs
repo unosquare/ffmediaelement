@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Common
+namespace Unosquare.FFME.Common
 {
     using ClosedCaptions;
     using System;
@@ -22,6 +22,7 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
+        /// <param name="pictureType">The picture type.</param>
         internal RenderingVideoEventArgs(
             BitmapDataBuffer bitmap,
             IReadOnlyList<ClosedCaptionPacket> closedCaptions,
@@ -31,13 +32,15 @@
             StreamInfo stream,
             TimeSpan startTime,
             TimeSpan duration,
-            TimeSpan clock)
+            TimeSpan clock,
+            string pictureType)
             : base(engineState, stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
             Bitmap = bitmap;
             SmtpeTimeCode = smtpeTimeCode;
             ClosedCaptions = closedCaptions;
+            PictureType = pictureType;
         }
 
         /// <summary>
@@ -62,5 +65,10 @@
         /// Gets the SMTPE time code.
         /// </summary>
         public string SmtpeTimeCode { get; }
+
+        /// <summary>
+        /// Gets the picture type of the video frame.
+        /// </summary>
+        public string PictureType { get; }
     }
 }
