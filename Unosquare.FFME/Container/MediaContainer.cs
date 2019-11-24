@@ -267,7 +267,7 @@ namespace Unosquare.FFME.Container
         /// <summary>
         /// Gets a value indicating whether the underlying media is seekable.
         /// </summary>
-        public bool IsStreamSeekable => (Components?.PlaybackDuration?.Ticks ?? 0) > 0;
+        public bool IsStreamSeekable => CustomInputStream?.CanSeek ?? (Components?.PlaybackDuration?.Ticks ?? 0) > 0;
 
         /// <summary>
         /// Gets a value indicating whether this container represents live media.
