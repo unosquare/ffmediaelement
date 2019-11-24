@@ -190,8 +190,7 @@
             // Prepare and write frame data
             if (PrepareVideoFrameBuffer(block))
             {
-                WriteVideoFrameBuffer(block);
-                MediaElement?.RaiseRenderingVideoEvent(block, TargetBitmapData, clockPosition);
+                WriteVideoFrameBuffer(block, clockPosition);
             }
 
             // Queue the video image and layout updates
@@ -309,13 +308,15 @@
         /// Loads that target data buffer with block data.
         /// </summary>
         /// <param name="block">The source.</param>
+        /// <param name="clockPosition">Current clock position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void WriteVideoFrameBuffer(VideoBlock block)
+        private unsafe void WriteVideoFrameBuffer(VideoBlock block, TimeSpan clockPosition)
         {
             var target = TargetBitmapData;
             if (target == null || block == null || block.IsDisposed || !block.TryAcquireReaderLock(out var readLock))
                 return;
 
+            // Lock the video block for reading
             using (readLock)
             {
                 // Compute a safe number of bytes to copy
@@ -328,6 +329,9 @@
                     target.Scan0.ToPointer(),
                     bufferLength,
                     bufferLength);
+
+                // with the locked video block, raise the rendering video event.
+                MediaElement?.RaiseRenderingVideoEvent(block, TargetBitmapData, clockPosition);
             }
         }
 
