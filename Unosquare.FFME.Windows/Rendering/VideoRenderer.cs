@@ -190,6 +190,7 @@
             // Prepare and write frame data
             if (PrepareVideoFrameBuffer(block))
             {
+                // TODO: Writing image data outside the Loack and Unlock cycle of the riteable bitmap sometimes causes tearing.
                 WriteVideoFrameBuffer(block, clockPosition);
             }
 
