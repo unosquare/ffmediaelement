@@ -73,7 +73,8 @@
                 MediaCore.MediaInfo.Streams[videoBlock.StreamIndex],
                 videoBlock.StartTime,
                 videoBlock.Duration,
-                clock);
+                clock,
+                videoBlock.PresentationTime);
 
             RenderingVideo?.Invoke(this, e);
         }

@@ -273,6 +273,7 @@
             // After scaling, we need to copy and guess some of the block properties
             // Flag the block if we have to
             target.IsStartTimeGuessed = source.HasValidStartTime == false;
+            target.PresentationTime = source.PresentationTime;
 
             // Try to fix the start time, duration and End time if we don't have valid data
             if (source.HasValidStartTime == false && previousBlock != null)
