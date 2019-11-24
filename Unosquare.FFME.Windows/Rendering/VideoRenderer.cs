@@ -255,7 +255,7 @@
             {
                 // Signal an update on the rendering surface
                 bitmap.Lock();
-                bitmap.AddDirtyRect(new Int32Rect(0, 0, TargetBitmap.PixelWidth, TargetBitmap.PixelHeight));
+                bitmap.AddDirtyRect(TargetBitmapData.UpdateRect);
             }
             catch (Exception ex)
             {
@@ -300,7 +300,7 @@
                 // Instantiate or update the target bitmap
                 TargetBitmap = new WriteableBitmap(
                     block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.VideoPixelFormat], null);
-            }, DispatcherPriority.Send);
+            }, DispatcherPriority.Loaded);
 
             return TargetBitmapData != null;
         }
