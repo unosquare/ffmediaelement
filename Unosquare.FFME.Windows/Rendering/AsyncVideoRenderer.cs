@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿#pragma warning disable CA1812
+namespace Unosquare.FFME.Rendering
 {
     using Common;
     using Container;
@@ -20,7 +21,7 @@
     /// Provides Video Image Rendering via a WPF Writable Bitmap.
     /// </summary>
     /// <seealso cref="IMediaRenderer" />
-    internal sealed class VideoRenderer : IMediaRenderer, ILoggingSource
+    internal sealed class AsyncVideoRenderer : IMediaRenderer, ILoggingSource
     {
         #region Private State
 
@@ -58,10 +59,10 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VideoRenderer"/> class.
+        /// Initializes a new instance of the <see cref="AsyncVideoRenderer"/> class.
         /// </summary>
         /// <param name="mediaCore">The core media element.</param>
-        public VideoRenderer(MediaEngine mediaCore)
+        public AsyncVideoRenderer(MediaEngine mediaCore)
         {
             MediaCore = mediaCore;
 
@@ -187,6 +188,13 @@
             // Send the packets to the CC renderer
             MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
 
+            // Prepare and write frame data
+            if (PrepareVideoFrameBuffer(block))
+            {
+                // TODO: Writing image data outside the Loack and Unlock cycle of the riteable bitmap sometimes causes tearing.
+                WriteVideoFrameBuffer(block, clockPosition);
+            }
+
             // Queue the video image and layout updates
             VideoDispatcher?.InvokeAsync(() =>
             {
@@ -200,9 +208,8 @@
 
                     RenderStopwatch.Restart();
 
-                    // Prepare and write frame data
-                    if (PrepareVideoFrameBuffer(block))
-                        WriteVideoFrameBuffer(block, clockPosition);
+                    // Update the picture
+                    RefreshVideoFrame();
                 }
                 catch (Exception ex)
                 {
@@ -236,6 +243,33 @@
         #endregion
 
         /// <summary>
+        /// Renders the target bitmap.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RefreshVideoFrame()
+        {
+            var bitmap = TargetBitmap;
+            if (bitmap == null)
+                return;
+
+            try
+            {
+                // Signal an update on the rendering surface
+                bitmap.Lock();
+                bitmap.AddDirtyRect(TargetBitmapData.UpdateRect);
+            }
+            catch (Exception ex)
+            {
+                this.LogError(Aspects.VideoRenderer, $"{nameof(AsyncVideoRenderer)}.{nameof(RefreshVideoFrame)}", ex);
+            }
+            finally
+            {
+                // always unlock the buffer
+                bitmap.Unlock();
+            }
+        }
+
+        /// <summary>
         /// Initializes the target bitmap if not available and returns a pointer to the back-buffer for filling.
         /// </summary>
         /// <param name="block">The block.</param>
@@ -254,15 +288,20 @@
             if ((!needsCreation && !needsModification) && hasValidDimensions)
                 return TargetBitmapData != null;
 
-            if (!hasValidDimensions)
+            VideoDispatcher?.Invoke(() =>
             {
-                TargetBitmap = null;
-                return false;
-            }
+                // TODO: Evaluate if we need to skip the locking if scrubbing is not enabled
+                // Example: if (!MediaElement.ScrubbingEnabled && (!MediaElement.IsPlaying || MediaElement.IsSeeking)) return result
+                if (!hasValidDimensions)
+                {
+                    TargetBitmap = null;
+                    return;
+                }
 
-            // Instantiate or update the target bitmap
-            TargetBitmap = new WriteableBitmap(
-                block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.VideoPixelFormat], null);
+                // Instantiate or update the target bitmap
+                TargetBitmap = new WriteableBitmap(
+                    block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.VideoPixelFormat], null);
+            }, DispatcherPriority.Loaded);
 
             return TargetBitmapData != null;
         }
@@ -275,37 +314,26 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private unsafe void WriteVideoFrameBuffer(VideoBlock block, TimeSpan clockPosition)
         {
-            var bitmap = TargetBitmap;
             var target = TargetBitmapData;
-            if (bitmap == null || target == null || block == null || block.IsDisposed || !block.TryAcquireReaderLock(out var readLock))
+            if (target == null || block == null || block.IsDisposed || !block.TryAcquireReaderLock(out var readLock))
                 return;
 
-            try
+            // Lock the video block for reading
+            using (readLock)
             {
-                bitmap.Lock();
+                // Compute a safe number of bytes to copy
+                // At this point, we it is assumed the strides are equal
+                var bufferLength = Math.Min(block.BufferLength, target.BufferLength);
 
-                // Lock the video block for reading
-                using (readLock)
-                {
-                    // Compute a safe number of bytes to copy
-                    // At this point, we it is assumed the strides are equal
-                    var bufferLength = Math.Min(block.BufferLength, target.BufferLength);
+                // Copy the block data into the back buffer of the target bitmap.
+                Buffer.MemoryCopy(
+                    block.Buffer.ToPointer(),
+                    target.Scan0.ToPointer(),
+                    bufferLength,
+                    bufferLength);
 
-                    // Copy the block data into the back buffer of the target bitmap.
-                    Buffer.MemoryCopy(
-                        block.Buffer.ToPointer(),
-                        target.Scan0.ToPointer(),
-                        bufferLength,
-                        bufferLength);
-
-                    // with the locked video block, raise the rendering video event.
-                    MediaElement?.RaiseRenderingVideoEvent(block, TargetBitmapData, clockPosition);
-                }
-            }
-            finally
-            {
-                bitmap.AddDirtyRect(TargetBitmapData.UpdateRect);
-                bitmap.Unlock();
+                // with the locked video block, raise the rendering video event.
+                MediaElement?.RaiseRenderingVideoEvent(block, TargetBitmapData, clockPosition);
             }
         }
 
@@ -384,3 +412,4 @@
         }
     }
 }
+#pragma warning restore CA1812
