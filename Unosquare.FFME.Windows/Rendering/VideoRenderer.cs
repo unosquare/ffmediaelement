@@ -223,7 +223,7 @@
 
                     IsRenderingInProgress.Value = false;
                 }
-            }, DispatcherPriority.DataBind);
+            }, DispatcherPriority.Loaded);
         }
 
         /// <inheritdoc />
