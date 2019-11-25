@@ -145,9 +145,10 @@
         internal static TimeSpan TimeSyncMaxOffset { get; } = TimeSpan.FromSeconds(10);
 
         /// <summary>
-        /// Gets the thread worker period.
+        /// Gets the thread worker period for default scenarios.
+        /// It also represents a common value for timeouts and typical system clock timer precision.
         /// </summary>
-        internal static TimeSpan ThreadWorkerPeriod => TimeSpan.FromMilliseconds(5);
+        internal static TimeSpan DefaultTimingPeriod => TimeSpan.FromMilliseconds(16);
 
         /// <summary>
         /// Gets the maximum blocks to cache for the given component type.

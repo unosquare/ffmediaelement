@@ -15,9 +15,9 @@
     /// <summary>
     /// Implement frame decoding worker logic.
     /// </summary>
-    /// <seealso cref="WorkerBase" />
+    /// <seealso cref="IntervalWorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class FrameDecodingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class FrameDecodingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly Action<IEnumerable<MediaType>, CancellationToken> SerialDecodeBlocks;
         private readonly Action<IEnumerable<MediaType>, CancellationToken> ParallelDecodeBlocks;
@@ -32,7 +32,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public FrameDecodingWorker(MediaEngine mediaCore)
-            : base(nameof(FrameDecodingWorker), Constants.ThreadWorkerPeriod)
+            : base(nameof(FrameDecodingWorker), Constants.DefaultTimingPeriod, ThreadPriority.Normal, IntervalWorkerMode.Multimedia)
         {
             MediaCore = mediaCore;
             Container = mediaCore.Container;
@@ -123,6 +123,12 @@
         /// <inheritdoc />
         protected override void OnCycleException(Exception ex) =>
             this.LogError(Aspects.DecodingWorker, "Worker Cycle exception thrown", ex);
+
+        /// <inheritdoc />
+        protected override void OnDisposing()
+        {
+            // placeholder
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int DecodeComponentBlocks(MediaType t, CancellationToken ct)

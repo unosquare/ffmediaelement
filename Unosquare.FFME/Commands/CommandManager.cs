@@ -17,10 +17,10 @@ namespace Unosquare.FFME.Commands
     /// Priority Commands execute in the queue but before anything else and are exclusive (Play, Pause, Stop)
     /// Seek commands are queued and replaced. These are processed in a deferred manner by this worker.
     /// </summary>
-    /// <seealso cref="TimerWorkerBase" />
+    /// <seealso cref="IntervalWorkerBase" />
     /// <seealso cref="IMediaWorker" />
     /// <seealso cref="ILoggingSource" />
-    internal sealed partial class CommandManager : TimerWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed partial class CommandManager : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly object SyncLock = new object();
 
@@ -29,9 +29,10 @@ namespace Unosquare.FFME.Commands
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public CommandManager(MediaEngine mediaCore)
-            : base(nameof(CommandManager), DefaultPeriod)
+            : base(nameof(CommandManager), Constants.DefaultTimingPeriod, ThreadPriority.Normal, IntervalWorkerMode.DefaultSleepLoop)
         {
             MediaCore = mediaCore;
+            StartAsync();
         }
 
         #region Properties
@@ -110,7 +111,7 @@ namespace Unosquare.FFME.Commands
                             while (HasDirectCommandCompleted == false)
                             {
                                 MediaCore.Container?.SignalAbortReads(false);
-                                Task.Delay(DefaultPeriod).GetAwaiter().GetResult();
+                                Task.Delay(Constants.DefaultTimingPeriod).GetAwaiter().GetResult();
                             }
 
                             CommandCloseMedia();
@@ -277,7 +278,7 @@ namespace Unosquare.FFME.Commands
             // wait for any pending direct commands (unlikely)
             this.LogDebug(Aspects.EngineCommand, "Dispose is waiting for pending direct commands.");
             while (IsDirectCommandPending)
-                Task.Delay(15).Wait();
+                Task.Delay(Constants.DefaultTimingPeriod).Wait();
 
             this.LogDebug(Aspects.EngineCommand, "Dispose is closing media.");
             try

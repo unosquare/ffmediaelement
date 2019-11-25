@@ -6,14 +6,13 @@
     using Primitives;
     using System;
     using System.Threading;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Implement packet reading worker logic.
     /// </summary>
-    /// <seealso cref="WorkerBase" />
+    /// <seealso cref="IntervalWorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class PacketReadingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class PacketReadingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {
         /// <summary>
         /// Completed whenever a change in the packet buffer is detected.
@@ -22,7 +21,7 @@
         private readonly ManualResetEventSlim BufferChangedEvent = new ManualResetEventSlim(true);
 
         public PacketReadingWorker(MediaEngine mediaCore)
-            : base(nameof(PacketReadingWorker), ThreadPriority.Normal, DefaultPeriod, WorkerDelayProvider.Default)
+            : base(nameof(PacketReadingWorker), Constants.DefaultTimingPeriod, ThreadPriority.Normal, IntervalWorkerMode.DefaultSleepLoop)
         {
             MediaCore = mediaCore;
             Container = mediaCore.Container;
@@ -62,6 +61,34 @@
                 try { Container.Read(); }
                 catch (MediaContainerException) { /* ignore */ }
             }
+
+            BufferChangedEvent.Reset();
+            while (!ct.IsCancellationRequested)
+            {
+                // We now need more packets, we need to stop waiting
+                if (MediaCore.ShouldReadMorePackets)
+                    break;
+
+                // We don't want to keep waiting if reads have been aborted
+                if (Container.IsReadAborted)
+                    break;
+
+                // We don't want to wait if we are at the end of the stream
+                if (Container.IsAtEndOfStream)
+                    break;
+
+                // We detected a change in buffered packets
+                try
+                {
+                    if (BufferChangedEvent.Wait(5, ct))
+                        break;
+                }
+                catch
+                {
+                    // ignore and break as the task was most likely cancelled
+                    break;
+                }
+            }
         }
 
         /// <inheritdoc />
@@ -76,43 +103,9 @@
             BufferChangedEvent.Dispose();
         }
 
-        /// <inheritdoc />
-        protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
+        protected override void OnDisposing()
         {
-            if (wantedDelay <= 0 || Container.IsAtEndOfStream || Container.Components.Count <= 0)
-            {
-                base.ExecuteCycleDelay(wantedDelay, delayTask, token);
-            }
-            else
-            {
-                BufferChangedEvent.Reset();
-                while (!token.IsCancellationRequested)
-                {
-                    // We now need more packets, we need to stop waiting
-                    if (MediaCore.ShouldReadMorePackets)
-                        break;
-
-                    // We don't want to keep waiting if reads have been aborted
-                    if (Container.IsReadAborted)
-                        break;
-
-                    // We don't want to wait if we are at the end of the stream
-                    if (Container.IsAtEndOfStream)
-                        break;
-
-                    // We detected a change in buffered packets
-                    try
-                    {
-                        if (BufferChangedEvent.Wait(5, token))
-                            break;
-                    }
-                    catch
-                    {
-                        // ignore and break as the task was most likely cancelled
-                        break;
-                    }
-                }
-            }
+            // placeholder
         }
     }
 }

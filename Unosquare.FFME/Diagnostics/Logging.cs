@@ -126,14 +126,14 @@ namespace Unosquare.FFME.Diagnostics
         /// <summary>
         /// Implements the timer worker that outputs data to the log.
         /// </summary>
-        /// <seealso cref="TimerWorkerBase" />
-        private sealed class LogOutputTimerWorker : TimerWorkerBase
+        /// <seealso cref="IntervalWorkerBase" />
+        private sealed class LogOutputTimerWorker : IntervalWorkerBase
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="LogOutputTimerWorker"/> class.
             /// </summary>
             public LogOutputTimerWorker()
-                : base(nameof(LogOutputWorker), DefaultPeriod)
+                : base(nameof(LogOutputWorker), Constants.DefaultTimingPeriod, ThreadPriority.BelowNormal, IntervalWorkerMode.DefaultSleepLoop)
             {
                 // placeholder
             }

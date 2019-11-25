@@ -33,6 +33,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryAttributeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerMode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\MultimediaTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\RealtimeClock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioComponent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioFrame.cs" />
@@ -92,7 +95,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AtomicTypeBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Benchmark.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\BenchmarkResult.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\CancellationTokenOwner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\CircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\ISyncLocker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWaitEvent.cs" />
@@ -101,11 +103,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Container\MediaBlockBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\MediaTypeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\SyncLockerFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\ThreadWorkerBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\TimerWorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\WaitEventFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerDelayProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\BlockRenderingWorker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\FrameDecodingWorker.cs" />
