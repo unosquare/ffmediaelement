@@ -331,19 +331,13 @@
                     }
                 }
 
-                if (Timer != null && Timer.IsRunning && WantedWorkerState == WorkerState)
+                if (Timer != null && Timer.IsRunning)
                 {
                     var remainder = (int)(Period.TotalMilliseconds - Chrono.ElapsedMilliseconds);
-                    if (remainder > 0)
+                    if (remainder > 0 && WantedWorkerState == WorkerState)
                     {
-                        try
-                        {
-                            TimerTicked.Wait(remainder, TokenSource.Token);
-                        }
-                        catch
-                        {
-                            // ignore
-                        }
+                        try { TimerTicked.Wait(remainder, TokenSource.Token); }
+                        catch { /* ignore */ }
                     }
                 }
                 else
