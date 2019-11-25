@@ -331,15 +331,26 @@
                     }
                 }
 
-                if (Timer != null && Timer.IsRunning && WantedWorkerState != WorkerState)
+                if (Timer != null && Timer.IsRunning && WantedWorkerState == WorkerState)
                 {
-                    TimerTicked.Wait(Period);
+                    var remainder = (int)(Period.TotalMilliseconds - Chrono.ElapsedMilliseconds);
+                    if (remainder > 0)
+                    {
+                        try
+                        {
+                            TimerTicked.Wait(remainder, TokenSource.Token);
+                        }
+                        catch
+                        {
+                            // ignore
+                        }
+                    }
                 }
                 else
                 {
                     while (Chrono.ElapsedMilliseconds < Period.TotalMilliseconds)
                     {
-                        if (WantedWorkerState != WorkerState)
+                        if (WantedWorkerState != WorkerState || TokenSource.IsCancellationRequested)
                             break;
 
                         Thread.Sleep(SleepInterval);
