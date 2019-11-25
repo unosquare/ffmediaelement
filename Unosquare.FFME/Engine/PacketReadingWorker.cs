@@ -10,7 +10,6 @@
     /// <summary>
     /// Implement packet reading worker logic.
     /// </summary>
-    /// <seealso cref="IntervalWorkerBase" />
     /// <seealso cref="IMediaWorker" />
     internal sealed class PacketReadingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {

@@ -15,9 +15,8 @@
     /// <summary>
     /// Implement frame decoding worker logic.
     /// </summary>
-    /// <seealso cref="IntervalWorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class FrameDecodingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class FrameDecodingWorker : MediaWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly Action<IEnumerable<MediaType>, CancellationToken> SerialDecodeBlocks;
         private readonly Action<IEnumerable<MediaType>, CancellationToken> ParallelDecodeBlocks;
@@ -32,7 +31,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public FrameDecodingWorker(MediaEngine mediaCore)
-            : base(nameof(FrameDecodingWorker), Constants.DefaultTimingPeriod, ThreadPriority.Normal, IntervalWorkerMode.Multimedia)
+            : base(nameof(FrameDecodingWorker), TimeSpan.FromMilliseconds(5))
         {
             MediaCore = mediaCore;
             Container = mediaCore.Container;

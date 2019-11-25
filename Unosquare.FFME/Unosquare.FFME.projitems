@@ -35,6 +35,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerMode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\MediaWorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\MultimediaTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\RealtimeClock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioComponent.cs" />
