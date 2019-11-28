@@ -7,11 +7,11 @@ namespace Unosquare.FFME.Rendering
     using Engine;
     using FFmpeg.AutoGen;
     using Platform;
-    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -37,15 +37,12 @@ namespace Unosquare.FFME.Rendering
         };
 
         /// <summary>
-        /// Set when a bitmap is being written to the target bitmap.
-        /// </summary>
-        private readonly AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
-
-        /// <summary>
         /// Keeps track of the elapsed time since the last frame was displayed
         /// for frame limiting purposes.
         /// </summary>
         private readonly Stopwatch RenderStopwatch = new Stopwatch();
+
+        private readonly Stopwatch VideoBlockElapsed = new Stopwatch();
 
         /// <summary>
         /// The bitmap that is presented to the user.
@@ -53,6 +50,8 @@ namespace Unosquare.FFME.Rendering
         private WriteableBitmap m_TargetBitmap;
 
         private BitmapDataBuffer TargetBitmapData;
+
+        private TimeSpan? CurrentBlockDuration;
 
         #endregion
 
@@ -174,51 +173,47 @@ namespace Unosquare.FFME.Rendering
             if (mediaBlock is VideoBlock == false) return;
 
             var block = (VideoBlock)mediaBlock;
-            if (IsRenderingInProgress.Value)
-            {
-                if (MediaCore?.State.IsPlaying ?? false)
-                    this.LogDebug(Aspects.VideoRenderer, $"{nameof(AsyncVideoRenderer)} frame skipped at {mediaBlock.StartTime}");
-
-                return;
-            }
-
-            // Flag the start of a rendering cycle
-            IsRenderingInProgress.Value = true;
 
             // Send the packets to the CC renderer
             MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
 
-            // Queue the video image and layout updates
-            VideoDispatcher?.InvokeAsync(() =>
+            // Send the packets to the CC renderer
+            MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
+
+            if (VideoBlockElapsed.IsRunning && MediaCore.Timing.IsRunning && CurrentBlockDuration.HasValue && MediaCore.Timing.SpeedRatio == 1d)
             {
-                try
+                var remainingDisplayTime = TimeSpan.FromTicks(CurrentBlockDuration.Value.Ticks - VideoBlockElapsed.Elapsed.Ticks);
+                while (remainingDisplayTime.TotalMilliseconds > 0)
                 {
-                    // Apply frame rate limiter (if active)
-                    var frameRateLimit = MediaElement.RendererOptions.VideoRefreshRateLimit;
-                    var isRenderTime = frameRateLimit <= 0 || !RenderStopwatch.IsRunning || RenderStopwatch.ElapsedMilliseconds >= 1000d / frameRateLimit;
-                    if (!isRenderTime)
-                        return;
+                    remainingDisplayTime = TimeSpan.FromTicks(CurrentBlockDuration.Value.Ticks - VideoBlockElapsed.Elapsed.Ticks);
+                    var remainingMillis = remainingDisplayTime.TotalMilliseconds;
 
-                    RenderStopwatch.Restart();
+                    if (remainingMillis < 2d)
+                        continue;
 
-                    // Prepare and write frame data
-                    if (PrepareVideoFrameBuffer(block))
-                        WriteVideoFrameBuffer(block, clockPosition);
+                    Thread.Sleep(1);
                 }
-                catch (Exception ex)
-                {
-                    this.LogError(Aspects.VideoRenderer, $"{nameof(AsyncVideoRenderer)}.{nameof(Render)} bitmap failed.", ex);
-                }
-                finally
-                {
-                    if (Dispatcher.CurrentDispatcher != ControlDispatcher)
-                        ControlDispatcher.InvokeAsync(() => UpdateLayout(block, clockPosition));
-                    else
-                        UpdateLayout(block, clockPosition);
+            }
 
-                    IsRenderingInProgress.Value = false;
-                }
-            }, DispatcherPriority.Loaded);
+            VideoBlockElapsed.Restart();
+            CurrentBlockDuration = block.Duration;
+
+            VideoDispatcher?.Invoke(() =>
+            {
+                // Apply frame rate limiter (if active)
+                var frameRateLimit = MediaElement.RendererOptions.VideoRefreshRateLimit;
+                var isRenderTime = frameRateLimit <= 0 || !RenderStopwatch.IsRunning || RenderStopwatch.ElapsedMilliseconds >= 1000d / frameRateLimit;
+                if (!isRenderTime)
+                    return;
+
+                RenderStopwatch.Restart();
+
+                // Prepare and write frame data
+                if (PrepareVideoFrameBuffer(block))
+                    WriteVideoFrameBuffer(block, clockPosition);
+
+                ControlDispatcher?.InvokeAsync(() => UpdateLayout(block, clockPosition));
+            });
         }
 
         /// <inheritdoc />
