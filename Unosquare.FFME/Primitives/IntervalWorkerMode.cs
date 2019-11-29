@@ -3,23 +3,15 @@
     internal enum IntervalWorkerMode
     {
         /// <summary>
-        /// Uses sleep intervals of 1 millisecond.
+        /// Uses a cancellation token together with a wait handle.
+        /// PRecision depends on system parameters.
         /// </summary>
-        ShortSleepLoop,
+        SystemDefault,
 
         /// <summary>
-        /// Uses sleep intervals onf 15 milliseconds.
+        /// Uses thread sleeping and spinning to achieve a higher resolution
+        /// at the cost of CPU usage.
         /// </summary>
-        DefaultSleepLoop,
-
-        /// <summary>
-        /// Uses a high-precision Windows Multimedia Timer.
-        /// </summary>
-        Multimedia,
-
-        /// <summary>
-        /// Uses a tight loop via context switching.
-        /// </summary>
-        TightLoop,
+        HighPrecision,
     }
 }

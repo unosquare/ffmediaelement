@@ -148,7 +148,7 @@
         /// Gets the thread worker period for default scenarios.
         /// It also represents a common value for timeouts and typical system clock timer precision.
         /// </summary>
-        internal static TimeSpan DefaultTimingPeriod => TimeSpan.FromMilliseconds(16);
+        internal static TimeSpan DefaultTimingPeriod => TimeSpan.FromMilliseconds(15);
 
         /// <summary>
         /// Gets the maximum blocks to cache for the given component type.

@@ -112,5 +112,32 @@
                 Chronometer.Reset();
             }
         }
+
+        /// <summary>
+        /// Sets the clock position to 0 and restarts it.
+        /// The speed ratio is not modified.
+        /// </summary>
+        public void Restart()
+        {
+            lock (SyncLock)
+            {
+                OffsetTicks = 0;
+                Chronometer.Restart();
+            }
+        }
+
+        /// <summary>
+        /// Sets the clock position to the specificed offsetand restarts it.
+        /// The speed ratio is not modified.
+        /// </summary>
+        /// <param name="offset">The offset to start at.</param>
+        public void Restart(TimeSpan offset)
+        {
+            lock (SyncLock)
+            {
+                OffsetTicks = offset.Ticks;
+                Chronometer.Restart();
+            }
+        }
     }
 }

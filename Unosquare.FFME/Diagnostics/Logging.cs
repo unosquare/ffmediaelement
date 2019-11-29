@@ -133,7 +133,7 @@ namespace Unosquare.FFME.Diagnostics
             /// Initializes a new instance of the <see cref="LogOutputTimerWorker"/> class.
             /// </summary>
             public LogOutputTimerWorker()
-                : base(nameof(LogOutputWorker), Constants.DefaultTimingPeriod, ThreadPriority.BelowNormal, IntervalWorkerMode.DefaultSleepLoop)
+                : base(nameof(LogOutputWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
             {
                 // placeholder
             }

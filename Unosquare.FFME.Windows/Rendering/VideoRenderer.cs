@@ -37,11 +37,14 @@ namespace Unosquare.FFME.Rendering
         };
 
         /// <summary>
-        /// Keeps track of the elapsed time since the last frame was displayed
+        /// Keeps track of the elapsed time since the last frame was displayed.
         /// for frame limiting purposes.
         /// </summary>
         private readonly Stopwatch RenderStopwatch = new Stopwatch();
 
+        /// <summary>
+        /// Keeps track of the amount of time the video frame has been displayed.
+        /// </summary>
         private readonly Stopwatch VideoBlockElapsed = new Stopwatch();
 
         /// <summary>
@@ -51,6 +54,9 @@ namespace Unosquare.FFME.Rendering
 
         private BitmapDataBuffer TargetBitmapData;
 
+        /// <summary>
+        /// The amount of time to display the currently rendering block for.
+        /// </summary>
         private TimeSpan? CurrentBlockDuration;
 
         #endregion
@@ -103,10 +109,19 @@ namespace Unosquare.FFME.Rendering
         /// </summary>
         public double DpiY { get; private set; } = DefaultDpi;
 
+        /// <summary>
+        /// Gets the video dispatcher.
+        /// </summary>
         private Dispatcher VideoDispatcher => MediaElement?.VideoView?.ElementDispatcher;
 
+        /// <summary>
+        /// Gets the control dispatcher.
+        /// </summary>
         private Dispatcher ControlDispatcher => MediaElement?.Dispatcher;
 
+        /// <summary>
+        /// Gets or sets the target bitmap.
+        /// </summary>
         private WriteableBitmap TargetBitmap
         {
             get
@@ -122,6 +137,33 @@ namespace Unosquare.FFME.Rendering
 
                 MediaElement.VideoView.Source = m_TargetBitmap;
                 GC.Collect();
+            }
+        }
+
+        /// <summary>
+        /// Gets the remaining display time.
+        /// </summary>
+        private TimeSpan RemainingDisplayTime
+        {
+            get
+            {
+                if (!VideoBlockElapsed.IsRunning || !MediaCore.Timing.IsRunning || !CurrentBlockDuration.HasValue || MediaCore.Timing.SpeedRatio != 1d)
+                    return TimeSpan.Zero;
+
+                return TimeSpan.FromTicks(CurrentBlockDuration.Value.Ticks - VideoBlockElapsed.Elapsed.Ticks);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether it is time to render after applying frame rate limiter.
+        /// </summary>
+        private bool IsRenderTime
+        {
+            get
+            {
+                // Apply frame rate limiter (if active)
+                var frameRateLimit = MediaElement.RendererOptions.VideoRefreshRateLimit;
+                return frameRateLimit <= 0 || !RenderStopwatch.IsRunning || RenderStopwatch.ElapsedMilliseconds >= 1000d / frameRateLimit;
             }
         }
 
@@ -174,40 +216,24 @@ namespace Unosquare.FFME.Rendering
 
             var block = (VideoBlock)mediaBlock;
 
-            // Send the packets to the CC renderer
-            MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
-
-            // Send the packets to the CC renderer
-            MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
-
-            if (VideoBlockElapsed.IsRunning && MediaCore.Timing.IsRunning && CurrentBlockDuration.HasValue && MediaCore.Timing.SpeedRatio == 1d)
+            while (RemainingDisplayTime.TotalMilliseconds > 0d)
             {
-                var remainingDisplayTime = TimeSpan.FromTicks(CurrentBlockDuration.Value.Ticks - VideoBlockElapsed.Elapsed.Ticks);
-                while (remainingDisplayTime.TotalMilliseconds > 0)
-                {
-                    remainingDisplayTime = TimeSpan.FromTicks(CurrentBlockDuration.Value.Ticks - VideoBlockElapsed.Elapsed.Ticks);
-                    var remainingMillis = remainingDisplayTime.TotalMilliseconds;
-
-                    if (remainingMillis < 2d)
-                        continue;
-
+                if (RemainingDisplayTime.TotalMilliseconds >= 16d)
                     Thread.Sleep(1);
-                }
             }
 
             VideoBlockElapsed.Restart();
+            RenderStopwatch.Restart();
+
+            // Send the packets to the CC renderer
+            MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
             CurrentBlockDuration = block.Duration;
+
+            if (!IsRenderTime)
+                return;
 
             VideoDispatcher?.Invoke(() =>
             {
-                // Apply frame rate limiter (if active)
-                var frameRateLimit = MediaElement.RendererOptions.VideoRefreshRateLimit;
-                var isRenderTime = frameRateLimit <= 0 || !RenderStopwatch.IsRunning || RenderStopwatch.ElapsedMilliseconds >= 1000d / frameRateLimit;
-                if (!isRenderTime)
-                    return;
-
-                RenderStopwatch.Restart();
-
                 // Prepare and write frame data
                 if (PrepareVideoFrameBuffer(block))
                     WriteVideoFrameBuffer(block, clockPosition);

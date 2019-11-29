@@ -1,19 +1,19 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
     using System;
-    using System.Diagnostics;
     using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
 
     internal abstract class IntervalWorkerBase : IWorker
     {
+        private const int WantedTimingResolution = 1;
         private readonly object SyncLock = new object();
         private readonly Thread Thread;
-        private readonly Stopwatch Chrono = new Stopwatch();
+        private readonly RealTimeClock CycleClock = new RealTimeClock();
         private readonly ManualResetEventSlim WantedStateCompleted = new ManualResetEventSlim(true);
-        private readonly MultimediaTimer Timer;
-        private readonly ManualResetEventSlim TimerTicked = new ManualResetEventSlim(true);
+
         private CancellationTokenSource TokenSource = new CancellationTokenSource();
 
         private long m_Period;
@@ -21,9 +21,8 @@
         private int m_IsDisposing;
         private int m_WorkerState = (int)WorkerState.Created;
         private int m_WantedWorkerState = (int)WorkerState.Running;
-        private int SleepInterval;
 
-        protected IntervalWorkerBase(string name, TimeSpan period, ThreadPriority priority, IntervalWorkerMode desiredMode)
+        protected IntervalWorkerBase(string name, TimeSpan period, IntervalWorkerMode mode)
         {
             Name = name;
             Period = period;
@@ -31,62 +30,30 @@
             {
                 IsBackground = true,
                 Name = $"{name}Thread",
-                Priority = priority,
+                Priority = mode == IntervalWorkerMode.HighPrecision
+                    ? ThreadPriority.AboveNormal
+                    : ThreadPriority.Normal,
             };
 
-            switch (desiredMode)
+            // Enable shorter scheduling times to save CPU
+            if (TimingConfiguration.IsHighResolution)
             {
-                case IntervalWorkerMode.DefaultSleepLoop:
-                    {
-                        SleepInterval = 15;
-                        Mode = desiredMode;
-                        break;
-                    }
+                var appliedResolution = TimingConfiguration.MinimumPeriod > WantedTimingResolution
+                    ? TimingConfiguration.MinimumPeriod
+                    : WantedTimingResolution;
 
-                case IntervalWorkerMode.ShortSleepLoop:
-                    {
-                        SleepInterval = 1;
-                        Mode = desiredMode;
-                        break;
-                    }
-
-                case IntervalWorkerMode.TightLoop:
-                    {
-                        SleepInterval = 0;
-                        Mode = desiredMode;
-                        break;
-                    }
-
-                case IntervalWorkerMode.Multimedia:
-                    {
-                        try
-                        {
-                            Timer = new MultimediaTimer((int)(period.TotalMilliseconds / 2d), (int)period.TotalMilliseconds);
-                            Timer.Elapsed += (s, e) =>
-                            {
-                                TimerTicked.Set();
-                            };
-
-                            Mode = desiredMode;
-                            SleepInterval = 1;
-                        }
-                        catch
-                        {
-                            Mode = IntervalWorkerMode.ShortSleepLoop;
-                            SleepInterval = 1;
-                        }
-
-                        break;
-                    }
-
-                default:
-                    {
-                        throw new ArgumentException($"{nameof(desiredMode)} is invalid.");
-                    }
+                if (TimingConfiguration.ChangePeriod(appliedResolution))
+                {
+                    Resolution = appliedResolution;
+                }
             }
+
+            Mode = mode;
         }
 
         public string Name { get; }
+
+        public int Resolution { get; } = 15;
 
         public IntervalWorkerMode Mode { get; }
 
@@ -127,6 +94,11 @@
             set => Interlocked.Exchange(ref m_WantedWorkerState, (int)value);
         }
 
+        /// <summary>
+        /// Gets the remaining cycle time.
+        /// </summary>
+        protected TimeSpan RemainingCycleTime => TimeSpan.FromTicks(Period.Ticks - CycleClock.Position.Ticks);
+
         /// <inheritdoc />
         public Task<WorkerState> StartAsync()
         {
@@ -142,7 +114,6 @@
                 {
                     WantedWorkerState = WorkerState.Running;
                     WorkerState = WorkerState.Running;
-                    Timer?.Start();
                     Thread.Start();
                 }
                 else if (WorkerState == WorkerState.Paused)
@@ -253,14 +224,10 @@
 
                 IsDisposing = true;
                 OnDisposing();
-                Chrono.Stop();
+                CycleClock.Reset();
                 WantedStateCompleted.Set();
                 WantedStateCompleted.Dispose();
                 TokenSource.Dispose();
-                if (Timer != null)
-                    Timer.Dispose();
-
-                TimerTicked.Dispose();
                 IsDisposed = true;
                 IsDisposing = false;
             }
@@ -286,10 +253,38 @@
         protected abstract void OnDisposing();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Interrupt()
+        private void Interrupt() => TokenSource.Cancel();
+
+        /// <summary>
+        /// Implements an efficient delay.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Delay()
         {
-            TokenSource.Cancel();
-            TimerTicked.Set();
+            while (RemainingCycleTime.TotalMilliseconds > 0d)
+            {
+                if (WantedWorkerState != WorkerState || TokenSource.IsCancellationRequested)
+                    break;
+
+                var remainingMs = (int)RemainingCycleTime.TotalMilliseconds;
+                if (Mode == IntervalWorkerMode.HighPrecision)
+                {
+                    if (remainingMs <= Resolution)
+                        continue;
+
+                    if (remainingMs > 0)
+                        Thread.Sleep(remainingMs);
+                }
+                else
+                {
+                    if (remainingMs > 0)
+                        Thread.Sleep(Math.Min(remainingMs, Resolution));
+                }
+            }
+
+            CycleClock.Restart(RemainingCycleTime.TotalMilliseconds < 0 && Mode == IntervalWorkerMode.HighPrecision
+                ? RemainingCycleTime.Negate()
+                : TimeSpan.Zero);
         }
 
         /// <summary>
@@ -298,19 +293,15 @@
         /// <param name="state">The state.</param>
         private void RunThread(object state)
         {
-            Chrono.Restart();
+            // Control variable setup
+            CycleClock.Restart();
 
             while (WorkerState != WorkerState.Stopped)
             {
-                TimerTicked.Reset();
-
                 lock (SyncLock)
                 {
                     if (WantedWorkerState == WorkerState.Stopped)
-                    {
-                        Timer?.Stop();
                         break;
-                    }
 
                     WorkerState = WantedWorkerState;
                     WantedStateCompleted.Set();
@@ -319,7 +310,10 @@
                 if (WorkerState == WorkerState.Running)
                 {
                     if (TokenSource.IsCancellationRequested)
+                    {
+                        TokenSource.Dispose();
                         TokenSource = new CancellationTokenSource();
+                    }
 
                     try
                     {
@@ -331,32 +325,106 @@
                     }
                 }
 
-                if (Timer != null && Timer.IsRunning)
-                {
-                    var remainder = (int)(Period.TotalMilliseconds - Chrono.ElapsedMilliseconds);
-                    if (remainder > 0 && WantedWorkerState == WorkerState)
-                    {
-                        try { TimerTicked.Wait(remainder, TokenSource.Token); }
-                        catch { /* ignore */ }
-                    }
-                }
-                else
-                {
-                    while (Chrono.ElapsedMilliseconds < Period.TotalMilliseconds)
-                    {
-                        if (WantedWorkerState != WorkerState || TokenSource.IsCancellationRequested)
-                            break;
-
-                        Thread.Sleep(SleepInterval);
-                        break;
-                    }
-                }
-
-                Chrono.Restart();
+                Delay();
             }
 
             WorkerState = WorkerState.Stopped;
             WantedStateCompleted.Set();
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct PeriodCapabilities
+        {
+            public int PeriodMin;
+
+            public int PeriodMax;
+        }
+
+        private static class TimingConfiguration
+        {
+            private static readonly object SyncLock = new object();
+            private static int? CurrentPeriod;
+
+            static TimingConfiguration()
+            {
+                try
+                {
+                    var caps = default(PeriodCapabilities);
+                    var result = NativeMethods.GetDeviceCapabilities(ref caps, Marshal.SizeOf<PeriodCapabilities>());
+                    MinimumPeriod = caps.PeriodMin;
+                    MaximumPeriod = caps.PeriodMax;
+                    IsHighResolution = true;
+                }
+                catch
+                {
+                    MinimumPeriod = 16;
+                    MaximumPeriod = 16;
+                    IsHighResolution = false;
+                }
+            }
+
+            public static bool IsHighResolution { get; }
+
+            public static int MinimumPeriod { get; }
+
+            public static int MaximumPeriod { get; }
+
+            public static int? Period
+            {
+                get
+                {
+                    lock (SyncLock)
+                        return CurrentPeriod;
+                }
+            }
+
+            public static bool ChangePeriod(int newPeriod)
+            {
+                lock (SyncLock)
+                {
+                    if (!IsHighResolution)
+                        return false;
+
+                    if (CurrentPeriod.HasValue && CurrentPeriod.Value == newPeriod)
+                        return true;
+
+                    ResetPeriod();
+                    var success = NativeMethods.BeginUsingPeriod(newPeriod) == 0;
+                    if (success)
+                        CurrentPeriod = newPeriod;
+
+                    return success;
+                }
+            }
+
+            public static bool ResetPeriod()
+            {
+                lock (SyncLock)
+                {
+                    if (!CurrentPeriod.HasValue)
+                        return false;
+
+                    var success = NativeMethods.EndUsingPeriod(CurrentPeriod.Value) == 0;
+                    if (success)
+                        CurrentPeriod = null;
+
+                    return success;
+                }
+            }
+        }
+
+        private static class NativeMethods
+        {
+            private const string WinMM = "winmm.dll";
+
+            [DllImport(WinMM, EntryPoint = "timeGetDevCaps")]
+            public static extern int GetDeviceCapabilities(ref PeriodCapabilities ptc, int cbtc);
+
+            [DllImport(WinMM, EntryPoint = "timeBeginPeriod")]
+            public static extern int BeginUsingPeriod(int periodMillis);
+
+            [DllImport(WinMM, EntryPoint = "timeEndPeriod")]
+            public static extern int EndUsingPeriod(int periodMillis);
         }
     }
 }

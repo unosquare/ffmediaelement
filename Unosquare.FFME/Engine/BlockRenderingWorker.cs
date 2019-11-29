@@ -16,7 +16,7 @@ namespace Unosquare.FFME.Engine
     /// Implements the block rendering worker.
     /// </summary>
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : MediaWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class BlockRenderingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
@@ -27,7 +27,7 @@ namespace Unosquare.FFME.Engine
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), TimeSpan.FromMilliseconds(10))
+            : base(nameof(BlockRenderingWorker), TimeSpan.FromMilliseconds(10), IntervalWorkerMode.HighPrecision)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
