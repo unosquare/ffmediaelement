@@ -56,6 +56,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\ContainerConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\DecoderOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\DemuxerGlobalOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\TimingConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFmpegLoadMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\HardwareDeviceInfo.cs" />
@@ -98,7 +99,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\ISyncLocker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWaitEvent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWorker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWorkerDelayProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\MediaBlockBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\MediaTypeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\SyncLockerFactory.cs" />

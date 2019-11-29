@@ -7,6 +7,7 @@ namespace Unosquare.FFME.Rendering
     using Engine;
     using FFmpeg.AutoGen;
     using Platform;
+    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -215,11 +216,12 @@ namespace Unosquare.FFME.Rendering
             if (mediaBlock is VideoBlock == false) return;
 
             var block = (VideoBlock)mediaBlock;
+            var sleepTime = TimingConfiguration.Period ?? 0;
 
             while (RemainingDisplayTime.TotalMilliseconds > 0d)
             {
-                if (RemainingDisplayTime.TotalMilliseconds >= 16d)
-                    Thread.Sleep(1);
+                if (RemainingDisplayTime.TotalMilliseconds >= sleepTime * 2)
+                    Thread.Sleep(sleepTime);
             }
 
             VideoBlockElapsed.Restart();
