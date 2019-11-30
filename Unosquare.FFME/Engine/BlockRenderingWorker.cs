@@ -247,21 +247,17 @@ namespace Unosquare.FFME.Engine
 
             var timing = MediaCore.Timing;
             var blocks = MediaCore.Blocks[main];
+            var canBeHighPrecision = timing.IsRunning && timing.SpeedRatio == 1d && !MediaCore.IsSyncBuffering &&
+                blocks.IsMonotonic && blocks.MonotonicDuration.TotalMilliseconds < 42d;
 
-            var shouldEnterHighPrecision = Mode != IntervalWorkerMode.HighPrecision && timing.IsRunning && timing.SpeedRatio == 1d &&
-                !MediaCore.IsSyncBuffering && blocks.IsMonotonic && blocks.MonotonicDuration.TotalMilliseconds < 42d;
-
-            if (shouldEnterHighPrecision)
+            if (Mode != IntervalWorkerMode.HighPrecision && canBeHighPrecision)
             {
                 Period = blocks.MonotonicDuration;
                 Mode = IntervalWorkerMode.HighPrecision;
             }
             else
             {
-                var shouldLeaveHighPrecision = Mode == IntervalWorkerMode.HighPrecision && (!timing.IsRunning || timing.SpeedRatio != 1d ||
-                    MediaCore.IsSyncBuffering || !blocks.IsMonotonic || blocks.MonotonicDuration.TotalMilliseconds >= 42d);
-
-                if (shouldLeaveHighPrecision)
+                if (Mode == IntervalWorkerMode.HighPrecision && !canBeHighPrecision)
                 {
                     Period = Constants.DefaultTimingPeriod;
                     Mode = IntervalWorkerMode.SystemDefault;
