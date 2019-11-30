@@ -7,7 +7,7 @@
 
     internal abstract class IntervalWorkerBase : IWorker
     {
-        private const int WantedTimingResolution = 3;
+        private const int WantedTimingResolution = 2;
         private readonly object SyncLock = new object();
         private readonly Thread Thread;
         private readonly RealTimeClock CycleClock = new RealTimeClock();
@@ -21,7 +21,7 @@
         private int m_WorkerState = (int)WorkerState.Created;
         private int m_WantedWorkerState = (int)WorkerState.Running;
 
-        protected IntervalWorkerBase(string name, TimeSpan period, IntervalWorkerMode mode)
+        protected IntervalWorkerBase(string name, TimeSpan period, IntervalWorkerMode mode, ThreadPriority priority)
         {
             Name = name;
             Period = period;
@@ -29,9 +29,7 @@
             {
                 IsBackground = true,
                 Name = $"{name}Thread",
-                Priority = mode == IntervalWorkerMode.HighPrecision
-                    ? ThreadPriority.AboveNormal
-                    : ThreadPriority.Normal,
+                Priority = priority,
             };
 
             // Enable shorter scheduling times to save CPU
@@ -54,7 +52,7 @@
 
         public int Resolution { get; } = 15;
 
-        public IntervalWorkerMode Mode { get; }
+        public IntervalWorkerMode Mode { get; protected set; }
 
         /// <inheritdoc />
         public TimeSpan Period
@@ -97,6 +95,8 @@
         /// Gets the remaining cycle time.
         /// </summary>
         protected TimeSpan RemainingCycleTime => TimeSpan.FromTicks(Period.Ticks - CycleClock.Position.Ticks);
+
+        protected TimeSpan LastCycleElapsed { get; private set; }
 
         /// <inheritdoc />
         public Task<WorkerState> StartAsync()
@@ -252,15 +252,15 @@
         protected abstract void OnDisposing();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Interrupt() => TokenSource.Cancel();
+        protected void Interrupt() => TokenSource.Cancel();
 
         /// <summary>
         /// Implements an efficient delay.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Delay()
+        protected virtual void Delay()
         {
-            while (RemainingCycleTime.TotalMilliseconds > 0d)
+            while (RemainingCycleTime.Ticks > 0)
             {
                 if (WantedWorkerState != WorkerState || TokenSource.IsCancellationRequested)
                     break;
@@ -268,22 +268,26 @@
                 var remainingMs = (int)RemainingCycleTime.TotalMilliseconds;
                 if (Mode == IntervalWorkerMode.HighPrecision)
                 {
-                    if (remainingMs <= Resolution)
-                        continue;
-
-                    if (remainingMs > 0)
-                        Thread.Sleep(remainingMs);
+                    if (remainingMs >= Resolution * 1.5)
+                        Thread.Sleep(Resolution);
                 }
                 else
                 {
                     if (remainingMs > 0)
-                        Thread.Sleep(Math.Min(remainingMs, Resolution));
+                        Thread.Sleep(Math.Max(15, Resolution));
                 }
             }
 
-            CycleClock.Restart(RemainingCycleTime.TotalMilliseconds < 0 && Mode == IntervalWorkerMode.HighPrecision
+            LastCycleElapsed = CycleClock.Position;
+            CycleClock.Restart();
+
+            /*
+            CycleClock.Restart( // Mode == IntervalWorkerMode.HighPrecision &&
+                RemainingCycleTime.Ticks < 0 &&
+                RemainingCycleTime.TotalMilliseconds >= -Period.TotalMilliseconds
                 ? RemainingCycleTime.Negate()
                 : TimeSpan.Zero);
+                */
         }
 
         /// <summary>
@@ -306,14 +310,15 @@
                     WantedStateCompleted.Set();
                 }
 
+                // Recreate the token source -- applies to cycle logic and delay
+                if (TokenSource.IsCancellationRequested)
+                {
+                    TokenSource.Dispose();
+                    TokenSource = new CancellationTokenSource();
+                }
+
                 if (WorkerState == WorkerState.Running)
                 {
-                    if (TokenSource.IsCancellationRequested)
-                    {
-                        TokenSource.Dispose();
-                        TokenSource = new CancellationTokenSource();
-                    }
-
                     try
                     {
                         ExecuteCycleLogic(TokenSource.Token);

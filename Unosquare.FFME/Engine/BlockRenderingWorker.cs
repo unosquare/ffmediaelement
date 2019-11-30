@@ -27,7 +27,7 @@ namespace Unosquare.FFME.Engine
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), TimeSpan.FromMilliseconds(10), IntervalWorkerMode.HighPrecision)
+            : base(nameof(BlockRenderingWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault, ThreadPriority.AboveNormal)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -109,6 +109,7 @@ namespace Unosquare.FFME.Engine
                 DetectPlaybackEnded(main);
                 ExitSyncBuffering(main, all, ct);
                 ReportAndResumePlayback(main);
+                AdjustWorkerPeriod(main);
             }
         }
 
@@ -232,6 +233,39 @@ namespace Unosquare.FFME.Engine
                 MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
                 this.LogTrace(Aspects.Timing,
                     $"CLOCK AHEAD : playback clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
+            }
+        }
+
+        /// <summary>
+        /// Adjusts the worker period to match video frame durations.
+        /// </summary>
+        /// <param name="main">The main component type.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AdjustWorkerPeriod(MediaType main)
+        {
+            if (main != MediaType.Video) return;
+
+            var timing = MediaCore.Timing;
+            var blocks = MediaCore.Blocks[main];
+
+            var shouldEnterHighPrecision = Mode != IntervalWorkerMode.HighPrecision && timing.IsRunning && timing.SpeedRatio == 1d &&
+                !MediaCore.IsSyncBuffering && blocks.IsMonotonic && blocks.MonotonicDuration.TotalMilliseconds < 42d;
+
+            if (shouldEnterHighPrecision)
+            {
+                Period = blocks.MonotonicDuration;
+                Mode = IntervalWorkerMode.HighPrecision;
+            }
+            else
+            {
+                var shouldLeaveHighPrecision = Mode == IntervalWorkerMode.HighPrecision && (!timing.IsRunning || timing.SpeedRatio != 1d ||
+                    MediaCore.IsSyncBuffering || !blocks.IsMonotonic || blocks.MonotonicDuration.TotalMilliseconds >= 42d);
+
+                if (shouldLeaveHighPrecision)
+                {
+                    Period = Constants.DefaultTimingPeriod;
+                    Mode = IntervalWorkerMode.SystemDefault;
+                }
             }
         }
 
@@ -472,26 +506,25 @@ namespace Unosquare.FFME.Engine
         /// <summary>
         /// Sends the given block to its corresponding media renderer.
         /// </summary>
-        /// <param name="currentBlock">The block.</param>
+        /// <param name="incomingBlock">The block.</param>
         /// <param name="playbackPosition">The clock position.</param>
         /// <returns>
         /// The number of blocks sent to the renderer.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int SendBlockToRenderer(MediaBlock currentBlock, TimeSpan playbackPosition)
+        private int SendBlockToRenderer(MediaBlock incomingBlock, TimeSpan playbackPosition)
         {
             // No blocks were rendered
-            if (currentBlock == null || currentBlock.IsDisposed) return 0;
+            if (incomingBlock == null || incomingBlock.IsDisposed) return 0;
 
-            var t = currentBlock.MediaType;
+            var t = incomingBlock.MediaType;
             var isAttachedPicture = t == MediaType.Video && Container.Components[t].StreamInfo.IsAttachedPictureDisposition;
-            var lastBlockStartTime = MediaCore.LastRenderTime[t];
-            var isRepeatedBlock = lastBlockStartTime != TimeSpan.MinValue && lastBlockStartTime == currentBlock.StartTime;
-            var requiresRepeatedBlocks = t == MediaType.Audio || isAttachedPicture;
+            var currentBlockStartTime = MediaCore.CurrentRenderStartTime.ContainsKey(t)
+                ? MediaCore.CurrentRenderStartTime[t]
+                : TimeSpan.MinValue;
 
-            // For live streams, we don't want to display previous blocks
-            if (t == MediaType.Video && !isRepeatedBlock && !isAttachedPicture && Container.IsLiveStream)
-                isRepeatedBlock = lastBlockStartTime.Ticks >= currentBlock.StartTime.Ticks;
+            var isRepeatedBlock = currentBlockStartTime != TimeSpan.MinValue && currentBlockStartTime == incomingBlock.StartTime;
+            var requiresRepeatedBlocks = t == MediaType.Audio || isAttachedPicture;
 
             // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
             // otherwise simply skip block rendering as we have sent the block already.
@@ -499,16 +532,16 @@ namespace Unosquare.FFME.Engine
                 return 0;
 
             // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(currentBlock);
+            State.UpdateDynamicBlockProperties(incomingBlock);
 
             // Capture the last render time so we don't repeat the block
-            MediaCore.LastRenderTime[t] = currentBlock.StartTime;
+            MediaCore.CurrentRenderStartTime[t] = incomingBlock.StartTime;
 
             // Send the block to its corresponding renderer
-            MediaCore.Renderers[t]?.Render(currentBlock, playbackPosition);
+            MediaCore.Renderers[t]?.Render(incomingBlock, playbackPosition);
 
             // Log the block statistics for debugging
-            LogRenderBlock(currentBlock, playbackPosition);
+            LogRenderBlock(incomingBlock, playbackPosition);
 
             return 1;
         }

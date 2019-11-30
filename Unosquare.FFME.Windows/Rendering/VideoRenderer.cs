@@ -12,7 +12,6 @@ namespace Unosquare.FFME.Rendering
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -44,21 +43,14 @@ namespace Unosquare.FFME.Rendering
         private readonly Stopwatch RenderStopwatch = new Stopwatch();
 
         /// <summary>
-        /// Keeps track of the amount of time the video frame has been displayed.
-        /// </summary>
-        private readonly Stopwatch VideoBlockElapsed = new Stopwatch();
-
-        /// <summary>
         /// The bitmap that is presented to the user.
         /// </summary>
         private WriteableBitmap m_TargetBitmap;
 
-        private BitmapDataBuffer TargetBitmapData;
-
         /// <summary>
-        /// The amount of time to display the currently rendering block for.
+        /// The reference to a bitmap data bound to the target bitmap.
         /// </summary>
-        private TimeSpan? CurrentBlockDuration;
+        private BitmapDataBuffer TargetBitmapData;
 
         #endregion
 
@@ -142,20 +134,6 @@ namespace Unosquare.FFME.Rendering
         }
 
         /// <summary>
-        /// Gets the remaining display time.
-        /// </summary>
-        private TimeSpan RemainingDisplayTime
-        {
-            get
-            {
-                if (!VideoBlockElapsed.IsRunning || !MediaCore.Timing.IsRunning || !CurrentBlockDuration.HasValue || MediaCore.Timing.SpeedRatio != 1d)
-                    return TimeSpan.Zero;
-
-                return TimeSpan.FromTicks(CurrentBlockDuration.Value.Ticks - VideoBlockElapsed.Elapsed.Ticks);
-            }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether it is time to render after applying frame rate limiter.
         /// </summary>
         private bool IsRenderTime
@@ -218,21 +196,13 @@ namespace Unosquare.FFME.Rendering
             var block = (VideoBlock)mediaBlock;
             var sleepTime = TimingConfiguration.Period ?? 0;
 
-            while (RemainingDisplayTime.TotalMilliseconds > 0d)
-            {
-                if (RemainingDisplayTime.TotalMilliseconds >= sleepTime * 2)
-                    Thread.Sleep(sleepTime);
-            }
-
-            VideoBlockElapsed.Restart();
-            RenderStopwatch.Restart();
-
             // Send the packets to the CC renderer
             MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
-            CurrentBlockDuration = block.Duration;
 
             if (!IsRenderTime)
                 return;
+            else
+                RenderStopwatch.Restart();
 
             VideoDispatcher?.Invoke(() =>
             {
@@ -240,8 +210,10 @@ namespace Unosquare.FFME.Rendering
                 if (PrepareVideoFrameBuffer(block))
                     WriteVideoFrameBuffer(block, clockPosition);
 
-                ControlDispatcher?.InvokeAsync(() => UpdateLayout(block, clockPosition));
-            });
+                // Update the layout including pixel ratio and video rotation
+                ControlDispatcher?.InvokeAsync(() =>
+                    UpdateLayout(block, clockPosition), DispatcherPriority.Render);
+            }, DispatcherPriority.Send);
         }
 
         /// <inheritdoc />

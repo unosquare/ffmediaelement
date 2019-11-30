@@ -484,7 +484,7 @@
             DisposePreloadedSubtitles();
 
             // Clear the render times
-            MediaCore.LastRenderTime.Clear();
+            MediaCore.CurrentRenderStartTime.Clear();
 
             // Reset the clock
             MediaCore.ResetPlaybackPosition();
