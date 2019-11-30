@@ -18,9 +18,39 @@ namespace Unosquare.FFME.Engine
     /// <seealso cref="IMediaWorker" />
     internal sealed class BlockRenderingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {
+        /// <summary>
+        /// Represetnts 100 FPS -- 10ms per frame.
+        /// </summary>
+        private static readonly TimeSpan MinMonotonicDuration = TimeSpan.FromMilliseconds(1000d / 100d);
+
+        /// <summary>
+        /// Represents 20 FPS -- 50ms per frame.
+        /// </summary>
+        private static readonly TimeSpan MaxMonotonicDuration = TimeSpan.FromMilliseconds(1000d / 20d);
+
+        /// <summary>
+        /// The maximum difference between the timing and the worker cycle.
+        /// </summary>
+        private static readonly TimeSpan AdjustmentMaxDelay = TimeSpan.FromMilliseconds(8);
+
+        /// <summary>
+        /// The ideal difference between the timing and the worker cycle.
+        /// </summary>
+        private static readonly TimeSpan AdjustmentIdealDelay = TimeSpan.FromMilliseconds(6);
+
+        /// <summary>
+        /// The acceptable threshold between the timing and the worker cycle.
+        /// </summary>
+        private static readonly TimeSpan AdjustmentDelayThreshold = TimeSpan.FromMilliseconds(2);
+
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
         private readonly Action<MediaType[]> ParallelRenderBlocks;
+
+        /// <summary>
+        /// The last video frame start time used to do timing and worker sync.
+        /// </summary>
+        private TimeSpan AdjustmentBlockStartTime = TimeSpan.MinValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
@@ -243,24 +273,56 @@ namespace Unosquare.FFME.Engine
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AdjustWorkerPeriod(MediaType main)
         {
-            if (main != MediaType.Video) return;
+            if (main != MediaType.Video)
+                return;
+
+            var currentRenderStartTime = MediaCore.CurrentRenderStartTime.ContainsKey(main)
+                    ? MediaCore.CurrentRenderStartTime[main]
+                    : TimeSpan.MinValue;
 
             var timing = MediaCore.Timing;
             var blocks = MediaCore.Blocks[main];
-            var canBeHighPrecision = timing.IsRunning && timing.SpeedRatio == 1d && !MediaCore.IsSyncBuffering &&
-                blocks.IsMonotonic && blocks.MonotonicDuration.TotalMilliseconds < 42d;
+            var frameDuration = blocks == null ? TimeSpan.Zero : blocks.IsMonotonic ? blocks.MonotonicDuration : blocks.AverageBlockDuration;
 
-            if (Mode != IntervalWorkerMode.HighPrecision && canBeHighPrecision)
+            if (frameDuration > TimeSpan.Zero && frameDuration.Ticks < MinMonotonicDuration.Ticks)
+                frameDuration = MinMonotonicDuration;
+
+            var canBeHighPrecision = currentRenderStartTime != TimeSpan.MinValue && frameDuration > TimeSpan.Zero &&
+                frameDuration.Ticks <= MaxMonotonicDuration.Ticks && timing != null && timing.IsRunning && timing.SpeedRatio == 1d && !MediaCore.IsSyncBuffering;
+
+            // Determine if we need to enter or leave high precision mode
+            if (canBeHighPrecision && (Mode != IntervalWorkerMode.HighPrecision || frameDuration.Ticks != Period.Ticks))
             {
-                Period = blocks.MonotonicDuration;
+                Period = frameDuration;
                 Mode = IntervalWorkerMode.HighPrecision;
             }
-            else
+            else if (!canBeHighPrecision && Mode == IntervalWorkerMode.HighPrecision)
             {
-                if (Mode == IntervalWorkerMode.HighPrecision && !canBeHighPrecision)
+                Period = Constants.DefaultTimingPeriod;
+                Mode = IntervalWorkerMode.SystemDefault;
+            }
+
+            // Sync the period worker to start at the same time as the middle time of the current frame
+            // No need to keeps a flag of whether or not is synchronized because we already have a set
+            // of conditions ready to leave high precision when timing is disturbed (modified)
+            if (canBeHighPrecision && Mode == IntervalWorkerMode.HighPrecision && AdjustmentBlockStartTime != currentRenderStartTime)
+            {
+                AdjustmentBlockStartTime = currentRenderStartTime;
+                var currentDelay = TimeSpan.FromTicks(timing.Position(main).Ticks - currentRenderStartTime.Ticks);
+                currentDelay = TimeSpan.FromTicks(currentDelay.Ticks % Period.Ticks);
+                var delayToIdeal = TimeSpan.FromTicks(AdjustmentIdealDelay.Ticks - currentDelay.Ticks);
+
+                // if we are falling behind, insert a negative delay (cycle will last less time) to catch up
+                if (currentDelay > AdjustmentMaxDelay)
                 {
-                    Period = Constants.DefaultTimingPeriod;
-                    Mode = IntervalWorkerMode.SystemDefault;
+                    // For big delays beyond the max delay, simply make the next correction delay negative
+                    // so that the next cycle starts faster.
+                    NextCorrectionDelay = TimeSpan.FromTicks(currentDelay.Ticks).Negate();
+                }
+                else if (Math.Abs(delayToIdeal.TotalMilliseconds) >= AdjustmentDelayThreshold.TotalMilliseconds)
+                {
+                    // For small changes in delays, try to keep this worker in sync with the timing.
+                    NextCorrectionDelay = TimeSpan.FromMilliseconds(1d * delayToIdeal.Ticks < 0 ? -1d : 1d);
                 }
             }
         }

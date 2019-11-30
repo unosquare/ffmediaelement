@@ -5,6 +5,9 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// A base class for implementing interval workers.
+    /// </summary>
     internal abstract class IntervalWorkerBase : IWorker
     {
         private const int WantedTimingResolution = 2;
@@ -23,6 +26,7 @@
 
         protected IntervalWorkerBase(string name, TimeSpan period, IntervalWorkerMode mode, ThreadPriority priority)
         {
+            // TODO: Still need to document this class
             Name = name;
             Period = period;
             Thread = new Thread(RunThread)
@@ -97,6 +101,8 @@
         protected TimeSpan RemainingCycleTime => TimeSpan.FromTicks(Period.Ticks - CycleClock.Position.Ticks);
 
         protected TimeSpan LastCycleElapsed { get; private set; }
+
+        protected TimeSpan NextCorrectionDelay { get; set; }
 
         /// <inheritdoc />
         public Task<WorkerState> StartAsync()
@@ -279,7 +285,8 @@
             }
 
             LastCycleElapsed = CycleClock.Position;
-            CycleClock.Restart();
+            CycleClock.Restart(NextCorrectionDelay.Negate());
+            NextCorrectionDelay = TimeSpan.Zero;
 
             /*
             CycleClock.Restart( // Mode == IntervalWorkerMode.HighPrecision &&
@@ -287,7 +294,7 @@
                 RemainingCycleTime.TotalMilliseconds >= -Period.TotalMilliseconds
                 ? RemainingCycleTime.Negate()
                 : TimeSpan.Zero);
-                */
+            */
         }
 
         /// <summary>
