@@ -43,6 +43,11 @@ namespace Unosquare.FFME.Rendering
         private readonly Stopwatch RenderStopwatch = new Stopwatch();
 
         /// <summary>
+        /// Set when a bitmap is being written to the target bitmap.
+        /// </summary>
+        private readonly AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
+
+        /// <summary>
         /// The bitmap that is presented to the user.
         /// </summary>
         private WriteableBitmap m_TargetBitmap;
@@ -194,7 +199,16 @@ namespace Unosquare.FFME.Rendering
             if (mediaBlock is VideoBlock == false) return;
 
             var block = (VideoBlock)mediaBlock;
-            var sleepTime = TimingConfiguration.Period ?? 0;
+            if (IsRenderingInProgress.Value)
+            {
+                if (MediaCore?.State.IsPlaying ?? false)
+                    this.LogDebug(Aspects.VideoRenderer, $"{nameof(VideoRenderer)} frame skipped at {mediaBlock.StartTime}");
+
+                return;
+            }
+
+            // Flag the start of a rendering cycle
+            IsRenderingInProgress.Value = true;
 
             // Send the packets to the CC renderer
             MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
@@ -204,15 +218,26 @@ namespace Unosquare.FFME.Rendering
             else
                 RenderStopwatch.Restart();
 
-            VideoDispatcher?.Invoke(() =>
+            VideoDispatcher?.BeginInvoke(() =>
             {
-                // Prepare and write frame data
-                if (PrepareVideoFrameBuffer(block))
-                    WriteVideoFrameBuffer(block, clockPosition);
+                try
+                {
+                    // Prepare and write frame data
+                    if (PrepareVideoFrameBuffer(block))
+                        WriteVideoFrameBuffer(block, clockPosition);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} bitmap failed.", ex);
+                }
+                finally
+                {
+                    // Update the layout including pixel ratio and video rotation
+                    ControlDispatcher?.InvokeAsync(() =>
+                        UpdateLayout(block, clockPosition), DispatcherPriority.Render);
 
-                // Update the layout including pixel ratio and video rotation
-                ControlDispatcher?.InvokeAsync(() =>
-                    UpdateLayout(block, clockPosition), DispatcherPriority.Render);
+                    IsRenderingInProgress.Value = false;
+                }
             }, DispatcherPriority.Send);
         }
 
@@ -315,7 +340,7 @@ namespace Unosquare.FFME.Rendering
             }
             catch (Exception ex)
             {
-                this.LogError(Aspects.VideoRenderer, $"{nameof(AsyncVideoRenderer)}.{nameof(Render)} layout/CC failed.", ex);
+                this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} layout/CC failed.", ex);
             }
         }
 
