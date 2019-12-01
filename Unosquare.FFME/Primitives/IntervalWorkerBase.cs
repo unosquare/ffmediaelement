@@ -11,19 +11,26 @@
     internal abstract class IntervalWorkerBase : IWorker
     {
         private const int WantedTimingResolution = 2;
+
         private readonly object SyncLock = new object();
         private readonly Thread Thread;
         private readonly RealTimeClock CycleClock = new RealTimeClock();
         private readonly ManualResetEventSlim WantedStateCompleted = new ManualResetEventSlim(true);
-
-        private CancellationTokenSource TokenSource = new CancellationTokenSource();
 
         private long m_Period;
         private int m_IsDisposed;
         private int m_IsDisposing;
         private int m_WorkerState = (int)WorkerState.Created;
         private int m_WantedWorkerState = (int)WorkerState.Running;
+        private CancellationTokenSource TokenSource = new CancellationTokenSource();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IntervalWorkerBase"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="period">The period.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="priority">The priority.</param>
         protected IntervalWorkerBase(string name, TimeSpan period, IntervalWorkerMode mode, ThreadPriority priority)
         {
             // TODO: Still need to document this class
@@ -52,10 +59,20 @@
             Mode = mode;
         }
 
+        /// <summary>
+        /// Gets the name of the worker.
+        /// </summary>
         public string Name { get; }
 
+        /// <summary>
+        /// Gets the acquired timing resolution.
+        /// </summary>
         public int Resolution { get; } = 15;
 
+        /// <summary>
+        /// Gets or sets the worker mode.
+        /// This is a per-cycle setting.
+        /// </summary>
         public IntervalWorkerMode Mode { get; protected set; }
 
         /// <inheritdoc />
@@ -100,8 +117,15 @@
         /// </summary>
         protected TimeSpan RemainingCycleTime => TimeSpan.FromTicks(Period.Ticks - CycleClock.Position.Ticks);
 
+        /// <summary>
+        /// Gets the elapsed time of the last cycle.
+        /// </summary>
         protected TimeSpan LastCycleElapsed { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the delay to add (or subtract if negative) to the current cycle.
+        /// This is a per-cycle setting.
+        /// </summary>
         protected TimeSpan NextCorrectionDelay { get; set; }
 
         /// <inheritdoc />
@@ -257,6 +281,9 @@
         /// </summary>
         protected abstract void OnDisposing();
 
+        /// <summary>
+        /// Interrupts a cycle or a wait operation.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void Interrupt() => TokenSource.Cancel();
 
@@ -287,14 +314,6 @@
             LastCycleElapsed = CycleClock.Position;
             CycleClock.Restart(NextCorrectionDelay.Negate());
             NextCorrectionDelay = TimeSpan.Zero;
-
-            /*
-            CycleClock.Restart( // Mode == IntervalWorkerMode.HighPrecision &&
-                RemainingCycleTime.Ticks < 0 &&
-                RemainingCycleTime.TotalMilliseconds >= -Period.TotalMilliseconds
-                ? RemainingCycleTime.Negate()
-                : TimeSpan.Zero);
-            */
         }
 
         /// <summary>
@@ -318,10 +337,11 @@
                 }
 
                 // Recreate the token source -- applies to cycle logic and delay
-                if (TokenSource.IsCancellationRequested)
+                var ts = TokenSource;
+                if (ts.IsCancellationRequested)
                 {
-                    TokenSource.Dispose();
                     TokenSource = new CancellationTokenSource();
+                    ts.Dispose();
                 }
 
                 if (WorkerState == WorkerState.Running)
