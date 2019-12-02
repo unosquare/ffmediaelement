@@ -3,6 +3,7 @@
     using Common;
     using Container;
     using FFmpeg.AutoGen;
+    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -14,6 +15,9 @@
     /// </summary>
     public static partial class Library
     {
+        private const int DefaultTimingResolution = 15;
+        private const int IdealTimingResolution = 2;
+
         private static readonly string NotInitializedErrorMessage =
             $"{nameof(FFmpeg)} library not initialized. Set the {nameof(FFmpegDirectory)} and call {nameof(LoadFFmpeg)}";
 
@@ -29,6 +33,75 @@
         private static IReadOnlyDictionary<string, IReadOnlyList<OptionMetadata>> m_DecoderOptions;
         private static unsafe AVCodec*[] m_AllCodecs;
         private static int m_FFmpegLogLevel = Debugger.IsAttached ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING;
+        private static bool m_IsFrameSyncDisabled;
+        private static int m_TimingResolution = DefaultTimingResolution;
+
+        /// <summary>
+        /// Initializes static members of the <see cref="Library"/> class.
+        /// </summary>
+        static Library()
+        {
+            IsFrameSyncDisabled = !TimingConfiguration.IsAvailable;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether video frame timing synchronization is disabled.
+        /// Set this value to <c>true</c> if perefct synchronization is not critical to your application
+        /// or if you want to save battery and CPU resources. Please not that for videos using higher framerates
+        /// some frames will skip or stutter.
+        /// </summary>
+        public static bool IsFrameSyncDisabled
+        {
+            get
+            {
+                return m_IsFrameSyncDisabled;
+            }
+            set
+            {
+                if (!TimingConfiguration.IsAvailable)
+                    value = true;
+
+                m_IsFrameSyncDisabled = value;
+                TimingResolution = value ? DefaultTimingResolution : IdealTimingResolution;
+            }
+        }
+
+        /// <summary>
+        /// Gets the applied timing resolution in milliseconds. This value is dependent on the current platform and
+        /// setting of <see cref="IsFrameSyncDisabled"/>.
+        /// </summary>
+        public static int TimingResolution
+        {
+            get
+            {
+                return m_TimingResolution;
+            }
+            private set
+            {
+                if (value > DefaultTimingResolution)
+                    value = DefaultTimingResolution;
+
+                if (value < 1) value = 1;
+
+                // Enable shorter scheduling times to save CPU
+                if (TimingConfiguration.IsAvailable)
+                {
+                    var appliedResolution = value < TimingConfiguration.MinimumPeriod
+                        ? TimingConfiguration.MinimumPeriod
+                        : value;
+
+                    if (appliedResolution > TimingConfiguration.MaximumPeriod)
+                        appliedResolution = TimingConfiguration.MaximumPeriod;
+
+                    if (TimingConfiguration.ChangePeriod(appliedResolution))
+                        m_TimingResolution = appliedResolution;
+                }
+                else
+                {
+                    m_TimingResolution = DefaultTimingResolution;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
@@ -308,11 +381,9 @@
         /// <returns>The contents of the media information.</returns>
         public static MediaInfo RetrieveMediaInfo(string mediaSource)
         {
-            using (var container = new MediaContainer(mediaSource, null, null))
-            {
-                container.Initialize();
-                return container.MediaInfo;
-            }
+            using var container = new MediaContainer(mediaSource, null, null);
+            container.Initialize();
+            return container.MediaInfo;
         }
 
         /// <summary>

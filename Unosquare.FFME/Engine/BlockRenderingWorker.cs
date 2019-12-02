@@ -287,7 +287,7 @@ namespace Unosquare.FFME.Engine
             if (frameDuration > TimeSpan.Zero && frameDuration.Ticks < MinMonotonicDuration.Ticks)
                 frameDuration = MinMonotonicDuration;
 
-            var canBeHighPrecision = currentRenderStartTime != TimeSpan.MinValue && frameDuration > TimeSpan.Zero &&
+            var canBeHighPrecision = !Library.IsFrameSyncDisabled && currentRenderStartTime != TimeSpan.MinValue && frameDuration > TimeSpan.Zero &&
                 frameDuration.Ticks <= MaxMonotonicDuration.Ticks && timing != null && timing.IsRunning && timing.SpeedRatio == 1d && !MediaCore.IsSyncBuffering;
 
             // Determine if we need to enter or leave high precision mode

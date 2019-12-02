@@ -2,11 +2,19 @@
 {
     using System.Runtime.InteropServices;
 
+    /// <summary>
+    /// Provides access to advanced timing configuration.
+    /// Under Windows, this class uses the Windows Multimedia API
+    /// to configure timing.
+    /// </summary>
     internal static class TimingConfiguration
     {
         private static readonly object SyncLock = new object();
         private static int? CurrentPeriod;
 
+        /// <summary>
+        /// Initializes static members of the <see cref="TimingConfiguration"/> class.
+        /// </summary>
         static TimingConfiguration()
         {
             try
@@ -15,22 +23,34 @@
                 var result = NativeMethods.GetDeviceCapabilities(ref caps, Marshal.SizeOf<PeriodCapabilities>());
                 MinimumPeriod = caps.PeriodMin;
                 MaximumPeriod = caps.PeriodMax;
-                IsHighResolution = true;
+                IsAvailable = true;
             }
             catch
             {
                 MinimumPeriod = 16;
                 MaximumPeriod = 16;
-                IsHighResolution = false;
+                IsAvailable = false;
             }
         }
 
-        public static bool IsHighResolution { get; }
+        /// <summary>
+        /// Gets a value indicating whether the system supports changing timing configuration.
+        /// </summary>
+        public static bool IsAvailable { get; }
 
+        /// <summary>
+        /// Gets the minimum period in milliseconds.
+        /// </summary>
         public static int MinimumPeriod { get; }
 
+        /// <summary>
+        /// Gets the maximum period in milliseconds.
+        /// </summary>
         public static int MaximumPeriod { get; }
 
+        /// <summary>
+        /// Gets the currently configured period in milliseconds.
+        /// </summary>
         public static int? Period
         {
             get
@@ -40,11 +60,16 @@
             }
         }
 
+        /// <summary>
+        /// Changes configured the period in milliseconds.
+        /// </summary>
+        /// <param name="newPeriod">The new period.</param>
+        /// <returns>If the operation was successful.</returns>
         public static bool ChangePeriod(int newPeriod)
         {
             lock (SyncLock)
             {
-                if (!IsHighResolution)
+                if (!IsAvailable)
                     return false;
 
                 if (CurrentPeriod.HasValue && CurrentPeriod.Value == newPeriod)
@@ -59,6 +84,10 @@
             }
         }
 
+        /// <summary>
+        /// Resets the period to its default.
+        /// </summary>
+        /// <returns>True if the operation was successful.</returns>
         public static bool ResetPeriod()
         {
             lock (SyncLock)
@@ -74,6 +103,9 @@
             }
         }
 
+        /// <summary>
+        /// A struct to exctract timing capabilities from the interop API call.
+        /// </summary>
         [StructLayout(LayoutKind.Sequential)]
         private struct PeriodCapabilities
         {
@@ -82,6 +114,9 @@
             public int PeriodMax;
         }
 
+        /// <summary>
+        /// Provides the native methods for timing configuration.
+        /// </summary>
         private static class NativeMethods
         {
             private const string WinMM = "winmm.dll";

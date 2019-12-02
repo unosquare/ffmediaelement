@@ -10,8 +10,6 @@
     /// </summary>
     internal abstract class IntervalWorkerBase : IWorker
     {
-        private const int WantedTimingResolution = 2;
-
         private readonly object SyncLock = new object();
         private readonly Thread Thread;
         private readonly RealTimeClock CycleClock = new RealTimeClock();
@@ -33,7 +31,6 @@
         /// <param name="priority">The priority.</param>
         protected IntervalWorkerBase(string name, TimeSpan period, IntervalWorkerMode mode, ThreadPriority priority)
         {
-            // TODO: Still need to document this class
             Name = name;
             Period = period;
             Thread = new Thread(RunThread)
@@ -43,19 +40,6 @@
                 Priority = priority,
             };
 
-            // Enable shorter scheduling times to save CPU
-            if (TimingConfiguration.IsHighResolution)
-            {
-                var appliedResolution = TimingConfiguration.MinimumPeriod > WantedTimingResolution
-                    ? TimingConfiguration.MinimumPeriod
-                    : WantedTimingResolution;
-
-                if (TimingConfiguration.ChangePeriod(appliedResolution))
-                {
-                    Resolution = appliedResolution;
-                }
-            }
-
             Mode = mode;
         }
 
@@ -63,11 +47,6 @@
         /// Gets the name of the worker.
         /// </summary>
         public string Name { get; }
-
-        /// <summary>
-        /// Gets the acquired timing resolution.
-        /// </summary>
-        public int Resolution { get; } = 15;
 
         /// <summary>
         /// Gets or sets the worker mode.
@@ -301,13 +280,13 @@
                 var remainingMs = (int)RemainingCycleTime.TotalMilliseconds;
                 if (Mode == IntervalWorkerMode.HighPrecision)
                 {
-                    if (remainingMs >= Resolution * 1.5)
-                        Thread.Sleep(Resolution);
+                    if (remainingMs >= Library.TimingResolution * 1.5)
+                        Thread.Sleep(Library.TimingResolution);
                 }
                 else
                 {
                     if (remainingMs > 0)
-                        Thread.Sleep(Math.Max(15, Resolution));
+                        Thread.Sleep(Math.Max(1, Library.TimingResolution));
                 }
             }
 
