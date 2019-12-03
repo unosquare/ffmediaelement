@@ -83,6 +83,15 @@
         }
 
         /// <summary>
+        /// Gets or sets the thread priority.
+        /// </summary>
+        protected ThreadPriority Priority
+        {
+            get => Thread.Priority;
+            set => Thread.Priority = value;
+        }
+
+        /// <summary>
         /// Gets or sets the desired state of the worker.
         /// </summary>
         protected WorkerState WantedWorkerState
@@ -277,20 +286,19 @@
                 if (WantedWorkerState != WorkerState || TokenSource.IsCancellationRequested)
                     break;
 
-                var remainingMs = (int)RemainingCycleTime.TotalMilliseconds;
                 if (Mode == IntervalWorkerMode.HighPrecision)
                 {
-                    if (remainingMs >= Library.TimingResolution * 1.5)
-                        Thread.Sleep(Library.TimingResolution);
+                    if (RemainingCycleTime.TotalMilliseconds >= Library.TimingResolution * 1.5d)
+                        Thread.Sleep(1);
                 }
                 else
                 {
-                    if (remainingMs > 0)
-                        Thread.Sleep(Math.Max(1, Library.TimingResolution));
+                    try { Task.Delay(1, TokenSource.Token).Wait(); }
+                    catch { /* ignore */ }
                 }
             }
 
-            LastCycleElapsed = CycleClock.Position;
+            LastCycleElapsed = TimeSpan.FromTicks(CycleClock.Position.Ticks + NextCorrectionDelay.Ticks);
             CycleClock.Restart(NextCorrectionDelay.Negate());
             NextCorrectionDelay = TimeSpan.Zero;
         }

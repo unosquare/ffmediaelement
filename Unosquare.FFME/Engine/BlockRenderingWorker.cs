@@ -6,6 +6,7 @@ namespace Unosquare.FFME.Engine
     using Diagnostics;
     using Primitives;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -29,23 +30,19 @@ namespace Unosquare.FFME.Engine
         private static readonly TimeSpan MaxMonotonicDuration = TimeSpan.FromMilliseconds(1000d / 20d);
 
         /// <summary>
-        /// The maximum difference between the timing and the worker cycle.
+        /// The acceptable minimum frame delay between the render time and presentation time.
         /// </summary>
-        private static readonly TimeSpan AdjustmentMaxDelay = TimeSpan.FromMilliseconds(8);
+        private static readonly TimeSpan FrameIdealDelayMin = TimeSpan.FromMilliseconds(4);
 
         /// <summary>
-        /// The ideal difference between the timing and the worker cycle.
+        /// The acceptable maximum frame delay between the render time and presentation time.
         /// </summary>
-        private static readonly TimeSpan AdjustmentIdealDelay = TimeSpan.FromMilliseconds(6);
-
-        /// <summary>
-        /// The acceptable threshold between the timing and the worker cycle.
-        /// </summary>
-        private static readonly TimeSpan AdjustmentDelayThreshold = TimeSpan.FromMilliseconds(2);
+        private static readonly TimeSpan FrameIdealDelayMax = TimeSpan.FromMilliseconds(8);
 
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
         private readonly Action<MediaType[]> ParallelRenderBlocks;
+        private readonly Queue<CycleInfo> CycleDurations = new Queue<CycleInfo>(1024);
 
         /// <summary>
         /// The last video frame start time used to do timing and worker sync.
@@ -295,36 +292,53 @@ namespace Unosquare.FFME.Engine
             {
                 Period = frameDuration;
                 Mode = IntervalWorkerMode.HighPrecision;
+                Priority = ThreadPriority.Highest;
             }
             else if (!canBeHighPrecision && Mode == IntervalWorkerMode.HighPrecision)
             {
                 Period = Constants.DefaultTimingPeriod;
                 Mode = IntervalWorkerMode.SystemDefault;
+                Priority = ThreadPriority.AboveNormal;
             }
+
+            // Capture the difference between the presentation time and the real-time clock
+            var currentDelay = TimeSpan.FromTicks(timing.Position(main).Ticks - currentRenderStartTime.Ticks);
+            currentDelay = TimeSpan.FromTicks(currentDelay.Ticks % Period.Ticks);
 
             // Sync the period worker to start at the same time as the middle time of the current frame
             // No need to keeps a flag of whether or not is synchronized because we already have a set
             // of conditions ready to leave high precision when timing is disturbed (modified)
-            if (canBeHighPrecision && Mode == IntervalWorkerMode.HighPrecision && AdjustmentBlockStartTime != currentRenderStartTime)
+            if (currentDelay.Ticks > 0 && Mode == IntervalWorkerMode.HighPrecision
+                && AdjustmentBlockStartTime != currentRenderStartTime)
             {
+                // Keep track of the frame on which the timing was adjusted so the adjustemt is not
+                // performed more than once for the same frame
                 AdjustmentBlockStartTime = currentRenderStartTime;
-                var currentDelay = TimeSpan.FromTicks(timing.Position(main).Ticks - currentRenderStartTime.Ticks);
-                currentDelay = TimeSpan.FromTicks(currentDelay.Ticks % Period.Ticks);
-                var delayToIdeal = TimeSpan.FromTicks(AdjustmentIdealDelay.Ticks - currentDelay.Ticks);
 
-                // if we are falling behind, insert a negative delay (cycle will last less time) to catch up
-                if (currentDelay > AdjustmentMaxDelay)
+                if (currentDelay > FrameIdealDelayMax)
                 {
-                    // For big delays beyond the max delay, simply make the next correction delay negative
-                    // so that the next cycle starts faster.
-                    NextCorrectionDelay = TimeSpan.FromTicks(currentDelay.Ticks).Negate();
+                    // Negative Delay (catch up)
+                    NextCorrectionDelay = TimeSpan.FromMilliseconds(-1);
                 }
-                else if (Math.Abs(delayToIdeal.TotalMilliseconds) >= AdjustmentDelayThreshold.TotalMilliseconds)
+                else if (currentDelay < FrameIdealDelayMin)
                 {
-                    // For small changes in delays, try to keep this worker in sync with the timing.
-                    NextCorrectionDelay = TimeSpan.FromMilliseconds(1d * delayToIdeal.Ticks < 0 ? -1d : 1d);
+                    // Positive Delay (slow down)
+                    NextCorrectionDelay = TimeSpan.FromMilliseconds(1);
                 }
             }
+
+            if (!Debugger.IsAttached || !timing.IsRunning) return;
+
+            // Log some cycle metadata for debugging purposes
+            if (CycleDurations.Count >= 1000)
+                CycleDurations.Dequeue();
+
+            CycleDurations.Enqueue(new CycleInfo
+            {
+                LastCycleDuration = LastCycleElapsed.TotalMilliseconds,
+                CorrectionDelay = NextCorrectionDelay.TotalMilliseconds,
+                FrameDelay = currentDelay.TotalMilliseconds,
+            });
         }
 
         /// <summary>
@@ -632,6 +646,20 @@ namespace Unosquare.FFME.Engine
             catch
             {
                 // swallow
+            }
+        }
+
+        private class CycleInfo
+        {
+            public double LastCycleDuration { get; set; }
+
+            public double FrameDelay { get; set; }
+
+            public double CorrectionDelay { get; set; }
+
+            public override string ToString()
+            {
+                return $"{LastCycleDuration,8:0.000},{FrameDelay,8:0.000},{CorrectionDelay,8:0.000}";
             }
         }
     }

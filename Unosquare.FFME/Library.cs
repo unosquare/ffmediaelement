@@ -78,10 +78,12 @@
             }
             private set
             {
-                if (value > DefaultTimingResolution)
-                    value = DefaultTimingResolution;
-
-                if (value < 1) value = 1;
+                if (value >= DefaultTimingResolution)
+                {
+                    m_TimingResolution = DefaultTimingResolution;
+                    TimingConfiguration.ResetPeriod();
+                    return;
+                }
 
                 // Enable shorter scheduling times to save CPU
                 if (TimingConfiguration.IsAvailable)
@@ -90,11 +92,14 @@
                         ? TimingConfiguration.MinimumPeriod
                         : value;
 
+                    if (appliedResolution < 1)
+                        appliedResolution = 1;
+
                     if (appliedResolution > TimingConfiguration.MaximumPeriod)
                         appliedResolution = TimingConfiguration.MaximumPeriod;
 
-                    if (TimingConfiguration.ChangePeriod(appliedResolution))
-                        m_TimingResolution = appliedResolution;
+                    TimingConfiguration.ChangePeriod(appliedResolution);
+                    m_TimingResolution = TimingConfiguration.Period ?? DefaultTimingResolution;
                 }
                 else
                 {

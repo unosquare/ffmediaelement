@@ -53,6 +53,9 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <DockPanel Name="LeftControls" HorizontalAlignment="Left" Grid.Column="0">
+                    <ToggleButton Name="BatterySaverButton" Style="{DynamicResource ModernToggleButtonStyle}" IsChecked="{Binding IsBatterySaverEnabled, Mode=TwoWay}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource BatterySaverIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
                     <ToggleButton Visibility="{Binding Controller.IsMediaOpenVisibility}" Name="SoundMenuButton" Style="{DynamicResource ModernToggleButtonStyle}">
                         <Path Stretch="Uniform" Data="{Binding Source={StaticResource AudioMenuIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
                     </ToggleButton>
