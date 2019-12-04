@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
+    using System;
     using System.Runtime.InteropServices;
+    using System.Threading;
 
     /// <summary>
     /// Provides access to advanced timing configuration.
@@ -32,6 +34,16 @@
                 IsAvailable = false;
             }
         }
+
+        /// <summary>
+        /// The interop delegate for multimedia timers.
+        /// </summary>
+        /// <param name="timerId">The timer identifier.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="userContext">The user context.</param>
+        /// <param name="reserved1">The reserved1.</param>
+        /// <param name="reserved2">The reserved2.</param>
+        private delegate void MultimediaTimerCallback(uint timerId, uint message, UIntPtr userContext, UIntPtr reserved1, UIntPtr reserved2);
 
         /// <summary>
         /// Gets a value indicating whether the system supports changing timing configuration.
@@ -104,6 +116,26 @@
         }
 
         /// <summary>
+        /// Schedules an action to occur in the future.
+        /// </summary>
+        /// <param name="delay">The delay in milliseconds before the action is called.</param>
+        /// <param name="resolution">The resolution in milliseconds to measure a sub-interval in the delay.</param>
+        /// <param name="callback">The action to be called. Occurs in a thread pool thread.</param>
+        /// <returns>A disposable handle to the scheduled event.</returns>
+        public static IDisposable ScheduleAction(int delay, int resolution, Action callback)
+            => new TimerEvent(delay, resolution, false, callback);
+
+        /// <summary>
+        /// Creates a multimedia timer.
+        /// </summary>
+        /// <param name="period">The interval in milliceonds.</param>
+        /// <param name="resolution">The resolution in milliseconds to measure a sub-interval in the period.</param>
+        /// <param name="callback">The action to be called. Occurs in a thread pool thread.</param>
+        /// <returns>>A disposable handle to the timer.</returns>
+        public static IDisposable CreateTimer(int period, int resolution, Action callback)
+            => new TimerEvent(period, resolution, true, callback);
+
+        /// <summary>
         /// A struct to exctract timing capabilities from the interop API call.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
@@ -129,6 +161,88 @@
 
             [DllImport(WinMM, EntryPoint = "timeEndPeriod")]
             public static extern int EndUsingPeriod(int periodMillis);
+
+            [DllImport(WinMM, EntryPoint = "timeSetEvent")]
+            public static extern uint BeginTimer(uint delay, uint resolution, MultimediaTimerCallback timerCallback, UIntPtr dwUser, uint eventType);
+
+            [DllImport(WinMM, EntryPoint = "timeKillEvent")]
+            public static extern uint EndTimer(uint timerId);
+        }
+
+        private sealed class TimerEvent : IDisposable
+        {
+            private readonly Action UserCallback;
+            private readonly MultimediaTimerCallback InternalCallback;
+            private readonly TimerEventType EventType;
+
+            private long m_IsDisposing;
+            private long m_IsDisposed;
+
+            public TimerEvent(int delay, int resolution, bool isPeriodic, Action callback)
+            {
+                UserCallback = callback;
+                EventType = isPeriodic ? TimerEventType.Periodic : TimerEventType.OneShot;
+                InternalCallback = new MultimediaTimerCallback(InternalCallbackImpl);
+                TimerId = NativeMethods.BeginTimer((uint)delay, (uint)resolution, InternalCallback, UIntPtr.Zero, (uint)EventType);
+            }
+
+            ~TimerEvent() => Dispose(false);
+
+            [Flags]
+            private enum TimerEventType : uint
+            {
+                OneShot = 0,
+                Periodic = 1,
+            }
+
+            public uint TimerId { get; }
+
+            private bool IsDisposing
+            {
+                get => Interlocked.Read(ref m_IsDisposing) != 0;
+                set => Interlocked.Exchange(ref m_IsDisposing, value ? 1 : 0);
+            }
+
+            private bool IsDisposed
+            {
+                get => Interlocked.Read(ref m_IsDisposed) != 0;
+                set => Interlocked.Exchange(ref m_IsDisposed, value ? 1 : 0);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void InternalCallbackImpl(uint timerId, uint message, UIntPtr userContext, UIntPtr reserved1, UIntPtr reserved2)
+            {
+                if (IsDisposing) return;
+                try
+                {
+                    UserCallback?.Invoke();
+                }
+                finally
+                {
+                    if (EventType == TimerEventType.OneShot)
+                        Dispose();
+                }
+            }
+
+            private void Dispose(bool alsoManaged)
+            {
+                IsDisposing = true;
+                if (IsDisposed) return;
+                IsDisposed = true;
+
+                if (alsoManaged)
+                {
+                    // Note: Noting managed to dispose here
+                }
+
+                // Free unmanaged resources
+                var resultCode = NativeMethods.EndTimer(TimerId);
+            }
         }
     }
 }
