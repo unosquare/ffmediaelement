@@ -16,6 +16,7 @@
 - Current Status: (2019-11-16) - Release 4.1.320 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: 4.2.0 <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip">64-bit</a>
+- BREAKING CHANGE: Starting realease 4.1.330 the `Source` dependency property has been downgraded to a notification property. Please use the asynchronous `Open` and `Close` methods instead.
 
 *Please note the current NuGet realease might require a different version of the FFmpeg binaries than the ones of the current state of the source code.*
 
@@ -29,7 +30,7 @@ Here is a quick guide on how to get started.
 5. Within you application's startup code (`Main` method), set `Unosquare.FFME.Library.FFmpegDirectory = @"c:\ffmpeg";`.
 6. Use the FFME `MediaElement` control as any other WPF control.
 For example: In your `MainForm.xaml`, add the namespace: `xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"` and then add the FFME control your window's XAML: `<ffme:MediaElement x:Name="Media" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />` 
-7. To play files or streams, simply set the `Source` property: `Media.Source = new Uri(@"c:\your-file-here");`. Since `Source` is a dependency property, it need to be set from the GUI thread.
+7. To play files or streams, simply call the asynchronous method `Open`: `await Media.Open(new Uri(@"c:\your-file-here"));`. Conversely you close the media by calling `await Media.Close();`
 
 Note: To build your own FFmpeg binaries, I recommend the [Media Autobuild Suite](https://github.com/jb-alvarado/media-autobuild_suite) but please don't ask for help on it here.
 
@@ -41,22 +42,23 @@ Note: To build your own FFmpeg binaries, I recommend the [Media Autobuild Suite]
 FFME is an advanced and close drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft's WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME *might* just be the answer. 
 
 FFME provides multiple improvements over the standard MediaElement such as:
-- Fast media seeking and frame-by-frame seeking
+- Fast media seeking and frame-by-frame seeking.
 - Properties such as Position, Balance, SpeedRatio, IsMuted, and Volume are all Dependency Properties.
 - Additional and extended media events. Extracting (and modifying) video, audio and subtitle frames is very easy.
 - Easily apply FFmpeg video and audio filtergraphs.
-- Extract media metadata and tech specs of a media stream (title, album, bit rate, codecs, FPS, etc).
+- Extract media metadata and specs of a media stream (title, album, bit rate, codecs, FPS, etc).
 - Apply volume, balance and speed ratio to media playback.
-- MediaState actually works on this control. The standard WPF MediaElement severely lacks in this area.
+- MediaState actually works on this control. The standard WPF MediaElement is severely lacking in this area.
 - Ability to pick media streams contained in a file or a URL.
 - Specify input and codec parameters.
 - Opt-in hardware decoding acceleration via devices or via codecs.
-- Capture stream packets, audio, video and subtitle frames
-- Perform custom stream reading and stream recording
+- Capture stream packets, audio, video and subtitle frames.
+- Change raw video, audio and subtitle data upon rendering.
+- Perform custom stream reading and stream recording.
 
 *... all in a single MediaElement control*
 
-FFME also supports opening capture devices. See example Source URLs below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
+FFME also supports opening capture devices. See example URLs below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
 ```
 device://dshow/?audio=Microphone (Vengeance 2100):video=MS Webcam 4000
 device://gdigrab?title=Command Prompt
@@ -106,7 +108,7 @@ A high-level diagram is provided as additional reference below.
 
 ### ffmeplay.exe Sample Application
 
-The source code for this project contains a lot of use case for the `FFME` control. If you are just checking things out, here is a quick set of shortcut keys that `ffmeplay` accepts.
+The source code for this project contains a very capable media player (`FFME.Windows.Sample`) covering most of the use cases for the `FFME` control. If you are just checking things out, here is a quick set of shortcut keys that `ffmeplay` accepts.
 
 | Shortcut Key | Function Description |
 | --- | --- |

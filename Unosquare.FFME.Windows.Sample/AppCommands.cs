@@ -51,8 +51,6 @@
                         return;
 
                     var m = App.ViewModel.MediaElement;
-
-                    // m.Source = new Uri(uriString); // you can also set the source to the Uri to open
                     var target = new Uri(uriString);
                     if (target.ToString().StartsWith(FileInputStream.Scheme, StringComparison.OrdinalIgnoreCase))
                         await m.Open(new FileInputStream(target.LocalPath));
@@ -80,7 +78,6 @@
         public DelegateCommand CloseCommand => m_CloseCommand ??
             (m_CloseCommand = new DelegateCommand(async o =>
             {
-                // App.ViewModel.MediaElement.Source = null; // You can also set the source to null to close.
                 await App.ViewModel.MediaElement.Close();
 
                 // or, you can totally dispose manually:

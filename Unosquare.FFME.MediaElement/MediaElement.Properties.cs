@@ -7,6 +7,11 @@
     public partial class MediaElement
     {
         /// <summary>
+        /// Gets the source URI of the media.
+        /// </summary>
+        public Uri Source => MediaCore?.State.Source;
+
+        /// <summary>
         /// Gets the current playback state.
         /// </summary>
         public MediaPlaybackState MediaState => MediaCore?.State.MediaState ?? MediaPlaybackState.Close;

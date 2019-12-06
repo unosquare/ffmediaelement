@@ -211,52 +211,6 @@ namespace Unosquare.FFME
 
         #endregion
 
-        #region Source Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the Source on this MediaElement.
-        /// The Source property is the Uri of the media to be played.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
-        public Uri Source
-        {
-            get => GetValue(SourceProperty) as Uri;
-            set => SetValue(SourceProperty, value);
-        }
-
-        /// <summary>
-        /// DependencyProperty for FFmpegMediaElement Source property.
-        /// </summary>
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
-            nameof(Source), typeof(Uri), typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, OnSourcePropertyChanging));
-
-        private static object OnSourcePropertyChanging(DependencyObject d, object value)
-        {
-            if (d == null || d is MediaElement == false)
-                return null;
-
-            var element = (MediaElement)d;
-            if (element.IsStateUpdating)
-                return value;
-
-            var uri = value as Uri;
-            var mediaCore = element.MediaCore;
-            if (mediaCore == null) return null;
-
-            if (uri == null)
-            {
-                mediaCore.Close();
-                return null;
-            }
-
-            mediaCore.Open(uri);
-            return uri;
-        }
-
-        #endregion
-
         #region Position Dependency Property
 
         /// <summary>
