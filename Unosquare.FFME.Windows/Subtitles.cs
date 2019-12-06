@@ -77,14 +77,14 @@
         /// </summary>
         /// <param name="element">The object.</param>
         /// <returns>The value.</returns>
-        public static double GetFontSize(MediaElement element) => (double)(element?.GetValue(FontSizeProperty) ?? default);
+        public static double GetFontSize(MediaElement element) => (double)(element?.GetValue(FontSizeProperty) ?? default(double));
 
         /// <summary>
         /// Gets the font weight.
         /// </summary>
         /// <param name="element">The object.</param>
         /// <returns>The value.</returns>
-        public static FontWeight GetFontWeight(MediaElement element) => (FontWeight)(element?.GetValue(FontWeightProperty) ?? default);
+        public static FontWeight GetFontWeight(MediaElement element) => (FontWeight)(element?.GetValue(FontWeightProperty) ?? FontWeights.Normal);
 
         /// <summary>
         /// Gets the font family.
@@ -112,7 +112,7 @@
         /// </summary>
         /// <param name="element">The object.</param>
         /// <returns>The value.</returns>
-        public static Thickness GetOutlineWidth(MediaElement element) => (Thickness)(element?.GetValue(OutlineWidthProperty) ?? default);
+        public static Thickness GetOutlineWidth(MediaElement element) => (Thickness)(element?.GetValue(OutlineWidthProperty) ?? default(Thickness));
 
         /// <summary>
         /// Gets the outline brush.

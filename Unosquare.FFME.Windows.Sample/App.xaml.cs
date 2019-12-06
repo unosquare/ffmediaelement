@@ -91,20 +91,24 @@
                 }
                 catch (Exception ex)
                 {
-                    await Current?.Dispatcher?.BeginInvoke(new Action(() =>
+                    var dispatcher = Current?.Dispatcher;
+                    if (dispatcher != null)
                     {
-                        MessageBox.Show(MainWindow,
-                            $"Unable to Load FFmpeg Libraries from path:\r\n    {Library.FFmpegDirectory}" +
-                            $"\r\nMake sure the above folder contains FFmpeg shared binaries (dll files) for the " +
-                            $"applicantion's architecture ({(Environment.Is64BitProcess ? "64-bit" : "32-bit")})" +
-                            $"\r\nTIP: You can download builds from https://ffmpeg.zeranoe.com/builds/" +
-                            $"\r\n{ex.GetType().Name}: {ex.Message}\r\n\r\nApplication will exit.",
-                            "FFmpeg Error",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Error);
+                        await dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            MessageBox.Show(MainWindow,
+                                $"Unable to Load FFmpeg Libraries from path:\r\n    {Library.FFmpegDirectory}" +
+                                $"\r\nMake sure the above folder contains FFmpeg shared binaries (dll files) for the " +
+                                $"applicantion's architecture ({(Environment.Is64BitProcess ? "64-bit" : "32-bit")})" +
+                                $"\r\nTIP: You can download builds from https://ffmpeg.zeranoe.com/builds/" +
+                                $"\r\n{ex.GetType().Name}: {ex.Message}\r\n\r\nApplication will exit.",
+                                "FFmpeg Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
 
-                        Current?.Shutdown();
-                    }));
+                            Current?.Shutdown();
+                        }));
+                    }
                 }
             });
         }

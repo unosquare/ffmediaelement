@@ -185,9 +185,13 @@
 
             // Since VideoView might be hosted on a different dispatcher,
             // we use the custom InvokeAsync method
-            await VideoView?.InvokeAsync(() =>
+            var videoView = VideoView;
+            if (videoView == null)
+                return null;
+
+            await videoView.InvokeAsync(() =>
             {
-                var source = VideoView?.Source?.Clone() as BitmapSource;
+                var source = videoView.Source?.Clone() as BitmapSource;
                 if (source == null)
                     return;
 
