@@ -11,7 +11,7 @@
     internal abstract class IntervalWorkerBase : IWorker
     {
         private readonly object SyncLock = new object();
-        private readonly Thread Thread;
+        private readonly IntervalTimer QuantumTimer;
         private readonly RealTimeClock CycleClock = new RealTimeClock();
         private readonly ManualResetEventSlim WantedStateCompleted = new ManualResetEventSlim(true);
 
@@ -28,19 +28,11 @@
         /// <param name="name">The name.</param>
         /// <param name="period">The period.</param>
         /// <param name="mode">The mode.</param>
-        /// <param name="priority">The priority.</param>
-        protected IntervalWorkerBase(string name, TimeSpan period, IntervalWorkerMode mode, ThreadPriority priority)
+        protected IntervalWorkerBase(string name, TimeSpan period, IntervalWorkerMode mode)
         {
             Name = name;
             Period = period;
-            Thread = new Thread(RunThread)
-            {
-                IsBackground = true,
-                Name = $"{name}Thread",
-                Priority = priority,
-            };
-
-            Mode = mode;
+            QuantumTimer = new IntervalTimer(mode == IntervalWorkerMode.HighPrecision, OnQuantumTicked);
         }
 
         /// <summary>
@@ -52,7 +44,11 @@
         /// Gets or sets the worker mode.
         /// This is a per-cycle setting.
         /// </summary>
-        public IntervalWorkerMode Mode { get; protected set; }
+        public IntervalWorkerMode Mode
+        {
+            get => QuantumTimer.IsMultimedia ? IntervalWorkerMode.HighPrecision : IntervalWorkerMode.SystemDefault;
+            set => QuantumTimer.IsMultimedia = value == IntervalWorkerMode.HighPrecision;
+        }
 
         /// <inheritdoc />
         public TimeSpan Period
@@ -80,15 +76,6 @@
         {
             get => Interlocked.CompareExchange(ref m_IsDisposing, 0, 0) != 0;
             protected set => Interlocked.Exchange(ref m_IsDisposing, value ? 1 : 0);
-        }
-
-        /// <summary>
-        /// Gets or sets the thread priority.
-        /// </summary>
-        protected ThreadPriority Priority
-        {
-            get => Thread.Priority;
-            set => Thread.Priority = value;
         }
 
         /// <summary>
@@ -131,7 +118,7 @@
                 {
                     WantedWorkerState = WorkerState.Running;
                     WorkerState = WorkerState.Running;
-                    Thread.Start();
+                    CycleClock.Restart();
                 }
                 else if (WorkerState == WorkerState.Paused)
                 {
@@ -233,6 +220,7 @@
         protected virtual void Dispose(bool alsoManaged)
         {
             StopAsync().Wait();
+            QuantumTimer.Dispose();
 
             lock (SyncLock)
             {
@@ -275,79 +263,55 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void Interrupt() => TokenSource.Cancel();
 
-        /// <summary>
-        /// Implements an efficient delay.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void Delay()
+        private void OnQuantumTicked()
         {
+            if (WorkerState == WorkerState.Created || WorkerState == WorkerState.Stopped)
+                return;
+
             while (RemainingCycleTime.Ticks > 0)
             {
                 if (WantedWorkerState != WorkerState || TokenSource.IsCancellationRequested)
                     break;
 
-                if (Mode == IntervalWorkerMode.HighPrecision)
-                {
-                    if (RemainingCycleTime.TotalMilliseconds >= Library.TimingResolution * 1.5d)
-                        Thread.Sleep(1);
-                }
-                else
-                {
-                    try { Task.Delay(1, TokenSource.Token).Wait(); }
-                    catch { /* ignore */ }
-                }
+                if (RemainingCycleTime.TotalMilliseconds > QuantumTimer.Resolution)
+                    return;
+
+                if (!QuantumTimer.IsMultimedia && !Thread.Yield())
+                    Thread.Sleep(1);
             }
 
             LastCycleElapsed = TimeSpan.FromTicks(CycleClock.Position.Ticks + NextCorrectionDelay.Ticks);
             CycleClock.Restart(NextCorrectionDelay.Negate());
             NextCorrectionDelay = TimeSpan.Zero;
-        }
 
-        /// <summary>
-        /// Perofrms worker operations in a loop.
-        /// </summary>
-        /// <param name="state">The state.</param>
-        private void RunThread(object state)
-        {
-            // Control variable setup
-            CycleClock.Restart();
-
-            while (WorkerState != WorkerState.Stopped)
+            lock (SyncLock)
             {
-                lock (SyncLock)
-                {
-                    if (WantedWorkerState == WorkerState.Stopped)
-                        break;
+                WorkerState = WantedWorkerState;
+                WantedStateCompleted.Set();
 
-                    WorkerState = WantedWorkerState;
-                    WantedStateCompleted.Set();
-                }
-
-                // Recreate the token source -- applies to cycle logic and delay
-                var ts = TokenSource;
-                if (ts.IsCancellationRequested)
-                {
-                    TokenSource = new CancellationTokenSource();
-                    ts.Dispose();
-                }
-
-                if (WorkerState == WorkerState.Running)
-                {
-                    try
-                    {
-                        ExecuteCycleLogic(TokenSource.Token);
-                    }
-                    catch (Exception ex)
-                    {
-                        OnCycleException(ex);
-                    }
-                }
-
-                Delay();
+                if (WorkerState == WorkerState.Stopped)
+                    return;
             }
 
-            WorkerState = WorkerState.Stopped;
-            WantedStateCompleted.Set();
+            // Recreate the token source -- applies to cycle logic and delay
+            var ts = TokenSource;
+            if (ts.IsCancellationRequested)
+            {
+                TokenSource = new CancellationTokenSource();
+                ts.Dispose();
+            }
+
+            if (WorkerState == WorkerState.Running)
+            {
+                try
+                {
+                    ExecuteCycleLogic(TokenSource.Token);
+                }
+                catch (Exception ex)
+                {
+                    OnCycleException(ex);
+                }
+            }
         }
     }
 }

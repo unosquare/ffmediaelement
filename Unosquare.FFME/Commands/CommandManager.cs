@@ -29,7 +29,7 @@ namespace Unosquare.FFME.Commands
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public CommandManager(MediaEngine mediaCore)
-            : base(nameof(CommandManager), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault, ThreadPriority.Normal)
+            : base(nameof(CommandManager), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
         {
             MediaCore = mediaCore;
             StartAsync();

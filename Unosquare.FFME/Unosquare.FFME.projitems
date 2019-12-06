@@ -33,6 +33,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryAttributeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\RealtimeClock.cs" />
@@ -56,7 +57,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\ContainerConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\DecoderOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\DemuxerGlobalOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\TimingConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\NativeTiming.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFmpegLoadMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\HardwareDeviceInfo.cs" />

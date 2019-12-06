@@ -54,7 +54,7 @@ namespace Unosquare.FFME.Engine
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault, ThreadPriority.AboveNormal)
+            : base(nameof(BlockRenderingWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -284,7 +284,7 @@ namespace Unosquare.FFME.Engine
             if (frameDuration > TimeSpan.Zero && frameDuration.Ticks < MinMonotonicDuration.Ticks)
                 frameDuration = MinMonotonicDuration;
 
-            var canBeHighPrecision = !Library.IsFrameSyncDisabled && currentRenderStartTime != TimeSpan.MinValue && frameDuration > TimeSpan.Zero &&
+            var canBeHighPrecision = NativeTiming.IsAvailable && !Library.IsFrameSyncDisabled && currentRenderStartTime != TimeSpan.MinValue && frameDuration > TimeSpan.Zero &&
                 frameDuration.Ticks <= MaxMonotonicDuration.Ticks && timing != null && timing.IsRunning && timing.SpeedRatio == 1d && !MediaCore.IsSyncBuffering;
 
             // Determine if we need to enter or leave high precision mode
@@ -292,13 +292,11 @@ namespace Unosquare.FFME.Engine
             {
                 Period = frameDuration;
                 Mode = IntervalWorkerMode.HighPrecision;
-                Priority = ThreadPriority.Highest;
             }
             else if (!canBeHighPrecision && Mode == IntervalWorkerMode.HighPrecision)
             {
                 Period = Constants.DefaultTimingPeriod;
                 Mode = IntervalWorkerMode.SystemDefault;
-                Priority = ThreadPriority.AboveNormal;
             }
 
             // Capture the difference between the presentation time and the real-time clock
