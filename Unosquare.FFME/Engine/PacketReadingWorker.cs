@@ -64,6 +64,10 @@
             BufferChangedEvent.Reset();
             while (!ct.IsCancellationRequested)
             {
+                // exit the synthetic loop if we need to switch states
+                if (WorkerState != WantedWorkerState)
+                    break;
+
                 // We now need more packets, we need to stop waiting
                 if (MediaCore.ShouldReadMorePackets)
                     break;

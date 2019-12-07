@@ -25,6 +25,7 @@
         #region Private State
 
         private const double DefaultDpi = 96.0;
+        private static readonly Duration BitmapLockTimeout = new Duration(TimeSpan.FromMilliseconds(1000d / 60d / 2d));
 
         /// <summary>
         /// Contains an equivalence lookup of FFmpeg pixel format and WPF pixel formats.
@@ -300,33 +301,32 @@
             if (bitmap == null || target == null || block == null || block.IsDisposed || !block.TryAcquireReaderLock(out var readLock))
                 return;
 
-            try
+            // Lock the video block for reading
+            using (readLock)
             {
-                bitmap.Lock();
-
-                // Lock the video block for reading
-                using (readLock)
+                if (!bitmap.TryLock(BitmapLockTimeout))
                 {
-                    // Compute a safe number of bytes to copy
-                    // At this point, we it is assumed the strides are equal
-                    var bufferLength = Math.Min(block.BufferLength, target.BufferLength);
-
-                    // Copy the block data into the back buffer of the target bitmap.
-                    Buffer.MemoryCopy(
-                        block.Buffer.ToPointer(),
-                        target.Scan0.ToPointer(),
-                        bufferLength,
-                        bufferLength);
-
-                    // with the locked video block, raise the rendering video event.
-                    MediaElement?.RaiseRenderingVideoEvent(block, TargetBitmapData, clockPosition);
+                    this.LogDebug(Aspects.VideoRenderer, $"{nameof(VideoRenderer)} bitmap lock timed out at {clockPosition}");
+                    bitmap.Lock();
                 }
+
+                // Compute a safe number of bytes to copy
+                // At this point, we it is assumed the strides are equal
+                var bufferLength = Math.Min(block.BufferLength, target.BufferLength);
+
+                // Copy the block data into the back buffer of the target bitmap.
+                Buffer.MemoryCopy(
+                    block.Buffer.ToPointer(),
+                    target.Scan0.ToPointer(),
+                    bufferLength,
+                    bufferLength);
+
+                // with the locked video block, raise the rendering video event.
+                MediaElement?.RaiseRenderingVideoEvent(block, TargetBitmapData, clockPosition);
             }
-            finally
-            {
-                bitmap.AddDirtyRect(TargetBitmapData.UpdateRect);
-                bitmap.Unlock();
-            }
+
+            bitmap.AddDirtyRect(TargetBitmapData.UpdateRect);
+            bitmap.Unlock();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -32,12 +32,12 @@ namespace Unosquare.FFME.Engine
         /// <summary>
         /// The acceptable minimum frame delay between the render time and presentation time.
         /// </summary>
-        private static readonly TimeSpan FrameIdealDelayMin = TimeSpan.FromMilliseconds(4);
+        private static readonly TimeSpan FrameIdealDelayMin = TimeSpan.FromMilliseconds(2);
 
         /// <summary>
         /// The acceptable maximum frame delay between the render time and presentation time.
         /// </summary>
-        private static readonly TimeSpan FrameIdealDelayMax = TimeSpan.FromMilliseconds(8);
+        private static readonly TimeSpan FrameIdealDelayMax = TimeSpan.FromMilliseconds(4);
 
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
