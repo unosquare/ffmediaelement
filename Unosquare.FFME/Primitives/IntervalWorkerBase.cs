@@ -33,6 +33,7 @@
             Name = name;
             Period = period;
             QuantumTimer = new IntervalTimer(mode == IntervalWorkerMode.HighPrecision, OnQuantumTicked);
+            CycleClock.Restart();
         }
 
         /// <summary>
@@ -118,7 +119,6 @@
                 {
                     WantedWorkerState = WorkerState.Running;
                     WorkerState = WorkerState.Running;
-                    CycleClock.Restart();
                 }
                 else if (WorkerState == WorkerState.Paused)
                 {
