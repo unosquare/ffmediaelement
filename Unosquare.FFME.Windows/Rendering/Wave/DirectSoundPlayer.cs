@@ -132,18 +132,26 @@
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
-            // Wait for signals on frameEventWaitHandle1 (Position 0), frameEventWaitHandle2 (Position 1/2)
-            var handleIndex = WaitHandle.WaitAny(PlaybackWaitHandles, DesiredLatency, false);
+            const int FrameStartHandle = 0;
+            const int PlaybackEndHandle = 2;
+            const int CancelHandle = 3;
+            const int TimeoutHandle = WaitHandle.WaitTimeout;
 
-            // Handle cancel events
-            if (handleIndex >= 3)
+            // Wait for signals on frameEventWaitHandle1 (Position 0), frameEventWaitHandle2 (Position 1/2)
+            var handleIndex = WaitHandle.WaitAny(PlaybackWaitHandles, DesiredLatency * 3, false);
+
+            // Not ready yet
+            if (handleIndex == TimeoutHandle)
                 return;
 
-            // Handle tiemouts or end events
-            if (handleIndex == 2 || handleIndex == WaitHandle.WaitTimeout)
-                throw new TimeoutException("DirectSound notification timed out");
+            // Handle cancel events
+            if (handleIndex == CancelHandle || handleIndex == PlaybackEndHandle)
+            {
+                WantedWorkerState = WorkerState.Stopped;
+                return;
+            }
 
-            NextSamplesWriteIndex = handleIndex == 0 ? SamplesFrameSize : 0;
+            NextSamplesWriteIndex = handleIndex == FrameStartHandle ? SamplesFrameSize : default;
 
             // Only carry on playing if we can read more samples
             if (FeedBackBuffer(SamplesFrameSize) <= 0)
