@@ -1,16 +1,19 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
+    /// <summary>
+    /// Enumerates the different worker modes.
+    /// </summary>
     internal enum IntervalWorkerMode
     {
         /// <summary>
-        /// Uses a cancellation token together with a wait handle.
-        /// PRecision depends on system parameters.
+        /// Uses a standard threading timer to determine the time
+        /// when code needs to be executed.
         /// </summary>
         SystemDefault,
 
         /// <summary>
-        /// Uses thread sleeping and spinning to achieve a higher resolution
-        /// at the cost of CPU usage.
+        /// Tries to use a multimedia timer together with looping to acocmplish
+        /// a precise execution interval.
         /// </summary>
         HighPrecision,
     }

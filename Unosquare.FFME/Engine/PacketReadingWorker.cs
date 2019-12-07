@@ -13,12 +13,6 @@
     /// <seealso cref="IMediaWorker" />
     internal sealed class PacketReadingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {
-        /// <summary>
-        /// Completed whenever a change in the packet buffer is detected.
-        /// This needs to be reset manually and prevents high CPU usage in the packet reading worker.
-        /// </summary>
-        private readonly ManualResetEventSlim BufferChangedEvent = new ManualResetEventSlim(true);
-
         public PacketReadingWorker(MediaEngine mediaCore)
             : base(nameof(PacketReadingWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
         {
@@ -29,14 +23,13 @@
             Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
             {
                 MediaCore.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold);
-                BufferChangedEvent.Set();
 
-                if (op == PacketQueueOp.Queued)
+                if (op != PacketQueueOp.Queued)
+                    return;
+
+                unsafe
                 {
-                    unsafe
-                    {
-                        MediaCore.Connector?.OnPacketRead(packet.Pointer, Container.InputContext);
-                    }
+                    MediaCore.Connector?.OnPacketRead(packet.Pointer, Container.InputContext);
                 }
             };
         }
@@ -55,56 +48,22 @@
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
-            while (MediaCore.ShouldReadMorePackets && ct.IsCancellationRequested == false)
+            while (MediaCore.ShouldReadMorePackets)
             {
+                if (Container.IsReadAborted || Container.IsAtEndOfStream || ct.IsCancellationRequested ||
+                    WorkerState != WantedWorkerState || RemainingCycleTime.Ticks <= 0)
+                {
+                    break;
+                }
+
                 try { Container.Read(); }
                 catch (MediaContainerException) { /* ignore */ }
-            }
-
-            BufferChangedEvent.Reset();
-            while (!ct.IsCancellationRequested)
-            {
-                // exit the synthetic loop if we need to switch states
-                if (WorkerState != WantedWorkerState)
-                    break;
-
-                // We now need more packets, we need to stop waiting
-                if (MediaCore.ShouldReadMorePackets)
-                    break;
-
-                // We don't want to keep waiting if reads have been aborted
-                if (Container.IsReadAborted)
-                    break;
-
-                // We don't want to wait if we are at the end of the stream
-                if (Container.IsAtEndOfStream)
-                    break;
-
-                // We detected a change in buffered packets
-                try
-                {
-                    if (BufferChangedEvent.Wait(5, ct))
-                        break;
-                }
-                catch
-                {
-                    // ignore and break as the task was most likely cancelled
-                    break;
-                }
             }
         }
 
         /// <inheritdoc />
         protected override void OnCycleException(Exception ex) =>
             this.LogError(Aspects.ReadingWorker, "Worker Cycle exception thrown", ex);
-
-        /// <inheritdoc />
-        protected override void Dispose(bool alsoManaged)
-        {
-            BufferChangedEvent.Set();
-            base.Dispose(alsoManaged);
-            BufferChangedEvent.Dispose();
-        }
 
         protected override void OnDisposing()
         {

@@ -107,35 +107,25 @@
         /// <inheritdoc />
         public Task<WorkerState> StartAsync()
         {
-            var awaitTask = false;
             lock (SyncLock)
             {
                 if (IsDisposed || IsDisposing)
                     return Task.FromResult(WorkerState);
 
-                Interrupt();
-
                 if (WorkerState == WorkerState.Created)
                 {
                     WantedWorkerState = WorkerState.Running;
                     WorkerState = WorkerState.Running;
+                    return Task.FromResult(WorkerState);
                 }
                 else if (WorkerState == WorkerState.Paused)
                 {
-                    awaitTask = true;
                     WantedStateCompleted.Reset();
                     WantedWorkerState = WorkerState.Running;
                 }
-
-                if (!awaitTask)
-                    return Task.FromResult(WorkerState);
             }
 
-            return Task.Run(() =>
-            {
-                WantedStateCompleted.Wait();
-                return WorkerState;
-            });
+            return RunWaitForWantedState();
         }
 
         /// <inheritdoc />
@@ -146,8 +136,6 @@
                 if (IsDisposed || IsDisposing)
                     return Task.FromResult(WorkerState);
 
-                Interrupt();
-
                 if (WorkerState != WorkerState.Running)
                     return Task.FromResult(WorkerState);
 
@@ -155,11 +143,7 @@
                 WantedWorkerState = WorkerState.Paused;
             }
 
-            return Task.Run(() =>
-            {
-                WantedStateCompleted.Wait();
-                return WorkerState;
-            });
+            return RunWaitForWantedState();
         }
 
         /// <inheritdoc />
@@ -170,8 +154,6 @@
                 if (IsDisposed || IsDisposing)
                     return Task.FromResult(WorkerState);
 
-                Interrupt();
-
                 if (WorkerState != WorkerState.Paused)
                     return Task.FromResult(WorkerState);
 
@@ -179,11 +161,7 @@
                 WantedWorkerState = WorkerState.Running;
             }
 
-            return Task.Run(() =>
-            {
-                WantedStateCompleted.Wait();
-                return WorkerState;
-            });
+            return RunWaitForWantedState();
         }
 
         /// <inheritdoc />
@@ -194,20 +172,15 @@
                 if (IsDisposed || IsDisposing)
                     return Task.FromResult(WorkerState);
 
-                Interrupt();
-
                 if (WorkerState != WorkerState.Running && WorkerState != WorkerState.Paused)
                     return Task.FromResult(WorkerState);
 
                 WantedStateCompleted.Reset();
                 WantedWorkerState = WorkerState.Stopped;
+                Interrupt();
             }
 
-            return Task.Run(() =>
-            {
-                WantedStateCompleted.Wait();
-                return WorkerState;
-            });
+            return RunWaitForWantedState();
         }
 
         /// <inheritdoc />
@@ -263,6 +236,22 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void Interrupt() => TokenSource.Cancel();
 
+        /// <summary>
+        /// Returns a hot task that waits for the state of the worker to change.
+        /// </summary>
+        /// <returns>The awaitable state change task.</returns>
+        private Task<WorkerState> RunWaitForWantedState() => Task.Run(() =>
+        {
+            while (!WantedStateCompleted.Wait(QuantumTimer.Resolution))
+                Interrupt();
+
+            return WorkerState;
+        });
+
+        /// <summary>
+        /// Called when every quantum of time. Will be called frequently with
+        /// a multimedia timer and infrequently with a standard threadin timer.
+        /// </summary>
         private void OnQuantumTicked()
         {
             if (WorkerState == WorkerState.Created || WorkerState == WorkerState.Stopped)
@@ -276,7 +265,10 @@
                 if (RemainingCycleTime.TotalMilliseconds > QuantumTimer.Resolution)
                     return;
 
-                if (!QuantumTimer.IsMultimedia && !Thread.Yield())
+                if (QuantumTimer.IsMultimedia)
+                    continue;
+
+                if (!Thread.Yield())
                     Thread.Sleep(1);
             }
 
