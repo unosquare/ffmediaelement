@@ -1328,25 +1328,6 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.ScrubbingEnabledProperty
   fullName: Unosquare.FFME.MediaElement.ScrubbingEnabledProperty
   nameWithType: MediaElement.ScrubbingEnabledProperty
-- uid: Unosquare.FFME.MediaElement.Source
-  name: Source
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Source
-  commentId: P:Unosquare.FFME.MediaElement.Source
-  fullName: Unosquare.FFME.MediaElement.Source
-  nameWithType: MediaElement.Source
-- uid: Unosquare.FFME.MediaElement.Source*
-  name: Source
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Source_
-  commentId: Overload:Unosquare.FFME.MediaElement.Source
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.Source
-  nameWithType: MediaElement.Source
-- uid: Unosquare.FFME.MediaElement.SourceProperty
-  name: SourceProperty
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SourceProperty
-  commentId: F:Unosquare.FFME.MediaElement.SourceProperty
-  fullName: Unosquare.FFME.MediaElement.SourceProperty
-  nameWithType: MediaElement.SourceProperty
 - uid: Unosquare.FFME.MediaElement.SpeedRatio
   name: SpeedRatio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SpeedRatio
