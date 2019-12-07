@@ -10,20 +10,15 @@
     /// A wave player that opens an audio device and continuously feeds it
     /// with audio samples using a wave provider.
     /// </summary>
-    internal sealed class LegacyAudioPlayer : IWavePlayer, ILoggingSource
+    internal sealed class LegacyAudioPlayer : IntervalWorkerBase, IWavePlayer, ILoggingSource
     {
         #region State Variables
 
         private static readonly object DevicesEnumLock = new object();
-
-        private readonly AtomicBoolean IsCancellationPending = new AtomicBoolean(false);
-        private readonly IWaitEvent PlaybackFinished = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private readonly AutoResetEvent DriverCallbackEvent = new AutoResetEvent(false);
-        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         private IntPtr DeviceHandle;
         private WaveOutBuffer[] Buffers;
-        private Thread AudioPlaybackThread;
 
         #endregion
 
@@ -35,6 +30,7 @@
         /// <param name="renderer">The renderer.</param>
         /// <param name="deviceNumber">The device number.</param>
         public LegacyAudioPlayer(AudioRenderer renderer, int deviceNumber)
+            : base(nameof(LegacyAudioPlayer), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
         {
             // Initialize the default values
             var deviceId = deviceNumber < -1 ? -1 : deviceNumber;
@@ -77,24 +73,12 @@
         public PlaybackState PlaybackState { get; private set; } = PlaybackState.Stopped;
 
         /// <inheritdoc />
-        public bool IsRunning => !IsDisposed && !IsCancellationPending.Value && !PlaybackFinished.IsCompleted;
+        public bool IsRunning => WorkerState == WorkerState.Running;
 
         /// <summary>
         /// Gets the capabilities.
         /// </summary>
         public LegacyAudioDeviceData Capabilities { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is disposed.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsDisposed
-        {
-            get => m_IsDisposed.Value;
-            private set => m_IsDisposed.Value = value;
-        }
 
         #endregion
 
@@ -121,9 +105,8 @@
         public void Start()
         {
             if (DeviceHandle != IntPtr.Zero || IsDisposed)
-                throw new InvalidOperationException($"{nameof(AudioPlaybackThread)} was already started");
+                throw new InvalidOperationException($"{nameof(LegacyAudioPlayer)} was already started");
 
-            PlaybackFinished.Begin();
             var bufferSize = Renderer.WaveFormat.ConvertMillisToByteSize((DesiredLatency + NumberOfBuffers - 1) / NumberOfBuffers);
 
             // Acquire a device handle
@@ -143,15 +126,8 @@
 
             // Start the playback thread
             DriverCallbackEvent.Set(); // give the thread an initial kick
-            AudioPlaybackThread = new Thread(PerformContinuousPlayback)
-            {
-                IsBackground = true,
-                Name = nameof(AudioPlaybackThread),
-                Priority = ThreadPriority.AboveNormal
-            };
-
-            // Begin the thread
-            AudioPlaybackThread.Start();
+            PlaybackState = PlaybackState.Playing;
+            StartAsync();
         }
 
         /// <inheritdoc />
@@ -162,87 +138,63 @@
                 buffer.Clear();
         }
 
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            if (IsDisposed) return;
-
-            IsCancellationPending.Value = true; // Causes the playback loop to exit
-            DriverCallbackEvent.Set(); // causes the WaitOne to exit
-            PlaybackFinished.Wait(); // waits for the playback loop to finish
-            DriverCallbackEvent.Dispose();
-            PlaybackFinished.Dispose();
-            IsDisposed = true;
-        }
-
         #endregion
 
-        #region Private Methods
+        #region Worker Methods
 
-        /// <summary>
-        /// Performs the continuous playback.
-        /// </summary>
-        private void PerformContinuousPlayback()
+        /// <inheritdoc />
+        protected override void ExecuteCycleLogic(CancellationToken ct)
         {
-            int queued;
-            PlaybackState = PlaybackState.Playing;
-
-            try
+            if (DriverCallbackEvent.WaitOne(DesiredLatency) == false)
             {
-                while (IsCancellationPending == false)
-                {
-                    if (DriverCallbackEvent.WaitOne(DesiredLatency) == false)
-                    {
-                        if (IsCancellationPending == true) break;
+                this.LogWarning(Aspects.AudioRenderer,
+                    $"{nameof(LegacyAudioPlayer)}:{nameof(DriverCallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
 
-                        this.LogWarning(Aspects.AudioRenderer,
-                            $"{nameof(AudioPlaybackThread)}:{nameof(DriverCallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
-
-                        continue;
-                    }
-
-                    // Reset the queue count
-                    queued = 0;
-                    if (IsCancellationPending == true)
-                        break;
-
-                    foreach (var buffer in Buffers)
-                    {
-                        if (buffer.IsQueued || buffer.ReadWaveStream())
-                            queued++;
-                    }
-
-                    // Detect an end of playback
-                    if (queued <= 0)
-                        break;
-                }
+                return;
             }
-            catch (Exception ex)
+
+            foreach (var buffer in Buffers)
             {
-                this.LogError(Aspects.AudioRenderer, $"{nameof(LegacyAudioPlayer)} faulted.", ex);
-                throw;
+                if (!buffer.IsQueued)
+                    buffer.ReadWaveStream();
             }
-            finally
-            {
-                // Update the state
-                PlaybackState = PlaybackState.Stopped;
+        }
 
-                // Immediately stop the audio driver. Pause it first to
-                // avoid quirky repetitive samples
-                try { WaveInterop.PauseAudioDevice(DeviceHandle); } catch { /* Ignore */ }
-                try { WaveInterop.ResetAudioDevice(DeviceHandle); } catch { /* Ignore */ }
+        /// <inheritdoc />
+        protected override void OnCycleException(Exception ex)
+        {
+            this.LogError(Aspects.AudioRenderer, $"{nameof(LegacyAudioPlayer)} faulted.", ex);
+        }
 
-                // Dispose of buffers
-                foreach (var buffer in Buffers)
-                    try { buffer.Dispose(); } catch { /* Ignore */ }
+        /// <inheritdoc />
+        protected override void OnDisposing()
+        {
+            DriverCallbackEvent.Set();
 
-                // Close the device
-                try { WaveInterop.CloseAudioDevice(DeviceHandle); } catch { /* Ignore */ }
+            // Update the state
+            PlaybackState = PlaybackState.Stopped;
 
-                // Dispose of managed state
-                DeviceHandle = IntPtr.Zero;
-                PlaybackFinished.Complete();
-            }
+            // Immediately stop the audio driver. Pause it first to
+            // avoid quirky repetitive samples
+            try { WaveInterop.PauseAudioDevice(DeviceHandle); } catch { /* Ignore */ }
+            try { WaveInterop.ResetAudioDevice(DeviceHandle); } catch { /* Ignore */ }
+
+            // Dispose of buffers
+            foreach (var buffer in Buffers)
+                try { buffer.Dispose(); } catch { /* Ignore */ }
+
+            // Close the device
+            try { WaveInterop.CloseAudioDevice(DeviceHandle); } catch { /* Ignore */ }
+
+            // Dispose of managed state
+            DeviceHandle = IntPtr.Zero;
+        }
+
+        /// <inheritdoc />
+        protected override void Dispose(bool alsoManaged)
+        {
+            base.Dispose(alsoManaged);
+            DriverCallbackEvent.Dispose();
         }
 
         #endregion

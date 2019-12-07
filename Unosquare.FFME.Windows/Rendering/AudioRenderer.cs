@@ -25,7 +25,6 @@
         private const int SyncLockTimeout = 100;
 
         private readonly AtomicBoolean IsClosing = new AtomicBoolean(false);
-        private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
 
         private IWavePlayer AudioDevice;
@@ -55,9 +54,6 @@
                 Constants.AudioSampleRate,
                 Constants.AudioBitsPerSample,
                 Constants.AudioChannelCount);
-
-            if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
-                throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
 
             if (MediaCore.State.HasAudio)
                 Initialize();
@@ -258,7 +254,10 @@
         }
 
         /// <inheritdoc />
-        public void OnStarting() => WaitForReadyEvent?.Wait();
+        public void OnStarting()
+        {
+            // placeholder
+        }
 
         /// <inheritdoc />
         public void Dispose()
@@ -271,7 +270,6 @@
 
                 IsDisposed = true;
                 Destroy();
-                WaitForReadyEvent.Dispose();
             }
         }
 
@@ -296,7 +294,6 @@
 
             try
             {
-                WaitForReadyEvent.Complete();
                 var speedRatio = MediaCore.State.SpeedRatio;
 
                 // Render silence if we don't need to output samples
@@ -382,6 +379,10 @@
         {
             Destroy();
 
+            // Check the wave format
+            if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
+                throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
+
             // Release the audio device always upon exiting
             if (Application.Current is Application app)
                 app.Dispatcher?.BeginInvoke(new Action(() => { app.Exit += OnApplicationExit; }));
@@ -395,7 +396,6 @@
             // Check if we have an audio output device.
             if (hasAudioDevices == false)
             {
-                WaitForReadyEvent.Complete();
                 HasFiredAudioDeviceStopped = true;
                 this.LogWarning(Aspects.AudioRenderer,
                     "No audio device found for output.");

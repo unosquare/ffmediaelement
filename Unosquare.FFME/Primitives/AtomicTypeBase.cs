@@ -239,9 +239,9 @@
         public int CompareTo(AtomicTypeBase<T> other) => CompareTo(this, other);
 
         /// <inheritdoc />
-        public override bool Equals(object other)
+        public override bool Equals(object obj)
         {
-            switch (other)
+            switch (obj)
             {
                 case null:
                     return false;

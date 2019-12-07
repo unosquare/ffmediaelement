@@ -159,14 +159,14 @@
         /// <inheritdoc />
         protected override void OnDisposing()
         {
+            // Signal Completion
+            PlaybackState = PlaybackState.Stopped;
+            CancelEvent.Set(); // causes the WaitAny to exit
+
             try { AudioRenderBuffer.Stop(); } catch { /* Ignore exception and continue */ }
 
             try { ClearBackBuffer(); } catch { /* Ignore exception and continue */ }
             try { AudioBackBuffer.Stop(); } catch { /* Ignore exception and continue */ }
-
-            // Signal Completion
-            PlaybackState = PlaybackState.Stopped;
-            CancelEvent.Set(); // causes the WaitAny to exit
         }
 
         /// <inheritdoc />

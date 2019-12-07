@@ -98,12 +98,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\BenchmarkResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\CircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\ISyncLocker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWaitEvent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWorker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\MediaBlockBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\MediaTypeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\SyncLockerFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\WaitEventFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\BlockRenderingWorker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\FrameDecodingWorker.cs" />
