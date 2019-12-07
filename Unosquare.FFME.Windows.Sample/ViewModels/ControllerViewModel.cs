@@ -312,7 +312,7 @@
 
         private EqualizerFilterValues ParseVideoEqualizerFilter()
         {
-            var result = new EqualizerFilterValues() { Contrast = 1d, Brightness = 0d, Saturation = 1d };
+            var result = new EqualizerFilterValues { Contrast = 1d, Brightness = 0d, Saturation = 1d };
 
             if (Root.MediaElement == null || Root.MediaElement.HasVideo == false) return result;
 

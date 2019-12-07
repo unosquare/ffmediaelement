@@ -23,16 +23,22 @@
             {
                 var caps = default(PeriodCapabilities);
                 var result = NativeMethods.GetDeviceCapabilities(ref caps, Marshal.SizeOf<PeriodCapabilities>());
-                MinResolutionPeriod = caps.PeriodMin;
-                MaxResolutionPeriod = caps.PeriodMax;
-                IsAvailable = true;
+                if (result == 0)
+                {
+                    MinResolutionPeriod = caps.PeriodMin;
+                    MaxResolutionPeriod = caps.PeriodMax;
+                    IsAvailable = true;
+                    return;
+                }
             }
             catch
             {
-                MinResolutionPeriod = 16;
-                MaxResolutionPeriod = 16;
-                IsAvailable = false;
+                // ignore
             }
+
+            MinResolutionPeriod = 16;
+            MaxResolutionPeriod = 16;
+            IsAvailable = false;
         }
 
         /// <summary>
@@ -210,7 +216,7 @@
             {
                 UserCallback = callback;
                 EventType = isPeriodic ? TimerEventType.Periodic : TimerEventType.OneShot;
-                InternalCallback = new NativeTimerCallback(InternalCallbackImpl);
+                InternalCallback = InternalCallbackImpl;
                 TimerId = NativeMethods.BeginTimer((uint)delay, (uint)resolution, InternalCallback, UIntPtr.Zero, (uint)EventType);
             }
 

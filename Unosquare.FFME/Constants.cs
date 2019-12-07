@@ -18,18 +18,19 @@
         /// </summary>
         static Constants()
         {
-            var entryAssemblyPath = ".";
             try
             {
-                entryAssemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? ".";
+                var entryAssemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? ".";
+                FFmpegSearchPath = Path.GetFullPath(entryAssemblyPath);
+                return;
             }
             catch
             {
-                // ignore (we might be in winforms degin time)
+                // ignore (we might be in winforms design time)
                 // see issue #311
             }
 
-            FFmpegSearchPath = Path.GetFullPath(entryAssemblyPath);
+            FFmpegSearchPath = Path.GetFullPath(".");
         }
 
         /// <summary>

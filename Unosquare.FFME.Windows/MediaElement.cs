@@ -49,7 +49,7 @@
         private readonly AtomicBoolean m_IsStateUpdating = new AtomicBoolean(false);
         private readonly DispatcherTimer UpdatesTimer;
 
-        private bool m_IsDisposed = false;
+        private bool m_IsDisposed;
 
         #endregion
 

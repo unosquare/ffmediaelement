@@ -30,7 +30,7 @@
             typeof(ElementHostBase<T>));
 
         private readonly object UnloadLock = new object();
-        private bool m_IsDisposed = false;
+        private bool m_IsDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementHostBase{T}"/> class.

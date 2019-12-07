@@ -134,7 +134,6 @@
                     : null;
 
                 MediaElement.VideoView.Source = m_TargetBitmap;
-                GC.Collect();
             }
         }
 
