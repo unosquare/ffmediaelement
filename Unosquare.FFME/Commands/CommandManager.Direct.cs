@@ -494,7 +494,10 @@
         private MediaType[] GetCurrentComponentTypes()
         {
             var result = new List<MediaType>(4);
-            result.AddRange(MediaCore.Container.Components.MediaTypes);
+
+            var components = MediaCore.Container?.Components;
+            if (components != null)
+                result.AddRange(components.MediaTypes);
 
             if (MediaCore.PreloadedSubtitles != null)
                 result.Add(MediaType.Subtitle);
