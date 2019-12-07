@@ -62,21 +62,21 @@
         public WorkerState WorkerState
         {
             get => (WorkerState)Interlocked.CompareExchange(ref m_WorkerState, 0, 0);
-            protected set => Interlocked.Exchange(ref m_WorkerState, (int)value);
+            private set => Interlocked.Exchange(ref m_WorkerState, (int)value);
         }
 
         /// <inheritdoc />
         public bool IsDisposed
         {
             get => Interlocked.CompareExchange(ref m_IsDisposed, 0, 0) != 0;
-            protected set => Interlocked.Exchange(ref m_IsDisposed, value ? 1 : 0);
+            private set => Interlocked.Exchange(ref m_IsDisposed, value ? 1 : 0);
         }
 
         /// <inheritdoc />
         public bool IsDisposing
         {
             get => Interlocked.CompareExchange(ref m_IsDisposing, 0, 0) != 0;
-            protected set => Interlocked.Exchange(ref m_IsDisposing, value ? 1 : 0);
+            private set => Interlocked.Exchange(ref m_IsDisposing, value ? 1 : 0);
         }
 
         /// <summary>

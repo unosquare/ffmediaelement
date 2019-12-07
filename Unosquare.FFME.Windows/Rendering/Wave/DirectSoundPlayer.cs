@@ -14,7 +14,7 @@
     /// Contact author: Alexandre Mutel - alexandre_mutel at yahoo.fr
     /// Modified by: Graham "Gee" Plumb.
     /// </summary>
-    internal sealed class DirectSoundPlayer : IWavePlayer, ILoggingSource
+    internal sealed class DirectSoundPlayer : IntervalWorkerBase, IWavePlayer, ILoggingSource
     {
         #region Fields
 
@@ -28,11 +28,7 @@
         private static List<DirectSoundDeviceData> EnumeratedDevices;
 
         // Instance fields
-        private readonly object SyncLock = new object();
-        private readonly AtomicBoolean IsCancellationPending = new AtomicBoolean(false);
-        private readonly IWaitEvent PlaybackFinished = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private readonly EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
-        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         private readonly WaveFormat WaveFormat;
         private int SamplesTotalSize;
@@ -46,7 +42,7 @@
         private EventWaitHandle FrameStartEventWaitHandle;
         private EventWaitHandle FrameEndEventWaitHandle;
         private EventWaitHandle PlaybackEndedEventWaitHandle;
-        private Thread AudioPlaybackThread;
+        private WaitHandle[] PlaybackWaitHandles;
 
         #endregion
 
@@ -59,10 +55,10 @@
         /// <param name="renderer">The renderer.</param>
         /// <param name="deviceId">Selected device.</param>
         public DirectSoundPlayer(AudioRenderer renderer, Guid deviceId)
+            : base(nameof(DirectSoundPlayer), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
         {
             Renderer = renderer;
             DeviceId = deviceId == Guid.Empty ? DefaultPlaybackDeviceId : deviceId;
-            DesiredLatency = 50;
             WaveFormat = renderer.WaveFormat;
         }
 
@@ -80,22 +76,10 @@
         public PlaybackState PlaybackState { get; private set; } = PlaybackState.Stopped;
 
         /// <inheritdoc />
-        public bool IsRunning => !IsDisposed && !IsCancellationPending.Value && !PlaybackFinished.IsCompleted;
+        public bool IsRunning => WorkerState == WorkerState.Running;
 
         /// <inheritdoc />
-        public int DesiredLatency { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is disposed.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsDisposed
-        {
-            get => m_IsDisposed.Value;
-            private set => m_IsDisposed.Value = value;
-        }
+        public int DesiredLatency { get; private set; } = 50;
 
         #endregion
 
@@ -119,26 +103,86 @@
         public void Start()
         {
             if (DirectSoundDriver != null || IsDisposed)
-                throw new InvalidOperationException($"{nameof(AudioPlaybackThread)} was already started");
+                throw new InvalidOperationException($"{nameof(DirectSoundPlayer)} was already started");
 
-            PlaybackFinished.Begin();
+            InitializeDirectSound();
+            AudioBackBuffer.SetCurrentPosition(0);
+            NextSamplesWriteIndex = 0;
 
-            // Thread that processes samples
-            AudioPlaybackThread = new Thread(PerformContinuousPlayback)
-            {
-                Priority = ThreadPriority.AboveNormal,
-                IsBackground = true,
-                Name = nameof(AudioPlaybackThread)
-            };
+            // Give the buffer initial samples to work with
+            if (FeedBackBuffer(SamplesTotalSize) <= 0)
+                throw new InvalidOperationException($"Method {nameof(FeedBackBuffer)} could not write samples.");
 
-            AudioPlaybackThread.Start();
+            // Set the state to playing
+            PlaybackState = PlaybackState.Playing;
+
+            // Begin notifications on playback wait events
+            AudioBackBuffer.Play(0, 0, DirectSound.DirectSoundPlayFlags.Looping);
+
+            StartAsync();
         }
 
         /// <inheritdoc />
         public void Clear() => ClearBackBuffer();
 
+        #endregion
+
+        #region Worker Methods
+
         /// <inheritdoc />
-        public void Dispose() => Dispose(true);
+        protected override void ExecuteCycleLogic(CancellationToken ct)
+        {
+            // Wait for signals on frameEventWaitHandle1 (Position 0), frameEventWaitHandle2 (Position 1/2)
+            var handleIndex = WaitHandle.WaitAny(PlaybackWaitHandles, DesiredLatency, false);
+
+            // Handle cancel events
+            if (handleIndex >= 3)
+                return;
+
+            // Handle tiemouts or end events
+            if (handleIndex == 2 || handleIndex == WaitHandle.WaitTimeout)
+                throw new TimeoutException("DirectSound notification timed out");
+
+            NextSamplesWriteIndex = handleIndex == 0 ? SamplesFrameSize : 0;
+
+            // Only carry on playing if we can read more samples
+            if (FeedBackBuffer(SamplesFrameSize) <= 0)
+                throw new InvalidOperationException($"Method {nameof(FeedBackBuffer)} could not write samples.");
+        }
+
+        /// <inheritdoc />
+        protected override void OnCycleException(Exception ex)
+        {
+            this.LogError(Aspects.AudioRenderer, $"{nameof(DirectSoundPlayer)} faulted.", ex);
+        }
+
+        /// <inheritdoc />
+        protected override void OnDisposing()
+        {
+            try { AudioRenderBuffer.Stop(); } catch { /* Ignore exception and continue */ }
+
+            try { ClearBackBuffer(); } catch { /* Ignore exception and continue */ }
+            try { AudioBackBuffer.Stop(); } catch { /* Ignore exception and continue */ }
+
+            // Signal Completion
+            PlaybackState = PlaybackState.Stopped;
+            CancelEvent.Set(); // causes the WaitAny to exit
+        }
+
+        /// <inheritdoc />
+        protected override void Dispose(bool alsoManaged)
+        {
+            base.Dispose(alsoManaged);
+
+            if (alsoManaged)
+            {
+                // Dispose DirectSound buffer wait handles
+                PlaybackEndedEventWaitHandle?.Dispose();
+                FrameStartEventWaitHandle?.Dispose();
+                FrameEndEventWaitHandle?.Dispose();
+                CancelEvent.Dispose();
+            }
+        }
 
         #endregion
 
@@ -264,6 +308,7 @@
             FrameStartEventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
             FrameEndEventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
             PlaybackEndedEventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
+            PlaybackWaitHandles = new WaitHandle[] { FrameStartEventWaitHandle, FrameEndEventWaitHandle, PlaybackEndedEventWaitHandle, CancelEvent };
 
             var notificationEvents = new[]
             {
@@ -273,93 +318,6 @@
             };
 
             notifier?.SetNotificationPositions((uint)notificationEvents.Length, notificationEvents);
-        }
-
-        /// <summary>
-        /// Processes the samples in a separate thread.
-        /// </summary>
-        private void PerformContinuousPlayback()
-        {
-            try
-            {
-                InitializeDirectSound();
-                AudioBackBuffer.SetCurrentPosition(0);
-                NextSamplesWriteIndex = 0;
-
-                int handleIndex;
-                var waitHandles = new WaitHandle[] { FrameStartEventWaitHandle, FrameEndEventWaitHandle, PlaybackEndedEventWaitHandle, CancelEvent };
-
-                // Give the buffer initial samples to work with
-                if (FeedBackBuffer(SamplesTotalSize) <= 0)
-                    throw new InvalidOperationException($"Method {nameof(FeedBackBuffer)} could not write samples.");
-
-                // Set the state to playing
-                PlaybackState = PlaybackState.Playing;
-
-                // Begin notifications on playback wait events
-                AudioBackBuffer.Play(0, 0, DirectSound.DirectSoundPlayFlags.Looping);
-
-                while (IsCancellationPending == false)
-                {
-                    // Wait for signals on frameEventWaitHandle1 (Position 0), frameEventWaitHandle2 (Position 1/2)
-                    handleIndex = WaitHandle.WaitAny(waitHandles, 3 * DesiredLatency, false);
-
-                    if (handleIndex >= 3)
-                        break;
-                    if (handleIndex == 2 || handleIndex == WaitHandle.WaitTimeout)
-                        throw new TimeoutException("DirectSound notification timed out");
-                    NextSamplesWriteIndex = handleIndex == 0 ? SamplesFrameSize : 0;
-
-                    // Only carry on playing if we can read more samples
-                    if (FeedBackBuffer(SamplesFrameSize) <= 0)
-                        throw new InvalidOperationException($"Method {nameof(FeedBackBuffer)} could not write samples.");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Do nothing (except report error)
-                this.LogError(Aspects.AudioRenderer, $"{nameof(DirectSoundPlayer)} faulted.", ex);
-            }
-            finally
-            {
-                try { AudioRenderBuffer.Stop(); } catch { /* Ignore exception and continue */ }
-
-                try { ClearBackBuffer(); } catch { /* Ignore exception and continue */ }
-                try { AudioBackBuffer.Stop(); } catch { /* Ignore exception and continue */ }
-
-                // Signal Completion
-                PlaybackState = PlaybackState.Stopped;
-                PlaybackFinished.Complete();
-            }
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            lock (SyncLock)
-            {
-                if (IsDisposed) return;
-
-                if (alsoManaged)
-                {
-                    IsCancellationPending.Value = true; // Causes the playback loop to exit
-                    CancelEvent.Set(); // causes the WaitAny to exit
-                    PlaybackFinished.Wait(); // waits for the playback loop to finish
-
-                    // Dispose DirectSound buffer wait handles
-                    PlaybackEndedEventWaitHandle?.Dispose();
-                    FrameStartEventWaitHandle?.Dispose();
-                    FrameEndEventWaitHandle?.Dispose();
-
-                    CancelEvent.Dispose();
-                    PlaybackFinished.Dispose();
-                }
-
-                IsDisposed = true;
-            }
         }
 
         /// <summary>
