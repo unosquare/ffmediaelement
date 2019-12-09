@@ -11,7 +11,6 @@ namespace Unosquare.FFME.Rendering
     using SharpDX.Mathematics.Interop;
     using System;
     using System.Runtime.InteropServices;
-    using System.Threading;
     using System.Windows;
     using System.Windows.Interop;
     using System.Windows.Media;
@@ -31,11 +30,10 @@ namespace Unosquare.FFME.Rendering
         private const int DefaultDisplayAdapter = 0;
         private const Format SurfaceFormat = Format.A8R8G8B8;
 
-        private readonly object DeviceLock = new object();
+        private readonly object RenderLock = new object();
         private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false);
-        private readonly ManualResetEventSlim WriteDone = new ManualResetEventSlim(true);
-        private readonly ManualResetEventSlim DisplayDone = new ManualResetEventSlim(true);
 
+        private bool HasUpdatedSurface;
         private long LastRenderTime;
         private DeviceEx m_Device;
         private Surface TargetSurface;
@@ -124,36 +122,24 @@ namespace Unosquare.FFME.Rendering
             if (block == null) return;
 
             var rect = new RawRectangle(0, 0, block.PixelWidth, block.PixelHeight);
+            IDisposable blockLock = null;
 
             try
             {
-                DisplayDone.Wait();
-                WriteDone.Reset();
-                EnsurePresentable(block);
-                if (!block.TryAcquireReaderLock(out var readerLock))
-                    return;
-
-                var bitmapData = new BitmapDataBuffer(block, DpiX, DpiY);
-                MediaElement?.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
-
-                NativeMethods.LoadSurfaceFromMemory(
-                    TargetSurface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
-
-                readerLock.Dispose();
-
-                /*
-                VideoDispatcher?.Invoke(() =>
+                lock (RenderLock)
                 {
-                    // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
-                    if (TargetImage.TryLock(WpfLockTimeout))
-                    {
-                        TargetImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, TargetSurface.NativePointer);
-                        TargetImage.AddDirtyRect(new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight));
-                    }
+                    EnsurePresentable(block);
 
-                    TargetImage.Unlock();
-                }, DispatcherPriority.Background);
-                */
+                    if (!block.TryAcquireWriterLock(out blockLock))
+                        return;
+                    var bitmapData = new BitmapDataBuffer(block, DpiX, DpiY);
+                    MediaElement?.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
+
+                    NativeMethods.LoadSurfaceFromMemory(
+                        TargetSurface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
+
+                    HasUpdatedSurface = true;
+                }
             }
             catch (Exception ex)
             {
@@ -161,8 +147,8 @@ namespace Unosquare.FFME.Rendering
             }
             finally
             {
+                blockLock?.Dispose();
                 FinishRenderingCycle(block, clockPosition);
-                WriteDone.Set();
             }
         }
 
@@ -184,29 +170,25 @@ namespace Unosquare.FFME.Rendering
         /// </summary>
         private void EnsureDeviceAvailable()
         {
-            lock (DeviceLock)
-            {
-                var needsCreation = m_Device != null
-                    ? m_Device.CheckDeviceState(IntPtr.Zero) != DeviceState.Ok
-                    : true;
+            var needsCreation = m_Device != null
+                ? m_Device.CheckDeviceState(IntPtr.Zero) != DeviceState.Ok
+                : true;
 
-                if (!needsCreation)
-                    return;
+            if (!needsCreation)
+                return;
 
-                m_Device?.Dispose();
-                m_Device = CreateDevice();
-            }
+            m_Device?.Dispose();
+            m_Device = CreateDevice();
         }
 
         /// <summary>
         /// Ensures the video image is presentable.
         /// </summary>
         /// <param name="block">The block.</param>
-        /// <returns>True if is ready to be presented.</returns>
-        private bool EnsurePresentable(VideoBlock block)
+        private void EnsurePresentable(VideoBlock block)
         {
             if (TargetImage != null && TargetSurface != null && TargetSurface.Description.Width == block.PixelWidth && TargetSurface.Description.Height == block.PixelHeight)
-                return false;
+                return;
 
             var videoView = MediaElement?.VideoView;
             if (videoView != null && videoView.ElementDispatcher != null)
@@ -226,14 +208,9 @@ namespace Unosquare.FFME.Rendering
 
             TargetSurface?.Dispose();
 
-            lock (DeviceLock)
-            {
-                // Create the surface that will act as the render target.
-                TargetSurface = Surface.CreateRenderTarget(
-                    Device, block.PixelWidth, block.PixelHeight, SurfaceFormat, MultisampleType.None, 0, false);
-            }
-
-            return true;
+            // Create the surface that will act as the render target.
+            TargetSurface = Surface.CreateRenderTarget(
+                Device, block.PixelWidth, block.PixelHeight, SurfaceFormat, MultisampleType.None, 0, false);
         }
 
         private void OnCompositionTargetRendering(object sender, EventArgs e)
@@ -248,19 +225,21 @@ namespace Unosquare.FFME.Rendering
             if (surface == null || img == null || !img.IsFrontBufferAvailable || LastRenderTime == currentRenderTime)
                 return;
 
-            WriteDone.Wait();
+            lock (RenderLock)
+            {
+                if (!HasUpdatedSurface)
+                    return;
 
-            DisplayDone.Reset();
+                // Repeatedly calling SetBackBuffer with the same IntPtr has no performance penalty.
+                // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
+                img.Lock();
+                img.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface.NativePointer);
+                img.AddDirtyRect(new Int32Rect(0, 0, img.PixelWidth, img.PixelHeight));
+                img.Unlock();
 
-            // Repeatedly calling SetBackBuffer with the same IntPtr has no performance penalty.
-            // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
-            img.Lock();
-            img.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface.NativePointer);
-            img.AddDirtyRect(new Int32Rect(0, 0, img.PixelWidth, img.PixelHeight));
-            img.Unlock();
-
-            LastRenderTime = currentRenderTime;
-            DisplayDone.Set();
+                LastRenderTime = currentRenderTime;
+                HasUpdatedSurface = false;
+            }
         }
 
         /// <summary>
@@ -269,21 +248,19 @@ namespace Unosquare.FFME.Rendering
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (IsDisposed.Value) return;
-            IsDisposed.Value = true;
-
-            if (alsoManaged)
+            lock (RenderLock)
             {
-                WriteDone.Set();
-                DisplayDone.Set();
-                TargetSurface?.Dispose();
-                m_Device?.Dispose();
+                if (IsDisposed.Value) return;
+                IsDisposed.Value = true;
 
-                WriteDone.Dispose();
-                DisplayDone.Dispose();
+                if (alsoManaged)
+                {
+                    TargetSurface?.Dispose();
+                    m_Device?.Dispose();
+                }
+
+                TargetImage = null;
             }
-
-            TargetImage = null;
         }
 
         /// <summary>
