@@ -13,6 +13,7 @@ namespace Unosquare.FFME.Rendering
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Interop;
+    using System.Windows.Threading;
 
     /// <summary>
     /// A video renderer based on Direct3D.
@@ -137,7 +138,7 @@ namespace Unosquare.FFME.Rendering
                     // Device.UpdateSurface(BackSurface, FrontSurface);
                 }
 
-                VideoDispatcher?.InvokeAsync(() =>
+                VideoDispatcher?.Invoke(() =>
                 {
                     // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
                     if (TargetImage.TryLock(WpfLockTimeout))
@@ -149,7 +150,7 @@ namespace Unosquare.FFME.Rendering
                     }
 
                     TargetImage.Unlock();
-                });
+                }, DispatcherPriority.Background);
             }
             catch (Exception ex)
             {
