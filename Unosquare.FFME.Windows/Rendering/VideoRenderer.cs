@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿#pragma warning disable CA1812
+namespace Unosquare.FFME.Rendering
 {
     using Common;
     using Container;
@@ -403,3 +404,4 @@
         }
     }
 }
+#pragma warning restore CA1812
