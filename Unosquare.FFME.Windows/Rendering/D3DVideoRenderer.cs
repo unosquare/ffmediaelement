@@ -11,10 +11,10 @@ namespace Unosquare.FFME.Rendering
     using SharpDX.Mathematics.Interop;
     using System;
     using System.Runtime.InteropServices;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Interop;
     using System.Windows.Media;
-    using System.Windows.Threading;
     using RenderingEventArgs = System.Windows.Media.RenderingEventArgs;
 
     /// <summary>
@@ -33,6 +33,8 @@ namespace Unosquare.FFME.Rendering
 
         private readonly object DeviceLock = new object();
         private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false);
+        private readonly ManualResetEventSlim WriteDone = new ManualResetEventSlim(true);
+        private readonly ManualResetEventSlim DisplayDone = new ManualResetEventSlim(true);
 
         private long LastRenderTime;
         private DeviceEx m_Device;
@@ -125,6 +127,8 @@ namespace Unosquare.FFME.Rendering
 
             try
             {
+                DisplayDone.Wait();
+                WriteDone.Reset();
                 EnsurePresentable(block);
                 if (!block.TryAcquireReaderLock(out var readerLock))
                     return;
@@ -158,6 +162,7 @@ namespace Unosquare.FFME.Rendering
             finally
             {
                 FinishRenderingCycle(block, clockPosition);
+                WriteDone.Set();
             }
         }
 
@@ -243,10 +248,9 @@ namespace Unosquare.FFME.Rendering
             if (surface == null || img == null || !img.IsFrontBufferAvailable || LastRenderTime == currentRenderTime)
                 return;
 
-            while (IsRenderingInProgress)
-            {
-                // wait for rendering to finish
-            }
+            WriteDone.Wait();
+
+            DisplayDone.Reset();
 
             // Repeatedly calling SetBackBuffer with the same IntPtr has no performance penalty.
             // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
@@ -256,6 +260,7 @@ namespace Unosquare.FFME.Rendering
             img.Unlock();
 
             LastRenderTime = currentRenderTime;
+            DisplayDone.Set();
         }
 
         /// <summary>
@@ -269,8 +274,13 @@ namespace Unosquare.FFME.Rendering
 
             if (alsoManaged)
             {
+                WriteDone.Set();
+                DisplayDone.Set();
                 TargetSurface?.Dispose();
                 m_Device?.Dispose();
+
+                WriteDone.Dispose();
+                DisplayDone.Dispose();
             }
 
             TargetImage = null;
