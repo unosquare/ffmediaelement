@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CA1812
 namespace Unosquare.FFME.Rendering
 {
+    using Common;
     using Container;
     using Diagnostics;
     using Engine;
@@ -17,144 +18,190 @@ namespace Unosquare.FFME.Rendering
     /// A video renderer based on Direct3D.
     /// https://stackoverflow.com/questions/19480373/sharpdx-render-in-wpf
     /// https://stackoverflow.com/questions/45802931/show-a-d3dimage-with-sharpdx
-    /// https://www.codeproject.com/Articles/28526/Introduction-to-D3DImage.
+    /// https://www.codeproject.com/Articles/28526/Introduction-to-D3DImage
+    /// https://docs.microsoft.com/en-us/dotnet/framework/wpf/advanced/walkthrough-creating-direct3d9-content-for-hosting-in-wpf.
     /// </summary>
     /// <seealso cref="IMediaRenderer" />
     /// <seealso cref="ILoggingSource" />
-    internal sealed class D3DVideoRenderer : IMediaRenderer, ILoggingSource, IDisposable
+    internal sealed class D3DVideoRenderer : VideoRendererBase, IDisposable
     {
-        private readonly AtomicBoolean IsRendering = new AtomicBoolean(false);
+        private const int DefaultDisplayAdapter = 0;
+        private const Format SurfaceFormat = Format.A8R8G8B8;
 
-        private readonly Direct3D Engine;
+        private readonly object DeviceLock = new object();
         private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false);
-        private readonly Device Device;
 
-        private Surface BackSurface;
-        private Surface FrontSurface;
+        private DeviceEx m_Device;
+        private Surface TargetSurface;
         private D3DImage TargetImage;
 
-        public D3DVideoRenderer(MediaEngine mediaCore)
+        /// <summary>
+        /// Initializes static members of the <see cref="D3DVideoRenderer"/> class.
+        /// </summary>
+        static D3DVideoRenderer()
         {
-            MediaCore = mediaCore;
-            Engine = new Direct3D();
+            IsAvailable = true;
 
-            var windowHandle = NativeMethods.GetDesktopWindow();
-            var createFlags = CreateFlags.HardwareVertexProcessing | CreateFlags.Multithreaded | CreateFlags.FpuPreserve;
-            var presentParameters = new PresentParameters
+            try
             {
-                Windowed = true,
-                SwapEffect = SwapEffect.Discard,
-                PresentationInterval = PresentInterval.Default,
-                BackBufferFormat = Format.Unknown,
-                BackBufferWidth = 1,
-                BackBufferHeight = 1,
-            };
+                Engine = new Direct3DEx();
+                var capabilities = Engine.GetDeviceCaps(DefaultDisplayAdapter, DeviceType.Hardware);
+                var vertexMode = capabilities.DeviceCaps.HasFlag(DeviceCaps.HWTransformAndLight)
+                    ? CreateFlags.HardwareVertexProcessing
+                    : CreateFlags.SoftwareVertexProcessing;
 
-            // createFlags = CreateFlags.HardwareVertexProcessing;
-            // windowHandle = IntPtr.Zero;
-            // presentParameters = new PresentParameters(1, 1);
-            Device = new Device(Engine, 0, DeviceType.Hardware, windowHandle, createFlags, presentParameters);
+                DeviceCreationFlags = CreateFlags.Multithreaded | CreateFlags.FpuPreserve | vertexMode;
+            }
+            catch
+            {
+                IsAvailable = false;
+            }
         }
-
-        /// <inheritdoc />
-        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
-
-        /// <inheritdoc />
-        public MediaEngine MediaCore { get; }
 
         /// <summary>
-        /// Gets the parent media element (platform specific).
+        /// Initializes a new instance of the <see cref="D3DVideoRenderer"/> class.
         /// </summary>
-        public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
-
-        /// <inheritdoc />
-        public void OnClose() => Dispose(true);
-
-        /// <inheritdoc />
-        public void OnPause()
+        /// <param name="mediaCore">The media core.</param>
+        public D3DVideoRenderer(MediaEngine mediaCore)
+            : base(mediaCore)
         {
             // placeholder
         }
 
-        /// <inheritdoc />
-        public void OnPlay()
+        /// <summary>
+        /// Gets a value indicating whether the D3DEx Api is available.
+        /// </summary>
+        public static bool IsAvailable { get; }
+
+        /// <summary>
+        /// Gets the D3D engine.
+        /// </summary>
+        private static Direct3DEx Engine { get; }
+
+        /// <summary>
+        /// Gets the D3D device creation flags.
+        /// </summary>
+        private static CreateFlags DeviceCreationFlags { get; }
+
+        /// <summary>
+        /// Gets the device presentation parameters.
+        /// </summary>
+        private static PresentParameters DeviceParameters { get; } = new PresentParameters
         {
-            // placeholder
+            Windowed = true,
+            SwapEffect = SwapEffect.Discard,
+            PresentationInterval = PresentInterval.Default,
+            BackBufferFormat = Format.Unknown,
+            BackBufferWidth = 1,
+            BackBufferHeight = 1,
+        };
+
+        /// <summary>
+        /// Gets a valid D3D device.
+        /// </summary>
+        private Device Device
+        {
+            get
+            {
+                EnsureDeviceAvailable();
+                return m_Device;
+            }
         }
 
         /// <inheritdoc />
-        public void OnSeek()
+        public override unsafe void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
-            // placeholder
-        }
+            var block = BeginRenderingCycle(mediaBlock);
+            if (block == null) return;
 
-        /// <inheritdoc />
-        public void OnStarting()
-        {
-            // placeholder
-        }
-
-        /// <inheritdoc />
-        public void OnStop()
-        {
-            // placeholder
-        }
-
-        /// <inheritdoc />
-        public void Update(TimeSpan clockPosition)
-        {
-            // placeholder
-        }
-
-        /// <inheritdoc />
-        public unsafe void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
-        {
-            if (mediaBlock is VideoBlock == false) return;
-
-            if (IsRendering == true)
-                return;
-
-            IsRendering.Value = true;
-
-            var block = (VideoBlock)mediaBlock;
             var rect = new RawRectangle(0, 0, block.PixelWidth, block.PixelHeight);
 
-            EnsurePresentable(block);
-            if (!block.TryAcquireReaderLock(out var readerLock))
-                return;
-
-            // BackSurface.LockRectangle(LockFlags.None);
-            NativeMethods.LoadSurfaceFromMemory(BackSurface, block.Buffer, Filter.None, 0, Format.A8R8G8B8, block.PictureBufferStride, rect, null, null);
-
-            // BackSurface.UnlockRectangle();
-            readerLock.Dispose();
-
-            // Surface.FromFile(BackSurface, @"c:\Users\UnoSp\Desktop\images.jpg", Filter.None, 0);
-            Device.UpdateSurface(BackSurface, FrontSurface);
-
-            var videoView = MediaElement?.VideoView;
-            if (videoView != null && videoView.ElementDispatcher != null)
+            try
             {
-                videoView.ElementDispatcher.InvokeAsync(() =>
-                {
-                    if (!TargetImage.IsFrontBufferAvailable)
-                        return;
+                var needsNewBackBuffer = EnsurePresentable(block);
+                if (!block.TryAcquireReaderLock(out var readerLock))
+                    return;
 
-                    TargetImage.Lock();
-                    TargetImage.AddDirtyRect(new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight));
+                var bitmapData = new BitmapDataBuffer(block, DpiX, DpiY);
+                MediaElement?.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
+
+                NativeMethods.LoadSurfaceFromMemory(
+                    TargetSurface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
+
+                // BackSurface.UnlockRectangle();
+                readerLock.Dispose();
+
+                // Update the render target
+                lock (DeviceLock)
+                {
+                    // Device.UpdateSurface(BackSurface, FrontSurface);
+                }
+
+                VideoDispatcher?.InvokeAsync(() =>
+                {
+                    // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
+                    if (TargetImage.TryLock(WpfLockTimeout))
+                    {
+                        if (needsNewBackBuffer)
+                            TargetImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, TargetSurface.NativePointer);
+
+                        TargetImage.AddDirtyRect(new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight));
+                    }
+
                     TargetImage.Unlock();
                 });
             }
-
-            IsRendering.Value = false;
+            catch (Exception ex)
+            {
+                this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} bitmap failed.", ex);
+            }
+            finally
+            {
+                FinishRenderingCycle(block, clockPosition);
+            }
         }
 
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
-        private void EnsurePresentable(VideoBlock block)
+        /// <summary>
+        /// Helper method that creates a D3D device.
+        /// </summary>
+        /// <returns>A D3D device.</returns>
+        private static DeviceEx CreateDevice()
         {
-            if (TargetImage != null && BackSurface != null && BackSurface.Description.Width == block.PixelWidth && BackSurface.Description.Height == block.PixelHeight)
-                return;
+            var windowHandle = NativeMethods.GetDesktopWindow();
+            return new DeviceEx(Engine, DefaultDisplayAdapter, DeviceType.Hardware, windowHandle, DeviceCreationFlags, DeviceParameters);
+        }
+
+        /// <summary>
+        /// Ensures the device is available.
+        /// </summary>
+        private void EnsureDeviceAvailable()
+        {
+            lock (DeviceLock)
+            {
+                var needsCreation = m_Device != null
+                    ? m_Device.CheckDeviceState(IntPtr.Zero) != DeviceState.Ok
+                    : true;
+
+                if (!needsCreation)
+                    return;
+
+                m_Device?.Dispose();
+                m_Device = CreateDevice();
+            }
+        }
+
+        /// <summary>
+        /// Ensures the video image is presentable.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <returns>True if is ready to be presented.</returns>
+        private bool EnsurePresentable(VideoBlock block)
+        {
+            if (TargetImage != null && TargetSurface != null && TargetSurface.Description.Width == block.PixelWidth && TargetSurface.Description.Height == block.PixelHeight)
+                return false;
 
             var videoView = MediaElement?.VideoView;
             if (videoView != null && videoView.ElementDispatcher != null)
@@ -164,38 +211,30 @@ namespace Unosquare.FFME.Rendering
                     if (TargetImage == null)
                         TargetImage = new D3DImage();
 
-                    videoView.Source = TargetImage;
                     TargetImage.Lock();
                     TargetImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero);
                     TargetImage.Unlock();
-                });
-            }
-
-            BackSurface?.Dispose();
-            FrontSurface?.Dispose();
-
-            // Create an empty offscreen surface. Use SystemMemory to allow for surface copying.
-            BackSurface = Surface.CreateOffscreenPlain(Device, block.PixelWidth, block.PixelHeight, Format.A8R8G8B8, Pool.SystemMemory);
-
-            // Create the surface that will act as the render target.
-            // Set as lockable (required for D3DImage)
-            FrontSurface = Surface.CreateRenderTarget(Device, block.PixelWidth, block.PixelHeight, Format.A8R8G8B8, MultisampleType.None, 0, true);
-
-            if (videoView != null && videoView.ElementDispatcher != null)
-            {
-                videoView.ElementDispatcher.Invoke(() =>
-                {
-                    if (TargetImage == null)
-                        TargetImage = new D3DImage();
 
                     videoView.Source = TargetImage;
-                    TargetImage.Lock();
-                    TargetImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, FrontSurface.NativePointer);
-                    TargetImage.Unlock();
                 });
             }
+
+            TargetSurface?.Dispose();
+
+            lock (DeviceLock)
+            {
+                // Create the surface that will act as the render target.
+                TargetSurface = Surface.CreateRenderTarget(
+                    Device, block.PixelWidth, block.PixelHeight, SurfaceFormat, MultisampleType.None, 0, false);
+            }
+
+            return true;
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
             if (IsDisposed.Value) return;
@@ -203,13 +242,16 @@ namespace Unosquare.FFME.Rendering
 
             if (alsoManaged)
             {
-                BackSurface?.Dispose();
-                FrontSurface?.Dispose();
-                Device?.Dispose();
-                Engine.Dispose();
+                TargetSurface?.Dispose();
+                m_Device?.Dispose();
             }
+
+            TargetImage = null;
         }
 
+        /// <summary>
+        /// Provides access to unmanaged methods.
+        /// </summary>
         private static class NativeMethods
         {
             [DllImport("user32.dll", SetLastError = false)]
