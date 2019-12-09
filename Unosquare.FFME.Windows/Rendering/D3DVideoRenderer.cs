@@ -13,7 +13,9 @@ namespace Unosquare.FFME.Rendering
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Interop;
+    using System.Windows.Media;
     using System.Windows.Threading;
+    using RenderingEventArgs = System.Windows.Media.RenderingEventArgs;
 
     /// <summary>
     /// A video renderer based on Direct3D.
@@ -32,6 +34,7 @@ namespace Unosquare.FFME.Rendering
         private readonly object DeviceLock = new object();
         private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false);
 
+        private long LastRenderTime;
         private DeviceEx m_Device;
         private Surface TargetSurface;
         private D3DImage TargetImage;
@@ -66,7 +69,10 @@ namespace Unosquare.FFME.Rendering
         public D3DVideoRenderer(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            // placeholder
+            VideoDispatcher?.InvokeAsync(() =>
+            {
+                CompositionTarget.Rendering += OnCompositionTargetRendering;
+            });
         }
 
         /// <summary>
@@ -119,7 +125,7 @@ namespace Unosquare.FFME.Rendering
 
             try
             {
-                var needsNewBackBuffer = EnsurePresentable(block);
+                EnsurePresentable(block);
                 if (!block.TryAcquireReaderLock(out var readerLock))
                     return;
 
@@ -129,28 +135,21 @@ namespace Unosquare.FFME.Rendering
                 NativeMethods.LoadSurfaceFromMemory(
                     TargetSurface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
 
-                // BackSurface.UnlockRectangle();
                 readerLock.Dispose();
 
-                // Update the render target
-                lock (DeviceLock)
-                {
-                    // Device.UpdateSurface(BackSurface, FrontSurface);
-                }
-
+                /*
                 VideoDispatcher?.Invoke(() =>
                 {
                     // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
                     if (TargetImage.TryLock(WpfLockTimeout))
                     {
-                        if (needsNewBackBuffer)
-                            TargetImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, TargetSurface.NativePointer);
-
+                        TargetImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, TargetSurface.NativePointer);
                         TargetImage.AddDirtyRect(new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight));
                     }
 
                     TargetImage.Unlock();
                 }, DispatcherPriority.Background);
+                */
             }
             catch (Exception ex)
             {
@@ -230,6 +229,33 @@ namespace Unosquare.FFME.Rendering
             }
 
             return true;
+        }
+
+        private void OnCompositionTargetRendering(object sender, EventArgs e)
+        {
+            var args = e as RenderingEventArgs;
+            var currentRenderTime = args.RenderingTime.Ticks;
+            var img = TargetImage;
+            var surface = TargetSurface;
+
+            // It's possible for Rendering to call back twice in the same frame
+            // so only render when we haven't already rendered in this frame.
+            if (surface == null || img == null || !img.IsFrontBufferAvailable || LastRenderTime == currentRenderTime)
+                return;
+
+            while (IsRenderingInProgress)
+            {
+                // wait for rendering to finish
+            }
+
+            // Repeatedly calling SetBackBuffer with the same IntPtr has no performance penalty.
+            // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
+            img.Lock();
+            img.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface.NativePointer);
+            img.AddDirtyRect(new Int32Rect(0, 0, img.PixelWidth, img.PixelHeight));
+            img.Unlock();
+
+            LastRenderTime = currentRenderTime;
         }
 
         /// <summary>
