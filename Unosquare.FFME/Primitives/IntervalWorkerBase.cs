@@ -257,12 +257,13 @@
             if (WorkerState == WorkerState.Created || WorkerState == WorkerState.Stopped)
                 return;
 
+            var cycleThreshold = QuantumTimer.IsMultimedia ? Math.Max(QuantumTimer.Resolution, 2d) : QuantumTimer.Resolution;
             while (RemainingCycleTime.Ticks > 0)
             {
                 if (WantedWorkerState != WorkerState || TokenSource.IsCancellationRequested)
                     break;
 
-                if (RemainingCycleTime.TotalMilliseconds > QuantumTimer.Resolution)
+                if (RemainingCycleTime.TotalMilliseconds > cycleThreshold)
                     return;
 
                 if (QuantumTimer.IsMultimedia)

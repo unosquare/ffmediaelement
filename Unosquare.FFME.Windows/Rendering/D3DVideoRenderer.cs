@@ -13,8 +13,6 @@ namespace Unosquare.FFME.Rendering
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Interop;
-    using System.Windows.Media;
-    using RenderingEventArgs = System.Windows.Media.RenderingEventArgs;
 
     /// <summary>
     /// A video renderer based on Direct3D.
@@ -30,11 +28,8 @@ namespace Unosquare.FFME.Rendering
         private const int DefaultDisplayAdapter = 0;
         private const Format SurfaceFormat = Format.A8R8G8B8;
 
-        private readonly object RenderLock = new object();
         private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false);
 
-        private bool HasUpdatedSurface;
-        private long LastRenderTime;
         private DeviceEx m_Device;
         private Surface TargetSurface;
         private D3DImage TargetImage;
@@ -69,10 +64,7 @@ namespace Unosquare.FFME.Rendering
         public D3DVideoRenderer(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            VideoDispatcher?.InvokeAsync(() =>
-            {
-                CompositionTarget.Rendering += OnCompositionTargetRendering;
-            });
+            // placeholder
         }
 
         /// <summary>
@@ -121,25 +113,16 @@ namespace Unosquare.FFME.Rendering
             var block = BeginRenderingCycle(mediaBlock);
             if (block == null) return;
 
-            var rect = new RawRectangle(0, 0, block.PixelWidth, block.PixelHeight);
             IDisposable blockLock = null;
 
             try
             {
-                lock (RenderLock)
-                {
-                    EnsurePresentable(block);
+                if (!block.TryAcquireWriterLock(out blockLock))
+                    return;
 
-                    if (!block.TryAcquireWriterLock(out blockLock))
-                        return;
-                    var bitmapData = new BitmapDataBuffer(block, DpiX, DpiY);
-                    MediaElement?.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
-
-                    NativeMethods.LoadSurfaceFromMemory(
-                        TargetSurface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
-
-                    HasUpdatedSurface = true;
-                }
+                RaiseRenderingEvent(block, clockPosition);
+                LoadTargetSurface(block);
+                UpdateTargetImage(block);
             }
             catch (Exception ex)
             {
@@ -159,11 +142,12 @@ namespace Unosquare.FFME.Rendering
         /// Helper method that creates a D3D device.
         /// </summary>
         /// <returns>A D3D device.</returns>
-        private static DeviceEx CreateDevice()
-        {
-            var windowHandle = NativeMethods.GetDesktopWindow();
-            return new DeviceEx(Engine, DefaultDisplayAdapter, DeviceType.Hardware, windowHandle, DeviceCreationFlags, DeviceParameters);
-        }
+        private static DeviceEx CreateDevice() =>
+            new DeviceEx(Engine, DefaultDisplayAdapter, DeviceType.Hardware, IntPtr.Zero, DeviceCreationFlags, DeviceParameters)
+            {
+                GPUThreadPriority = -7,
+                MaximumFrameLatency = 1,
+            };
 
         /// <summary>
         /// Ensures the device is available.
@@ -182,64 +166,72 @@ namespace Unosquare.FFME.Rendering
         }
 
         /// <summary>
-        /// Ensures the video image is presentable.
+        /// Updates the target image on the Video dispatcher thread.
         /// </summary>
         /// <param name="block">The block.</param>
-        private void EnsurePresentable(VideoBlock block)
+        private void UpdateTargetImage(VideoBlock block)
         {
-            if (TargetImage != null && TargetSurface != null && TargetSurface.Description.Width == block.PixelWidth && TargetSurface.Description.Height == block.PixelHeight)
-                return;
-
-            var videoView = MediaElement?.VideoView;
-            if (videoView != null && videoView.ElementDispatcher != null)
+            VideoDispatcher?.Invoke(() =>
             {
-                videoView.ElementDispatcher.Invoke(() =>
+                var videoView = MediaElement?.VideoView;
+
+                if (TargetImage == null)
+                    TargetImage = new D3DImage();
+
+                var img = TargetImage;
+                var surface = TargetSurface;
+                var surfacePointer = surface == null || surface.IsDisposed ? IntPtr.Zero : surface.NativePointer;
+
+                if (img != null)
                 {
-                    if (TargetImage == null)
-                        TargetImage = new D3DImage();
+                    if (img.TryLock(WpfLockTimeout))
+                    {
+                        img.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surfacePointer);
+                        img.AddDirtyRect(new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight));
+                    }
+                    else
+                    {
+                        this.LogDebug(Aspects.VideoRenderer, $"{nameof(D3DVideoRenderer)} bitmap lock timed out at {block.StartTime}");
+                    }
 
-                    TargetImage.Lock();
-                    TargetImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero);
-                    TargetImage.Unlock();
+                    // always unlock no matter if locking failed.
+                    img.Unlock();
+                }
 
-                    videoView.Source = TargetImage;
-                });
-            }
-
-            TargetSurface?.Dispose();
-
-            // Create the surface that will act as the render target.
-            TargetSurface = Surface.CreateRenderTarget(
-                Device, block.PixelWidth, block.PixelHeight, SurfaceFormat, MultisampleType.None, 0, false);
+                if (videoView != null)
+                    videoView.Source = img;
+            });
         }
 
-        private void OnCompositionTargetRendering(object sender, EventArgs e)
+        /// <summary>
+        /// Loads the surface with block data.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        private void LoadTargetSurface(VideoBlock block)
         {
-            var args = e as RenderingEventArgs;
-            var currentRenderTime = args.RenderingTime.Ticks;
-            var img = TargetImage;
-            var surface = TargetSurface;
-
-            // It's possible for Rendering to call back twice in the same frame
-            // so only render when we haven't already rendered in this frame.
-            if (surface == null || img == null || !img.IsFrontBufferAvailable || LastRenderTime == currentRenderTime)
-                return;
-
-            lock (RenderLock)
+            if (TargetSurface == null || TargetSurface.Description.Width != block.PixelWidth || TargetSurface.Description.Height != block.PixelHeight)
             {
-                if (!HasUpdatedSurface)
-                    return;
+                TargetSurface?.Dispose();
 
-                // Repeatedly calling SetBackBuffer with the same IntPtr has no performance penalty.
-                // You must call Unlock even in the case where TryLock indicates failure (i.e., returns false)
-                img.Lock();
-                img.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface.NativePointer);
-                img.AddDirtyRect(new Int32Rect(0, 0, img.PixelWidth, img.PixelHeight));
-                img.Unlock();
-
-                LastRenderTime = currentRenderTime;
-                HasUpdatedSurface = false;
+                // Create the surface that will act as the render target.
+                TargetSurface = Surface.CreateRenderTarget(
+                    Device, block.PixelWidth, block.PixelHeight, SurfaceFormat, MultisampleType.None, 0, false);
             }
+
+            var rect = new RawRectangle(0, 0, block.PixelWidth, block.PixelHeight);
+            NativeMethods.LoadSurfaceFromMemory(
+                TargetSurface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
+        }
+
+        /// <summary>
+        /// Raises the rendering event with the block data.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <param name="clockPosition">The clock position.</param>
+        private void RaiseRenderingEvent(VideoBlock block, TimeSpan clockPosition)
+        {
+            var bitmapData = new BitmapDataBuffer(block, DpiX, DpiY);
+            MediaElement?.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
         }
 
         /// <summary>
@@ -248,19 +240,16 @@ namespace Unosquare.FFME.Rendering
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            lock (RenderLock)
+            if (IsDisposed.Value) return;
+            IsDisposed.Value = true;
+
+            if (alsoManaged)
             {
-                if (IsDisposed.Value) return;
-                IsDisposed.Value = true;
-
-                if (alsoManaged)
-                {
-                    TargetSurface?.Dispose();
-                    m_Device?.Dispose();
-                }
-
-                TargetImage = null;
+                TargetSurface?.Dispose();
+                m_Device?.Dispose();
             }
+
+            TargetImage = null;
         }
 
         /// <summary>
