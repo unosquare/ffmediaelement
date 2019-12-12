@@ -10,9 +10,11 @@ namespace Unosquare.FFME.Rendering
     using SharpDX.Direct3D9;
     using SharpDX.Mathematics.Interop;
     using System;
+    using System.Collections.Concurrent;
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Interop;
+    using System.Windows.Media;
 
     /// <summary>
     /// A video renderer based on Direct3D.
@@ -30,8 +32,8 @@ namespace Unosquare.FFME.Rendering
 
         private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false);
 
+        private readonly GraphicsBuffer Graphics = new GraphicsBuffer();
         private DeviceEx m_Device;
-        private Surface TargetSurface;
         private D3DImage TargetImage;
 
         /// <summary>
@@ -64,7 +66,25 @@ namespace Unosquare.FFME.Rendering
         public D3DVideoRenderer(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            // placeholder
+            VideoDispatcher?.InvokeAsync(() =>
+            {
+                CompositionTarget.Rendering += (s, e) =>
+                {
+                    var videoView = MediaElement?.VideoView;
+
+                    if (TargetImage == null)
+                        TargetImage = new D3DImage();
+
+                    var img = TargetImage;
+                    if (img != null)
+                    {
+                        Graphics.ReadInto(img);
+                    }
+
+                    if (videoView != null)
+                        videoView.Source = img;
+                };
+            });
         }
 
         /// <summary>
@@ -98,7 +118,7 @@ namespace Unosquare.FFME.Rendering
         /// <summary>
         /// Gets a valid D3D device.
         /// </summary>
-        private Device Device
+        private DeviceEx Device
         {
             get
             {
@@ -121,8 +141,9 @@ namespace Unosquare.FFME.Rendering
                     return;
 
                 RaiseRenderingEvent(block, clockPosition);
-                LoadTargetSurface(block);
-                UpdateTargetImage(block);
+                Graphics.EnqueueWrite(block, Device);
+
+                // UpdateTargetImage();
             }
             catch (Exception ex)
             {
@@ -168,10 +189,9 @@ namespace Unosquare.FFME.Rendering
         /// <summary>
         /// Updates the target image on the Video dispatcher thread.
         /// </summary>
-        /// <param name="block">The block.</param>
-        private void UpdateTargetImage(VideoBlock block)
+        private void UpdateTargetImage()
         {
-            VideoDispatcher?.Invoke(() =>
+            VideoDispatcher?.InvokeAsync(() =>
             {
                 var videoView = MediaElement?.VideoView;
 
@@ -179,48 +199,14 @@ namespace Unosquare.FFME.Rendering
                     TargetImage = new D3DImage();
 
                 var img = TargetImage;
-                var surface = TargetSurface;
-                var surfacePointer = surface == null || surface.IsDisposed ? IntPtr.Zero : surface.NativePointer;
-
                 if (img != null)
                 {
-                    if (img.TryLock(WpfLockTimeout))
-                    {
-                        img.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surfacePointer);
-                        img.AddDirtyRect(new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight));
-                    }
-                    else
-                    {
-                        this.LogDebug(Aspects.VideoRenderer, $"{nameof(D3DVideoRenderer)} bitmap lock timed out at {block.StartTime}");
-                    }
-
-                    // always unlock no matter if locking failed.
-                    img.Unlock();
+                    Graphics.ReadInto(img);
                 }
 
                 if (videoView != null)
                     videoView.Source = img;
             });
-        }
-
-        /// <summary>
-        /// Loads the surface with block data.
-        /// </summary>
-        /// <param name="block">The block.</param>
-        private void LoadTargetSurface(VideoBlock block)
-        {
-            if (TargetSurface == null || TargetSurface.Description.Width != block.PixelWidth || TargetSurface.Description.Height != block.PixelHeight)
-            {
-                TargetSurface?.Dispose();
-
-                // Create the surface that will act as the render target.
-                TargetSurface = Surface.CreateRenderTarget(
-                    Device, block.PixelWidth, block.PixelHeight, SurfaceFormat, MultisampleType.None, 0, false);
-            }
-
-            var rect = new RawRectangle(0, 0, block.PixelWidth, block.PixelHeight);
-            NativeMethods.LoadSurfaceFromMemory(
-                TargetSurface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
         }
 
         /// <summary>
@@ -245,7 +231,7 @@ namespace Unosquare.FFME.Rendering
 
             if (alsoManaged)
             {
-                TargetSurface?.Dispose();
+                Graphics.Dispose();
                 m_Device?.Dispose();
             }
 
@@ -302,6 +288,89 @@ namespace Unosquare.FFME.Rendering
 
             [DllImport("d3dx9_43.dll", EntryPoint = "D3DXLoadSurfaceFromMemory", CallingConvention = CallingConvention.StdCall)]
             private static extern unsafe int D3DXLoadSurfaceFromMemory_(void* arg0, void* arg1, void* arg2, void* arg3, int arg4, int arg5, void* arg6, void* arg7, int arg8, int arg9);
+        }
+
+        private sealed class GraphicsBuffer : IDisposable
+        {
+            private readonly ConcurrentQueue<Surface> ReadQueue = new ConcurrentQueue<Surface>();
+            private readonly ConcurrentQueue<Surface> WriteQueue = new ConcurrentQueue<Surface>();
+
+            private readonly AtomicBoolean IsDsiposing = new AtomicBoolean();
+
+            public void EnqueueWrite(VideoBlock block, DeviceEx device)
+            {
+                if (IsDsiposing.Value)
+                    return;
+
+                Surface surface = null;
+
+                if (WriteQueue.Count > 4)
+                    WriteQueue.TryDequeue(out surface);
+
+                if (surface == null || surface.Description.Width != block.PixelWidth || surface.Description.Height != block.PixelHeight)
+                {
+                    surface?.Dispose();
+
+                    // Create the surface that will act as the render target.
+                    surface = Surface.CreateRenderTargetEx(
+                        device, block.PixelWidth, block.PixelHeight, SurfaceFormat, MultisampleType.None, 0, true, Usage.None);
+                }
+
+                var rect = new RawRectangle(0, 0, block.PixelWidth, block.PixelHeight);
+                NativeMethods.LoadSurfaceFromMemory(
+                    surface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
+
+                ReadQueue.Enqueue(surface);
+            }
+
+            public bool ReadInto(D3DImage image)
+            {
+                if (IsDsiposing.Value)
+                    return false;
+
+                if (image == null)
+                    return false;
+
+                if (!ReadQueue.TryDequeue(out var surface))
+                    return false;
+
+                var result = true;
+                var surfacePointer = surface == null || surface.IsDisposed ? IntPtr.Zero : surface.NativePointer;
+                var rect = surfacePointer == IntPtr.Zero
+                    ? new Int32Rect(0, 0, image.PixelWidth, image.PixelHeight)
+                    : new Int32Rect(0, 0, surface.Description.Width, surface.Description.Height);
+
+                if (image.IsFrontBufferAvailable)
+                {
+                    image.Lock();
+                    image.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surfacePointer);
+                    image.AddDirtyRect(rect);
+                    image.Unlock();
+                }
+
+                WriteQueue.Enqueue(surface);
+                return result;
+            }
+
+            public void Dispose()
+            {
+                if (IsDsiposing.Value)
+                    return;
+
+                IsDsiposing.Value = true;
+
+                while (ReadQueue.Count > 0)
+                {
+                    if (ReadQueue.TryDequeue(out var surface))
+                        surface.Dispose();
+                }
+
+                while (WriteQueue.Count > 0)
+                {
+                    if (WriteQueue.TryDequeue(out var surface))
+                        surface.Dispose();
+                }
+            }
         }
     }
 }
