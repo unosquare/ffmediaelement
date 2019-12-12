@@ -22,6 +22,7 @@ namespace Unosquare.FFME.Rendering
     /// https://stackoverflow.com/questions/45802931/show-a-d3dimage-with-sharpdx
     /// https://www.codeproject.com/Articles/28526/Introduction-to-D3DImage
     /// https://docs.microsoft.com/en-us/dotnet/framework/wpf/advanced/walkthrough-creating-direct3d9-content-for-hosting-in-wpf.
+    /// Microsoft.Toolkit.Wpf.UI.Controls
     /// </summary>
     /// <seealso cref="IMediaRenderer" />
     /// <seealso cref="ILoggingSource" />
