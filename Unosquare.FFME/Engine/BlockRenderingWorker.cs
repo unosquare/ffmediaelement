@@ -30,14 +30,9 @@ namespace Unosquare.FFME.Engine
         private static readonly TimeSpan MaxMonotonicDuration = TimeSpan.FromMilliseconds(1000d / 20d);
 
         /// <summary>
-        /// The acceptable minimum frame delay between the render time and presentation time.
-        /// </summary>
-        private static readonly TimeSpan FrameIdealDelayMin = TimeSpan.FromMilliseconds(2);
-
-        /// <summary>
         /// The acceptable maximum frame delay between the render time and presentation time.
         /// </summary>
-        private static readonly TimeSpan FrameIdealDelayMax = TimeSpan.FromMilliseconds(4);
+        private static readonly TimeSpan FrameIdealDelayMax = TimeSpan.FromMilliseconds(8);
 
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
@@ -316,12 +311,7 @@ namespace Unosquare.FFME.Engine
                 if (currentDelay > FrameIdealDelayMax)
                 {
                     // Negative Delay (catch up)
-                    NextCorrectionDelay = TimeSpan.FromMilliseconds(-1);
-                }
-                else if (currentDelay < FrameIdealDelayMin)
-                {
-                    // Positive Delay (slow down)
-                    NextCorrectionDelay = TimeSpan.FromMilliseconds(1);
+                    NextCorrectionDelay = TimeSpan.FromMilliseconds(-0.5);
                 }
             }
 
