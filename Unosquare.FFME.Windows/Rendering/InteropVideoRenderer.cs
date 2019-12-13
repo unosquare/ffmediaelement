@@ -58,9 +58,9 @@
 
         private void UpdateTargetImage(DispatcherPriority priority, bool syncrhonous)
         {
-            var task = VideoDispatcher?.BeginInvoke(() => Graphics.Render(MediaElement.VideoView), priority);
+            var task = VideoDispatcher?.InvokeAsync(() => Graphics.Render(MediaElement.VideoView), priority);
             if (syncrhonous)
-                task.Wait();
+                task?.Wait();
         }
 
         private sealed class InteropBuffer : IDisposable

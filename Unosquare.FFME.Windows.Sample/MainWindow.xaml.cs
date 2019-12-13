@@ -31,6 +31,7 @@
         private DispatcherTimer MouseMoveTimer;
         private MediaType StreamCycleMediaType = MediaType.None;
         private bool m_IsCaptureInProgress;
+        private bool IsControllerHideCompleted;
 
         #endregion
 
@@ -78,6 +79,10 @@
             set { lock (ScreenshotSyncLock) m_IsCaptureInProgress = value; }
         }
 
+        private Storyboard HideControllerAnimation => FindResource("HideControlOpacity") as Storyboard;
+
+        private Storyboard ShowControllerAnimation => FindResource("ShowControlOpacity") as Storyboard;
+
         #endregion
 
         #region Initialization Methods
@@ -118,6 +123,23 @@
 
             LastMouseMoveTime = DateTime.UtcNow;
 
+            Loaded += (s, e) =>
+            {
+                Storyboard.SetTarget(HideControllerAnimation, ControllerPanel);
+                Storyboard.SetTarget(ShowControllerAnimation, ControllerPanel);
+
+                HideControllerAnimation.Completed += (es, ee) =>
+                {
+                    ControllerPanel.Visibility = Visibility.Hidden;
+                    IsControllerHideCompleted = true;
+                };
+
+                ShowControllerAnimation.Completed += (es, ee) =>
+                {
+                    IsControllerHideCompleted = false;
+                };
+            };
+
             MouseMove += (s, e) =>
             {
                 var currentPosition = e.GetPosition(window);
@@ -145,25 +167,16 @@
                 if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && ControllerPanel.IsMouseOver == false
                     && PropertiesPanel.Visibility != Visibility.Visible && ControllerPanel.SoundMenuPopup.IsOpen == false)
                 {
-                    if (Math.Abs(ControllerPanel.Opacity) <= double.Epsilon) return;
+                    if (IsControllerHideCompleted) return;
                     Cursor = Cursors.None;
-
-                    if (FindResource("HideControlOpacity") is Storyboard sb)
-                    {
-                        Storyboard.SetTarget(sb, ControllerPanel);
-                        sb.Begin();
-                    }
+                    HideControllerAnimation?.Begin();
+                    IsControllerHideCompleted = false;
                 }
                 else
                 {
-                    if (Math.Abs(ControllerPanel.Opacity - 1d) <= double.Epsilon) return;
                     Cursor = Cursors.Arrow;
-
-                    if (FindResource("ShowControlOpacity") is Storyboard sb)
-                    {
-                        Storyboard.SetTarget(sb, ControllerPanel);
-                        sb.Begin();
-                    }
+                    ControllerPanel.Visibility = Visibility.Visible;
+                    ShowControllerAnimation?.Begin();
                 }
             };
 

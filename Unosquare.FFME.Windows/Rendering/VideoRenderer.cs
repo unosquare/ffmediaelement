@@ -91,7 +91,7 @@ namespace Unosquare.FFME.Rendering
             var block = BeginRenderingCycle(mediaBlock);
             if (block == null) return;
 
-            VideoDispatcher?.BeginInvoke(() =>
+            VideoDispatcher?.InvokeAsync(() =>
             {
                 try
                 {
