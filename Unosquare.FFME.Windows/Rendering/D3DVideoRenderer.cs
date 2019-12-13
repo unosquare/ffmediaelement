@@ -10,11 +10,9 @@ namespace Unosquare.FFME.Rendering
     using SharpDX.Direct3D9;
     using SharpDX.Mathematics.Interop;
     using System;
-    using System.Collections.Concurrent;
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Interop;
-    using System.Windows.Media;
 
     /// <summary>
     /// A video renderer based on Direct3D.
@@ -22,43 +20,15 @@ namespace Unosquare.FFME.Rendering
     /// https://stackoverflow.com/questions/45802931/show-a-d3dimage-with-sharpdx
     /// https://www.codeproject.com/Articles/28526/Introduction-to-D3DImage
     /// https://docs.microsoft.com/en-us/dotnet/framework/wpf/advanced/walkthrough-creating-direct3d9-content-for-hosting-in-wpf.
-    /// Microsoft.Toolkit.Wpf.UI.Controls
+    /// Microsoft.Toolkit.Wpf.UI.Controls.
     /// </summary>
     /// <seealso cref="IMediaRenderer" />
     /// <seealso cref="ILoggingSource" />
     internal sealed class D3DVideoRenderer : VideoRendererBase, IDisposable
     {
-        private const int DefaultDisplayAdapter = 0;
-        private const Format SurfaceFormat = Format.A8R8G8B8;
-
         private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false);
-
-        private readonly GraphicsBuffer Graphics = new GraphicsBuffer();
-        private DeviceEx m_Device;
+        private readonly GraphicsBuffer Graphics = new GraphicsBuffer(true);
         private D3DImage TargetImage;
-
-        /// <summary>
-        /// Initializes static members of the <see cref="D3DVideoRenderer"/> class.
-        /// </summary>
-        static D3DVideoRenderer()
-        {
-            IsAvailable = true;
-
-            try
-            {
-                Engine = new Direct3DEx();
-                var capabilities = Engine.GetDeviceCaps(DefaultDisplayAdapter, DeviceType.Hardware);
-                var vertexMode = capabilities.DeviceCaps.HasFlag(DeviceCaps.HWTransformAndLight)
-                    ? CreateFlags.HardwareVertexProcessing
-                    : CreateFlags.SoftwareVertexProcessing;
-
-                DeviceCreationFlags = CreateFlags.Multithreaded | CreateFlags.FpuPreserve | vertexMode;
-            }
-            catch
-            {
-                IsAvailable = false;
-            }
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="D3DVideoRenderer"/> class.
@@ -67,66 +37,10 @@ namespace Unosquare.FFME.Rendering
         public D3DVideoRenderer(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            VideoDispatcher?.InvokeAsync(() =>
-            {
-                CompositionTarget.Rendering += (s, e) =>
-                {
-                    var videoView = MediaElement?.VideoView;
-
-                    if (TargetImage == null)
-                        TargetImage = new D3DImage();
-
-                    var img = TargetImage;
-                    if (img != null)
-                    {
-                        Graphics.ReadInto(img);
-                    }
-
-                    if (videoView != null)
-                        videoView.Source = img;
-                };
-            });
+            // placeholder
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the D3DEx Api is available.
-        /// </summary>
-        public static bool IsAvailable { get; }
-
-        /// <summary>
-        /// Gets the D3D engine.
-        /// </summary>
-        private static Direct3DEx Engine { get; }
-
-        /// <summary>
-        /// Gets the D3D device creation flags.
-        /// </summary>
-        private static CreateFlags DeviceCreationFlags { get; }
-
-        /// <summary>
-        /// Gets the device presentation parameters.
-        /// </summary>
-        private static PresentParameters DeviceParameters { get; } = new PresentParameters
-        {
-            Windowed = true,
-            SwapEffect = SwapEffect.Discard,
-            PresentationInterval = PresentInterval.Default,
-            BackBufferFormat = Format.Unknown,
-            BackBufferWidth = 1,
-            BackBufferHeight = 1,
-        };
-
-        /// <summary>
-        /// Gets a valid D3D device.
-        /// </summary>
-        private DeviceEx Device
-        {
-            get
-            {
-                EnsureDeviceAvailable();
-                return m_Device;
-            }
-        }
+        public static bool IsAvailable => GraphicsBuffer.IsD3DAvailable;
 
         /// <inheritdoc />
         public override unsafe void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
@@ -140,11 +54,9 @@ namespace Unosquare.FFME.Rendering
             {
                 if (!block.TryAcquireWriterLock(out blockLock))
                     return;
-
                 RaiseRenderingEvent(block, clockPosition);
-                Graphics.EnqueueWrite(block, Device);
-
-                // UpdateTargetImage();
+                Graphics.Write(block);
+                VideoDispatcher?.Invoke(() => UpdateTargetImage(clockPosition));
             }
             catch (Exception ex)
             {
@@ -158,56 +70,33 @@ namespace Unosquare.FFME.Rendering
         }
 
         /// <inheritdoc />
-        public void Dispose() => Dispose(true);
-
-        /// <summary>
-        /// Helper method that creates a D3D device.
-        /// </summary>
-        /// <returns>A D3D device.</returns>
-        private static DeviceEx CreateDevice() =>
-            new DeviceEx(Engine, DefaultDisplayAdapter, DeviceType.Hardware, IntPtr.Zero, DeviceCreationFlags, DeviceParameters)
-            {
-                GPUThreadPriority = -7,
-                MaximumFrameLatency = 1,
-            };
-
-        /// <summary>
-        /// Ensures the device is available.
-        /// </summary>
-        private void EnsureDeviceAvailable()
+        public override void OnClose()
         {
-            var needsCreation = m_Device != null
-                ? m_Device.CheckDeviceState(IntPtr.Zero) != DeviceState.Ok
-                : true;
-
-            if (!needsCreation)
-                return;
-
-            m_Device?.Dispose();
-            m_Device = CreateDevice();
+            base.OnClose();
+            Dispose();
         }
+
+        /// <inheritdoc />
+        public void Dispose() => Dispose(true);
 
         /// <summary>
         /// Updates the target image on the Video dispatcher thread.
         /// </summary>
-        private void UpdateTargetImage()
+        private void UpdateTargetImage(TimeSpan clockPosition)
         {
-            VideoDispatcher?.InvokeAsync(() =>
+            var videoView = MediaElement?.VideoView;
+
+            if (TargetImage == null)
+                TargetImage = new D3DImage();
+
+            var img = TargetImage;
+            if (img != null)
             {
-                var videoView = MediaElement?.VideoView;
+                Graphics.Render(img, clockPosition);
+            }
 
-                if (TargetImage == null)
-                    TargetImage = new D3DImage();
-
-                var img = TargetImage;
-                if (img != null)
-                {
-                    Graphics.ReadInto(img);
-                }
-
-                if (videoView != null)
-                    videoView.Source = img;
-            });
+            if (videoView != null)
+                videoView.Source = img;
         }
 
         /// <summary>
@@ -233,7 +122,6 @@ namespace Unosquare.FFME.Rendering
             if (alsoManaged)
             {
                 Graphics.Dispose();
-                m_Device?.Dispose();
             }
 
             TargetImage = null;
@@ -293,84 +181,235 @@ namespace Unosquare.FFME.Rendering
 
         private sealed class GraphicsBuffer : IDisposable
         {
-            private readonly ConcurrentQueue<Surface> ReadQueue = new ConcurrentQueue<Surface>();
-            private readonly ConcurrentQueue<Surface> WriteQueue = new ConcurrentQueue<Surface>();
+            private const int DefaultDisplayAdapter = 0;
+            private const Format SurfaceFormat = Format.A8R8G8B8;
 
-            private readonly AtomicBoolean IsDsiposing = new AtomicBoolean();
+            private readonly object SyncLock = new object();
 
-            public void EnqueueWrite(VideoBlock block, DeviceEx device)
+            private bool IsDsiposing;
+            private TimeSpan LastRenderTime;
+            private Surface FrontBuffer;
+            private Surface BackBuffer;
+            private DeviceEx m_Device;
+
+            static GraphicsBuffer()
             {
-                if (IsDsiposing.Value)
-                    return;
+                IsD3DAvailable = true;
 
-                Surface surface = null;
-
-                if (WriteQueue.Count > 4)
-                    WriteQueue.TryDequeue(out surface);
-
-                if (surface == null || surface.Description.Width != block.PixelWidth || surface.Description.Height != block.PixelHeight)
+                try
                 {
-                    surface?.Dispose();
+                    Engine = new Direct3DEx();
+                    var capabilities = Engine.GetDeviceCaps(DefaultDisplayAdapter, DeviceType.Hardware);
+                    var vertexMode = capabilities.DeviceCaps.HasFlag(DeviceCaps.HWTransformAndLight)
+                        ? CreateFlags.HardwareVertexProcessing
+                        : CreateFlags.SoftwareVertexProcessing;
 
-                    // Create the surface that will act as the render target.
-                    surface = Surface.CreateRenderTargetEx(
-                        device, block.PixelWidth, block.PixelHeight, SurfaceFormat, MultisampleType.None, 0, true, Usage.None);
+                    DeviceCreationFlags = CreateFlags.Multithreaded | CreateFlags.FpuPreserve | vertexMode;
                 }
-
-                var rect = new RawRectangle(0, 0, block.PixelWidth, block.PixelHeight);
-                NativeMethods.LoadSurfaceFromMemory(
-                    surface, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
-
-                ReadQueue.Enqueue(surface);
+                catch
+                {
+                    IsD3DAvailable = false;
+                }
             }
 
-            public bool ReadInto(D3DImage image)
+            public GraphicsBuffer(bool useBackBuffer)
             {
-                if (IsDsiposing.Value)
-                    return false;
+                HasBackBuffer = useBackBuffer;
+            }
 
-                if (image == null)
-                    return false;
+            /// <summary>
+            /// Gets a value indicating whether the D3DEx Api is available.
+            /// </summary>
+            public static bool IsD3DAvailable { get; }
 
-                if (!ReadQueue.TryDequeue(out var surface))
-                    return false;
+            public bool HasBackBuffer { get; }
 
-                var result = true;
-                var surfacePointer = surface == null || surface.IsDisposed ? IntPtr.Zero : surface.NativePointer;
-                var rect = surfacePointer == IntPtr.Zero
-                    ? new Int32Rect(0, 0, image.PixelWidth, image.PixelHeight)
-                    : new Int32Rect(0, 0, surface.Description.Width, surface.Description.Height);
+            public bool HasNewPicture { get; private set; }
 
-                if (image.IsFrontBufferAvailable)
+            /// <summary>
+            /// Gets the D3D engine.
+            /// </summary>
+            private static Direct3DEx Engine { get; }
+
+            /// <summary>
+            /// Gets the D3D device creation flags.
+            /// </summary>
+            private static CreateFlags DeviceCreationFlags { get; }
+
+            /// <summary>
+            /// Gets the device presentation parameters.
+            /// </summary>
+            private static PresentParameters DeviceParameters { get; } = new PresentParameters
+            {
+                Windowed = true,
+                SwapEffect = SwapEffect.Discard,
+                PresentationInterval = PresentInterval.Default,
+                BackBufferFormat = Format.Unknown,
+                BackBufferWidth = 1,
+                BackBufferHeight = 1,
+            };
+
+            /// <summary>
+            /// Gets a valid D3D device.
+            /// </summary>
+            private DeviceEx Device
+            {
+                get
                 {
+                    EnsureDeviceAvailable();
+                    return m_Device;
+                }
+            }
+
+            public void Clear(D3DImage image)
+            {
+                lock (SyncLock)
+                {
+                    if (image == null || !image.IsFrontBufferAvailable)
+                        return;
+
                     image.Lock();
-                    image.SetBackBuffer(D3DResourceType.IDirect3DSurface9, surfacePointer);
-                    image.AddDirtyRect(rect);
+                    image.SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero);
                     image.Unlock();
                 }
+            }
 
-                WriteQueue.Enqueue(surface);
-                return result;
+            public void Write(VideoBlock block)
+            {
+                lock (SyncLock)
+                {
+                    if (IsDsiposing)
+                        return;
+
+                    if (HasBackBuffer)
+                        WriteToBackBuffer(block);
+                    else
+                        WriteToFrontBuffer(block);
+
+                    HasNewPicture = true;
+                }
+            }
+
+            public bool Render(D3DImage image, TimeSpan renderTime)
+            {
+                lock (SyncLock)
+                {
+                    if (!HasNewPicture || renderTime.Ticks == LastRenderTime.Ticks)
+                        return false;
+
+                    if (IsDsiposing)
+                    {
+                        Clear(image);
+                        return false;
+                    }
+
+                    // Check if there's stuff to render
+                    if (HasBackBuffer && (BackBuffer == null || BackBuffer.IsDisposed))
+                        return false;
+
+                    // Check if there's stuff to render
+                    if (!HasBackBuffer && (FrontBuffer == null || FrontBuffer.IsDisposed))
+                        return false;
+
+                    var width = HasBackBuffer ? BackBuffer.Description.Width : FrontBuffer.Description.Width;
+                    var height = HasBackBuffer ? BackBuffer.Description.Height : FrontBuffer.Description.Height;
+                    EnsureFrontBuffer(width, height);
+
+                    if (image.IsFrontBufferAvailable)
+                    {
+                        if (image.TryLock(new Duration(TimeSpan.Zero)))
+                        {
+                            if (HasBackBuffer)
+                                Device.UpdateSurface(BackBuffer, FrontBuffer);
+
+                            image.SetBackBuffer(D3DResourceType.IDirect3DSurface9, FrontBuffer.NativePointer);
+                            image.AddDirtyRect(new Int32Rect(0, 0, width, height));
+                        }
+
+                        image.Unlock();
+                    }
+
+                    LastRenderTime = TimeSpan.FromTicks(renderTime.Ticks);
+                    HasNewPicture = false;
+                    return true;
+                }
             }
 
             public void Dispose()
             {
-                if (IsDsiposing.Value)
+                lock (SyncLock)
+                {
+                    if (IsDsiposing)
+                        return;
+
+                    IsDsiposing = true;
+                    FrontBuffer?.Dispose();
+                    BackBuffer?.Dispose();
+                    m_Device?.Dispose();
+                }
+            }
+
+            /// <summary>
+            /// Helper method that creates a D3D device.
+            /// </summary>
+            /// <returns>A D3D device.</returns>
+            private static DeviceEx CreateDevice() =>
+                new DeviceEx(Engine, DefaultDisplayAdapter, DeviceType.Hardware, NativeMethods.GetDesktopWindow(), DeviceCreationFlags, DeviceParameters);
+
+            /// <summary>
+            /// Ensures the device is available.
+            /// </summary>
+            private void EnsureDeviceAvailable()
+            {
+                var needsCreation = m_Device != null
+                    ? m_Device.CheckDeviceState(IntPtr.Zero) != DeviceState.Ok
+                    : true;
+
+                if (!needsCreation)
                     return;
 
-                IsDsiposing.Value = true;
+                m_Device?.Dispose();
+                m_Device = CreateDevice();
+            }
 
-                while (ReadQueue.Count > 0)
+            private void WriteToBackBuffer(VideoBlock block)
+            {
+                var rect = EnsureBackBuffer(block.PixelWidth, block.PixelHeight);
+                NativeMethods.LoadSurfaceFromMemory(
+                    BackBuffer, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
+            }
+
+            private void WriteToFrontBuffer(VideoBlock block)
+            {
+                var rect = EnsureFrontBuffer(block.PixelWidth, block.PixelHeight);
+                NativeMethods.LoadSurfaceFromMemory(
+                    FrontBuffer, block.Buffer, Filter.None, 0, SurfaceFormat, block.PictureBufferStride, rect, null, null);
+            }
+
+            private RawRectangle EnsureBackBuffer(int width, int height)
+            {
+                if (BackBuffer == null || BackBuffer.Description.Width != width || BackBuffer.Description.Height != height)
                 {
-                    if (ReadQueue.TryDequeue(out var surface))
-                        surface.Dispose();
+                    BackBuffer?.Dispose();
+
+                    // Create an off-screen target
+                    BackBuffer = Surface.CreateOffscreenPlainEx(
+                        Device, width, height, SurfaceFormat, Pool.SystemMemory, Usage.None);
                 }
 
-                while (WriteQueue.Count > 0)
+                return new RawRectangle(0, 0, width, height);
+            }
+
+            private RawRectangle EnsureFrontBuffer(int width, int height)
+            {
+                if (FrontBuffer == null || FrontBuffer.Description.Width != width || FrontBuffer.Description.Height != height)
                 {
-                    if (WriteQueue.TryDequeue(out var surface))
-                        surface.Dispose();
+                    FrontBuffer?.Dispose();
+                    FrontBuffer = Surface.CreateRenderTargetEx(
+                        Device, width, height, SurfaceFormat, MultisampleType.None, 0, false, Usage.None);
                 }
+
+                return new RawRectangle(0, 0, width, height);
             }
         }
     }
