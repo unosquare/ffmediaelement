@@ -77,6 +77,8 @@
                         scan0,
                         bufferLength,
                         bufferLength);
+
+                    BackBufferView.Flush();
                 }
             }
 
