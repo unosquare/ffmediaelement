@@ -91,7 +91,7 @@ namespace Unosquare.FFME.Rendering
             var block = BeginRenderingCycle(mediaBlock);
             if (block == null) return;
 
-            VideoDispatcher?.InvokeAsync(() =>
+            VideoDispatcher?.Invoke(() =>
             {
                 try
                 {
@@ -158,13 +158,10 @@ namespace Unosquare.FFME.Rendering
                 return;
 
             // Lock the video block for reading
-            using (readLock)
+            try
             {
-                if (!bitmap.TryLock(WpfLockTimeout))
-                {
-                    this.LogDebug(Aspects.VideoRenderer, $"{nameof(VideoRenderer)} bitmap lock timed out at {clockPosition}");
-                    bitmap.Lock();
-                }
+                // Lock the bitmap
+                bitmap.Lock();
 
                 // Compute a safe number of bytes to copy
                 // At this point, we it is assumed the strides are equal
@@ -178,11 +175,16 @@ namespace Unosquare.FFME.Rendering
                     bufferLength);
 
                 // with the locked video block, raise the rendering video event.
-                MediaElement?.RaiseRenderingVideoEvent(block, TargetBitmapData, clockPosition);
-            }
+                MediaElement?.RaiseRenderingVideoEvent(block, target, clockPosition);
 
-            bitmap.AddDirtyRect(TargetBitmapData.UpdateRect);
-            bitmap.Unlock();
+                // Mark the region as dirty so it's updated on the UI
+                bitmap.AddDirtyRect(target.UpdateRect);
+            }
+            finally
+            {
+                readLock.Dispose();
+                bitmap.Unlock();
+            }
         }
     }
 }

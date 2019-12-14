@@ -33,9 +33,6 @@
 
         static StepTimer()
         {
-            if (NativeTiming.IsAvailable)
-                NativeTiming.ChangeResolution(0);
-
             Resolution = TimeSpan.FromMilliseconds(1000d / 60d);
             Stopwatch.Start();
             TimerThread.Start();

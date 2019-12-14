@@ -34,6 +34,8 @@ namespace Unosquare.FFME.Engine
         private readonly Action<MediaType[]> ParallelRenderBlocks;
         private readonly Queue<CycleInfo> CycleDurations = new Queue<CycleInfo>(1024);
 
+        private TimeSpan LastAdjustmentRenderTime;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
         /// </summary>
@@ -262,6 +264,12 @@ namespace Unosquare.FFME.Engine
                     ? MediaCore.CurrentRenderStartTime[main]
                     : TimeSpan.MinValue;
 
+            // Check if we already adjusted
+            if (LastAdjustmentRenderTime == currentRenderStartTime && currentRenderStartTime != TimeSpan.MinValue)
+                return;
+            else
+                LastAdjustmentRenderTime = currentRenderStartTime;
+
             var timing = MediaCore.Timing;
             var blocks = MediaCore.Blocks[main];
             var frameDuration = blocks == null ? TimeSpan.Zero : blocks.IsMonotonic ? blocks.MonotonicDuration : blocks.AverageBlockDuration;
@@ -269,8 +277,10 @@ namespace Unosquare.FFME.Engine
             if (frameDuration > TimeSpan.Zero && frameDuration.Ticks < MinMonotonicDuration.Ticks)
                 frameDuration = MinMonotonicDuration;
 
-            var canBeHighPrecision = NativeTiming.IsAvailable && !Library.IsFrameSyncDisabled && currentRenderStartTime != TimeSpan.MinValue && frameDuration > TimeSpan.Zero &&
-                frameDuration.Ticks <= MaxMonotonicDuration.Ticks && timing != null && timing.IsRunning && timing.SpeedRatio == 1d && !MediaCore.IsSyncBuffering;
+            var canBeHighPrecision = currentRenderStartTime != TimeSpan.MinValue &&
+                frameDuration > TimeSpan.Zero && frameDuration.Ticks <= MaxMonotonicDuration.Ticks &&
+                timing != null && timing.IsRunning && timing.SpeedRatio == 1d &&
+                !MediaCore.IsSyncBuffering;
 
             // Determine if we need to enter or leave high precision mode
             if (canBeHighPrecision && (Mode != IntervalWorkerMode.HighPrecision || frameDuration.Ticks != Period.Ticks))

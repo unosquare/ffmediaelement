@@ -255,7 +255,7 @@
 
             // Set Cooperative Level to PRIORITY (priority level can call the SetFormat and Compact methods)
             DirectSoundDriver.SetCooperativeLevel(NativeMethods.GetDesktopWindow(),
-                DirectSound.DirectSoundCooperativeLevel.Priority);
+                DirectSound.DirectSoundCooperativeLevel.Normal);
 
             // Fill BufferDescription for immediate, rendering buffer
             var renderBuffer = new DirectSound.BufferDescription

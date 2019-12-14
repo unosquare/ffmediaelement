@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿#pragma warning disable CA1812
+namespace Unosquare.FFME.Rendering
 {
     using System;
     using System.IO.MemoryMappedFiles;
@@ -25,7 +26,7 @@
             var block = BeginRenderingCycle(mediaBlock);
             if (block == null) return;
 
-            if (!block.TryAcquireWriterLock(out var blockLock))
+            if (!block.TryAcquireReaderLock(out var blockLock))
                 return;
 
             try
@@ -35,8 +36,7 @@
                     return;
 
                 MediaElement?.RaiseRenderingVideoEvent(block, bitmap, clockPosition);
-                UpdateTargetImage(DispatcherPriority.Background, false);
-                FinishRenderingCycle(block, clockPosition);
+                UpdateTargetImage(DispatcherPriority.Send, true);
             }
             catch (Exception ex)
             {
@@ -45,6 +45,7 @@
             finally
             {
                 blockLock.Dispose();
+                FinishRenderingCycle(block, clockPosition);
             }
         }
 
@@ -164,3 +165,4 @@
         }
     }
 }
+#pragma warning restore CA1812
