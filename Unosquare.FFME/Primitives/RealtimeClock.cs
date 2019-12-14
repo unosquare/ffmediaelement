@@ -20,7 +20,7 @@
         public RealTimeClock() => Reset();
 
         /// <summary>
-        /// Gets or sets the clock position.
+        /// Gets the clock position.
         /// </summary>
         public TimeSpan Position
         {
@@ -33,6 +33,11 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the elapsed time of the internal stopwatch.
+        /// </summary>
+        public TimeSpan ElapsedInternal => Chronometer.Elapsed;
 
         /// <summary>
         /// Gets a value indicating whether the clock is running.
