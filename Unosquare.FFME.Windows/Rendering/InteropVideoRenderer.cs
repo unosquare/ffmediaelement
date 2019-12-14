@@ -36,7 +36,7 @@ namespace Unosquare.FFME.Rendering
                     return;
 
                 MediaElement?.RaiseRenderingVideoEvent(block, bitmap, clockPosition);
-                UpdateTargetImage(DispatcherPriority.Send, true);
+                UpdateTargetImage(DispatcherPriority.Loaded, true);
             }
             catch (Exception ex)
             {

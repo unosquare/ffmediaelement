@@ -90,7 +90,7 @@
                 TickCount++;
                 if (TickCount >= 60)
                 {
-                    Resolution = TimeSpan.FromMilliseconds(Stopwatch.ElapsedMilliseconds / TickCount);
+                    Resolution = TimeSpan.FromMilliseconds(Stopwatch.Elapsed.TotalMilliseconds / TickCount);
                     Stopwatch.Restart();
                     TickCount = 0;
 
