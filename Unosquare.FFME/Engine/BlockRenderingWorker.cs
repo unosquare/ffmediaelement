@@ -35,6 +35,7 @@ namespace Unosquare.FFME.Engine
         private readonly Queue<CycleInfo> CycleDurations = new Queue<CycleInfo>(1024);
 
         private TimeSpan LastAdjustmentRenderTime;
+        private bool HasCaughtUpToRealTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
@@ -121,6 +122,7 @@ namespace Unosquare.FFME.Engine
             finally
             {
                 DetectPlaybackEnded(main);
+                CatchUpWithLiveStream(); // TODO: We are on to something good here
                 ExitSyncBuffering(main, all, ct);
                 ReportAndResumePlayback(main);
                 AdjustWorkerPeriod(main);
@@ -247,6 +249,55 @@ namespace Unosquare.FFME.Engine
                 MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
                 this.LogTrace(Aspects.Timing,
                     $"CLOCK AHEAD : playback clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
+            }
+        }
+
+        /// <summary>
+        /// Speeds up the speed ratio until the packet buffer
+        /// becomes the essential to continue rendering.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void CatchUpWithLiveStream()
+        {
+            if (!State.IsLiveStream)
+                return;
+
+            if (MediaCore.IsSyncBuffering)
+            {
+                HasCaughtUpToRealTime = false;
+                return;
+            }
+
+            var targetMs = 500d;
+            var bufferDuration = State.PacketBufferDuration;
+
+            if (HasCaughtUpToRealTime || bufferDuration == TimeSpan.MinValue)
+                return;
+
+            if (State.HasAudio && State.HasVideo && !MediaCore.Timing.HasDisconnectedClocks)
+            {
+                var videoStartOffset = MediaCore.Container.Components[MediaType.Video].StartTime;
+                var audioStartOffset = MediaCore.Container.Components[MediaType.Audio].StartTime;
+
+                if (videoStartOffset != TimeSpan.MinValue && audioStartOffset != TimeSpan.MinValue)
+                {
+                    var offset = Math.Abs(videoStartOffset.TotalMilliseconds - audioStartOffset.TotalMilliseconds);
+                    targetMs = offset * 1.2;
+                }
+            }
+
+            var difference = bufferDuration.TotalMilliseconds - targetMs;
+            var incrementPercent = Math.Min((5d * Math.Sqrt((difference + 1d) / 20d)) + 1d, 50d) / 100d;
+
+            var progress = bufferDuration.TotalMilliseconds / targetMs; // MediaCore.State.BufferingProgress;
+            if (progress >= 1 && !HasCaughtUpToRealTime)
+            {
+                State.SpeedRatio = 1d + incrementPercent;
+            }
+            else if (progress < 0.9)
+            {
+                State.SpeedRatio = 1.0;
+                HasCaughtUpToRealTime = true;
             }
         }
 

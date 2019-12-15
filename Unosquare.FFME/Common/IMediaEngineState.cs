@@ -80,6 +80,13 @@
         long PacketBufferLength { get; }
 
         /// <summary>
+        /// Gets the the least duration between the buffered audio and video packets.
+        /// If no duration information is encoded in neither, this value will return
+        /// <see cref="TimeSpan.MinValue"/>.
+        /// </summary>
+        TimeSpan PacketBufferDuration { get; }
+
+        /// <summary>
         /// Gets the number of packets buffered for all media components.
         /// </summary>
         int PacketBufferCount { get; }

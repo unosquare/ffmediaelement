@@ -211,6 +211,16 @@
         }
 
         /// <summary>
+        /// Gets the the least duration between the buffered audio and video packets.
+        /// If no duration information is encoded in neither, this property will return
+        /// <see cref="TimeSpan.MinValue"/>.
+        /// </summary>
+        public TimeSpan BufferDuration
+        {
+            get { lock (BufferSyncLock) return BufferState.Duration; }
+        }
+
+        /// <summary>
         /// Gets the minimum number of packets to read before <see cref="HasEnoughPackets"/> is able to return true.
         /// </summary>
         public int BufferCountThreshold
@@ -326,6 +336,7 @@
 
             var state = default(PacketBufferState);
             state.HasEnoughPackets = true;
+            state.Duration = TimeSpan.MaxValue;
 
             foreach (var c in All)
             {
@@ -334,7 +345,17 @@
                 state.CountThreshold += c.BufferCountThreshold;
                 if (c.HasEnoughPackets == false)
                     state.HasEnoughPackets = false;
+
+                if ((c.MediaType == MediaType.Audio || c.MediaType == MediaType.Video) &&
+                    c.BufferDuration != TimeSpan.MinValue &&
+                    c.BufferDuration.Ticks < state.Duration.Ticks)
+                {
+                    state.Duration = c.BufferDuration;
+                }
             }
+
+            if (state.Duration == TimeSpan.MaxValue)
+                state.Duration = TimeSpan.MinValue;
 
             // Update the buffer state
             lock (BufferSyncLock)

@@ -22,7 +22,7 @@
             // Packet Buffer Notification Callbacks
             Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
             {
-                MediaCore.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold);
+                MediaCore.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold, state.Duration);
 
                 if (op != PacketQueueOp.Queued)
                     return;

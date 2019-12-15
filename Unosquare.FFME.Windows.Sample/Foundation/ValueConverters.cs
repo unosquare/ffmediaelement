@@ -59,6 +59,9 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
                     return string.Empty;
             }
 
+            if (p.Value == TimeSpan.MinValue)
+                return "N/A";
+
             return $"{(int)p.Value.TotalHours:00}:{p.Value.Minutes:00}:{p.Value.Seconds:00}.{p.Value.Milliseconds:000}";
         }
 
