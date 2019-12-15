@@ -649,6 +649,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Common.RendererOptions.UseLegacyAudioOut
   nameWithType: RendererOptions.UseLegacyAudioOut
+- uid: Unosquare.FFME.Common.RendererOptions.VideoImageType
+  name: VideoImageType
+  href: api/Unosquare.FFME.Common.RendererOptions.html#Unosquare_FFME_Common_RendererOptions_VideoImageType
+  commentId: P:Unosquare.FFME.Common.RendererOptions.VideoImageType
+  fullName: Unosquare.FFME.Common.RendererOptions.VideoImageType
+  nameWithType: RendererOptions.VideoImageType
+- uid: Unosquare.FFME.Common.RendererOptions.VideoImageType*
+  name: VideoImageType
+  href: api/Unosquare.FFME.Common.RendererOptions.html#Unosquare_FFME_Common_RendererOptions_VideoImageType_
+  commentId: Overload:Unosquare.FFME.Common.RendererOptions.VideoImageType
+  isSpec: "True"
+  fullName: Unosquare.FFME.Common.RendererOptions.VideoImageType
+  nameWithType: RendererOptions.VideoImageType
 - uid: Unosquare.FFME.Common.RendererOptions.VideoRefreshRateLimit
   name: VideoRefreshRateLimit
   href: api/Unosquare.FFME.Common.RendererOptions.html#Unosquare_FFME_Common_RendererOptions_VideoRefreshRateLimit
@@ -998,6 +1011,24 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Common.RenderingVideoEventArgs.SmtpeTimeCode
   nameWithType: RenderingVideoEventArgs.SmtpeTimeCode
+- uid: Unosquare.FFME.Common.VideoRendererImageType
+  name: VideoRendererImageType
+  href: api/Unosquare.FFME.Common.VideoRendererImageType.html
+  commentId: T:Unosquare.FFME.Common.VideoRendererImageType
+  fullName: Unosquare.FFME.Common.VideoRendererImageType
+  nameWithType: VideoRendererImageType
+- uid: Unosquare.FFME.Common.VideoRendererImageType.InteropBitmap
+  name: InteropBitmap
+  href: api/Unosquare.FFME.Common.VideoRendererImageType.html#Unosquare_FFME_Common_VideoRendererImageType_InteropBitmap
+  commentId: F:Unosquare.FFME.Common.VideoRendererImageType.InteropBitmap
+  fullName: Unosquare.FFME.Common.VideoRendererImageType.InteropBitmap
+  nameWithType: VideoRendererImageType.InteropBitmap
+- uid: Unosquare.FFME.Common.VideoRendererImageType.WriteableBitmap
+  name: WriteableBitmap
+  href: api/Unosquare.FFME.Common.VideoRendererImageType.html#Unosquare_FFME_Common_VideoRendererImageType_WriteableBitmap
+  commentId: F:Unosquare.FFME.Common.VideoRendererImageType.WriteableBitmap
+  fullName: Unosquare.FFME.Common.VideoRendererImageType.WriteableBitmap
+  nameWithType: VideoRendererImageType.WriteableBitmap
 - uid: Unosquare.FFME.Library
   name: Library
   href: api/Unosquare.FFME.Library.html

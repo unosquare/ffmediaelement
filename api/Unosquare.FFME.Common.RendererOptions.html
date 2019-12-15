@@ -230,6 +230,34 @@ as an audio output device as opposed to DirectSound. This defaults to false.</p>
   </table>
   
   
+  <a id="Unosquare_FFME_Common_RendererOptions_VideoImageType_" data-uid="Unosquare.FFME.Common.RendererOptions.VideoImageType*"></a>
+  <h4 id="Unosquare_FFME_Common_RendererOptions_VideoImageType" data-uid="Unosquare.FFME.Common.RendererOptions.VideoImageType">VideoImageType</h4>
+  <div class="markdown level1 summary"><p>Gets or sets which image type is used for the video renderer.
+Use WriteableBitmap for tear-free scenarios, or use the InteropBitmap for
+faster, lower CPU usage. InteropBitmap might introduce some tearing.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public VideoRendererImageType VideoImageType { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Unosquare.FFME.Common.VideoRendererImageType.html">VideoRendererImageType</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_Common_RendererOptions_VideoRefreshRateLimit_" data-uid="Unosquare.FFME.Common.RendererOptions.VideoRefreshRateLimit*"></a>
   <h4 id="Unosquare_FFME_Common_RendererOptions_VideoRefreshRateLimit" data-uid="Unosquare.FFME.Common.RendererOptions.VideoRefreshRateLimit">VideoRefreshRateLimit</h4>
   <div class="markdown level1 summary"><p>Gets or sets the frame refresh rate limit for the video renderer.

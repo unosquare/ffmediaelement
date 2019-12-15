@@ -146,7 +146,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Common.RendererOptions.html",
-          "hash": "+1qLtnkYyjfUaM6TreieIA=="
+          "hash": "d/Z3YmsWw9tDUYmnrcM1Ew=="
         }
       },
       "is_incremental": false,
@@ -202,11 +202,23 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.VideoRendererImageType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.VideoRendererImageType.html",
+          "hash": "okItGztxZh/TQVEJ2Tf8hw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Common.yml",
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Common.html",
-          "hash": "EcjVRBh9ht1e1Muf1VjSOw=="
+          "hash": "eU0c6XiPBmKUH52RQjWsEw=="
         }
       },
       "is_incremental": false,
@@ -266,7 +278,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "mKqfM+lK38lGJRAH8dgCQA=="
+          "hash": "380mj0Jr0XU32nl9zPD56Q=="
         }
       },
       "is_incremental": false,
@@ -303,16 +315,16 @@
           "total_file_count": 0,
           "skipped_file_count": 0
         },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 16,
-          "skipped_file_count": 0
-        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 1,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 17,
           "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {
