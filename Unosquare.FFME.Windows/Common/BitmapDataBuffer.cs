@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Common
 {
+    using Container;
     using System;
     using System.Drawing;
     using System.Windows;
@@ -19,6 +20,33 @@
         /// <param name="w">The w.</param>
         internal BitmapDataBuffer(WriteableBitmap w)
             : this(w.BackBuffer, w.BackBufferStride, w.Format.BitsPerPixel / 8, w.PixelWidth, w.PixelHeight, w.DpiX, w.DpiY, w.Palette, w.Format)
+        {
+            // placeholder
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BitmapDataBuffer"/> class.
+        /// </summary>
+        /// <param name="b">The block.</param>
+        /// <param name="dpiX">The dpi X.</param>
+        /// <param name="dpiY">The dpi Y.</param>
+        internal BitmapDataBuffer(VideoBlock b, double dpiX, double dpiY)
+            : this(b.Buffer, b.PictureBufferStride, 32, b.PixelWidth, b.PixelHeight, dpiX, dpiY, null, PixelFormats.Bgra32)
+        {
+            // placeholder
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BitmapDataBuffer"/> class.
+        /// </summary>
+        /// <param name="scan0">The scan0.</param>
+        /// <param name="stride">The stride.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <param name="dpiX">The dpi x.</param>
+        /// <param name="dpiY">The dpi y.</param>
+        internal BitmapDataBuffer(IntPtr scan0, int stride, int width, int height, double dpiX, double dpiY)
+            : this(scan0, stride, 32, width, height, dpiX, dpiY, null, PixelFormats.Bgra32)
         {
             // placeholder
         }

@@ -15,7 +15,9 @@
                 case MediaType.Audio:
                     return new AudioRenderer(mediaCore);
                 case MediaType.Video:
-                    return new VideoRenderer(mediaCore);
+                    return D3DVideoRenderer.IsAvailable
+                        ? new InteropVideoRenderer(mediaCore) as IMediaRenderer
+                        : new VideoRenderer(mediaCore);
                 case MediaType.Subtitle:
                     return new SubtitleRenderer(mediaCore);
                 default:

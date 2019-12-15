@@ -11,7 +11,7 @@
     internal abstract class IntervalWorkerBase : IWorker
     {
         private readonly object SyncLock = new object();
-        private readonly IntervalTimer QuantumTimer;
+        private readonly StepTimer QuantumTimer;
         private readonly RealTimeClock CycleClock = new RealTimeClock();
         private readonly ManualResetEventSlim WantedStateCompleted = new ManualResetEventSlim(true);
 
@@ -32,7 +32,8 @@
         {
             Name = name;
             Period = period;
-            QuantumTimer = new IntervalTimer(mode == IntervalWorkerMode.HighPrecision, OnQuantumTicked);
+            QuantumTimer = new StepTimer(OnQuantumTicked);
+            Mode = mode;
             CycleClock.Restart();
         }
 
@@ -47,8 +48,8 @@
         /// </summary>
         public IntervalWorkerMode Mode
         {
-            get => QuantumTimer.IsMultimedia ? IntervalWorkerMode.HighPrecision : IntervalWorkerMode.SystemDefault;
-            set => QuantumTimer.IsMultimedia = value == IntervalWorkerMode.HighPrecision;
+            get;
+            set;
         }
 
         /// <inheritdoc />
@@ -99,10 +100,9 @@
         protected TimeSpan LastCycleElapsed { get; private set; }
 
         /// <summary>
-        /// Gets or sets the delay to add (or subtract if negative) to the current cycle.
-        /// This is a per-cycle setting.
+        /// Gets the last delay introduced to keep high precision timing.
         /// </summary>
-        protected TimeSpan NextCorrectionDelay { get; set; }
+        protected TimeSpan LastCorrectionDelay { get; private set; }
 
         /// <inheritdoc />
         public Task<WorkerState> StartAsync()
@@ -242,7 +242,7 @@
         /// <returns>The awaitable state change task.</returns>
         private Task<WorkerState> RunWaitForWantedState() => Task.Run(() =>
         {
-            while (!WantedStateCompleted.Wait(QuantumTimer.Resolution))
+            while (!WantedStateCompleted.Wait(StepTimer.Resolution))
                 Interrupt();
 
             return WorkerState;
@@ -257,24 +257,28 @@
             if (WorkerState == WorkerState.Created || WorkerState == WorkerState.Stopped)
                 return;
 
+            var cycleThresholdMs = StepTimer.Resolution.TotalMilliseconds;
             while (RemainingCycleTime.Ticks > 0)
             {
                 if (WantedWorkerState != WorkerState || TokenSource.IsCancellationRequested)
                     break;
 
-                if (RemainingCycleTime.TotalMilliseconds > QuantumTimer.Resolution)
+                if (RemainingCycleTime.TotalMilliseconds > cycleThresholdMs)
                     return;
 
-                if (QuantumTimer.IsMultimedia)
+                if (Mode == IntervalWorkerMode.HighPrecision)
                     continue;
 
                 if (!Thread.Yield())
                     Thread.Sleep(1);
             }
 
-            LastCycleElapsed = TimeSpan.FromTicks(CycleClock.Position.Ticks + NextCorrectionDelay.Ticks);
-            CycleClock.Restart(NextCorrectionDelay.Negate());
-            NextCorrectionDelay = TimeSpan.Zero;
+            LastCorrectionDelay = Mode == IntervalWorkerMode.HighPrecision
+                ? TimeSpan.FromTicks(RemainingCycleTime.Ticks)
+                : TimeSpan.Zero;
+
+            LastCycleElapsed = CycleClock.ElapsedInternal;
+            CycleClock.Restart(LastCorrectionDelay.Negate());
 
             lock (SyncLock)
             {

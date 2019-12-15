@@ -97,11 +97,11 @@
         {
             get
             {
-                return Library.IsFrameSyncDisabled;
+                return Library.IsNativeTimingDisabled;
             }
             set
             {
-                Library.IsFrameSyncDisabled = value;
+                Library.IsNativeTimingDisabled = value;
                 NotifyPropertyChanged(nameof(IsBatterySaverEnabled));
             }
         }

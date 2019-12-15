@@ -47,7 +47,7 @@
         public void Defer(TimeSpan delay)
         {
             // Fire action when time elapses (with no subsequent calls).
-            DeferTimer.Change(delay, TimeSpan.FromMilliseconds(-1));
+            DeferTimer.Change(delay, Timeout.InfiniteTimeSpan);
         }
 
         #region IDisposable Implementation

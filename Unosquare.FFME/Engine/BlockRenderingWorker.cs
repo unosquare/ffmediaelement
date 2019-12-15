@@ -29,25 +29,12 @@ namespace Unosquare.FFME.Engine
         /// </summary>
         private static readonly TimeSpan MaxMonotonicDuration = TimeSpan.FromMilliseconds(1000d / 20d);
 
-        /// <summary>
-        /// The acceptable minimum frame delay between the render time and presentation time.
-        /// </summary>
-        private static readonly TimeSpan FrameIdealDelayMin = TimeSpan.FromMilliseconds(2);
-
-        /// <summary>
-        /// The acceptable maximum frame delay between the render time and presentation time.
-        /// </summary>
-        private static readonly TimeSpan FrameIdealDelayMax = TimeSpan.FromMilliseconds(4);
-
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
         private readonly Action<MediaType[]> ParallelRenderBlocks;
         private readonly Queue<CycleInfo> CycleDurations = new Queue<CycleInfo>(1024);
 
-        /// <summary>
-        /// The last video frame start time used to do timing and worker sync.
-        /// </summary>
-        private TimeSpan AdjustmentBlockStartTime = TimeSpan.MinValue;
+        private TimeSpan LastAdjustmentRenderTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
@@ -277,6 +264,12 @@ namespace Unosquare.FFME.Engine
                     ? MediaCore.CurrentRenderStartTime[main]
                     : TimeSpan.MinValue;
 
+            // Check if we already adjusted
+            if (LastAdjustmentRenderTime == currentRenderStartTime && currentRenderStartTime != TimeSpan.MinValue)
+                return;
+            else
+                LastAdjustmentRenderTime = currentRenderStartTime;
+
             var timing = MediaCore.Timing;
             var blocks = MediaCore.Blocks[main];
             var frameDuration = blocks == null ? TimeSpan.Zero : blocks.IsMonotonic ? blocks.MonotonicDuration : blocks.AverageBlockDuration;
@@ -284,8 +277,10 @@ namespace Unosquare.FFME.Engine
             if (frameDuration > TimeSpan.Zero && frameDuration.Ticks < MinMonotonicDuration.Ticks)
                 frameDuration = MinMonotonicDuration;
 
-            var canBeHighPrecision = NativeTiming.IsAvailable && !Library.IsFrameSyncDisabled && currentRenderStartTime != TimeSpan.MinValue && frameDuration > TimeSpan.Zero &&
-                frameDuration.Ticks <= MaxMonotonicDuration.Ticks && timing != null && timing.IsRunning && timing.SpeedRatio == 1d && !MediaCore.IsSyncBuffering;
+            var canBeHighPrecision = currentRenderStartTime != TimeSpan.MinValue &&
+                frameDuration > TimeSpan.Zero && frameDuration.Ticks <= MaxMonotonicDuration.Ticks &&
+                timing != null && timing.IsRunning && timing.SpeedRatio == 1d &&
+                !MediaCore.IsSyncBuffering;
 
             // Determine if we need to enter or leave high precision mode
             if (canBeHighPrecision && (Mode != IntervalWorkerMode.HighPrecision || frameDuration.Ticks != Period.Ticks))
@@ -299,42 +294,19 @@ namespace Unosquare.FFME.Engine
                 Mode = IntervalWorkerMode.SystemDefault;
             }
 
-            // Capture the difference between the presentation time and the real-time clock
-            var currentDelay = TimeSpan.FromTicks(timing.Position(main).Ticks - currentRenderStartTime.Ticks);
-            currentDelay = TimeSpan.FromTicks(currentDelay.Ticks % Period.Ticks);
-
-            // Sync the period worker to start at the same time as the middle time of the current frame
-            // No need to keeps a flag of whether or not is synchronized because we already have a set
-            // of conditions ready to leave high precision when timing is disturbed (modified)
-            if (currentDelay.Ticks > 0 && Mode == IntervalWorkerMode.HighPrecision
-                && AdjustmentBlockStartTime != currentRenderStartTime)
-            {
-                // Keep track of the frame on which the timing was adjusted so the adjustemt is not
-                // performed more than once for the same frame
-                AdjustmentBlockStartTime = currentRenderStartTime;
-
-                if (currentDelay > FrameIdealDelayMax)
-                {
-                    // Negative Delay (catch up)
-                    NextCorrectionDelay = TimeSpan.FromMilliseconds(-1);
-                }
-                else if (currentDelay < FrameIdealDelayMin)
-                {
-                    // Positive Delay (slow down)
-                    NextCorrectionDelay = TimeSpan.FromMilliseconds(1);
-                }
-            }
-
             if (!Debugger.IsAttached || !timing.IsRunning) return;
 
             // Log some cycle metadata for debugging purposes
             if (CycleDurations.Count >= 1000)
                 CycleDurations.Dequeue();
 
+            // Capture the difference between the presentation time and the real-time clock
+            var currentDelay = TimeSpan.FromTicks(timing.Position(main).Ticks - currentRenderStartTime.Ticks);
+
             CycleDurations.Enqueue(new CycleInfo
             {
                 LastCycleDuration = LastCycleElapsed.TotalMilliseconds,
-                CorrectionDelay = NextCorrectionDelay.TotalMilliseconds,
+                CorrectionDelay = LastCorrectionDelay.TotalMilliseconds,
                 FrameDelay = currentDelay.TotalMilliseconds,
             });
         }

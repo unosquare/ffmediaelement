@@ -289,6 +289,10 @@
                 {
                     UserCallback?.Invoke();
                 }
+                catch
+                {
+                    // ignore
+                }
                 finally
                 {
                     if (EventType == TimerEventType.OneShot)
