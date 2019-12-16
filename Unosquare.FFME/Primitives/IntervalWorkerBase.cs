@@ -257,6 +257,7 @@
             if (WorkerState == WorkerState.Created || WorkerState == WorkerState.Stopped)
                 return;
 
+            /*
             var cycleThresholdMs = StepTimer.Resolution.TotalMilliseconds;
             while (RemainingCycleTime.Ticks > 0)
             {
@@ -279,6 +280,10 @@
 
             LastCycleElapsed = CycleClock.ElapsedInternal;
             CycleClock.Restart(LastCorrectionDelay.Negate());
+            */
+
+            LastCycleElapsed = CycleClock.ElapsedInternal;
+            CycleClock.Restart();
 
             lock (SyncLock)
             {

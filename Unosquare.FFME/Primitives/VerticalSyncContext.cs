@@ -1,5 +1,5 @@
 ﻿#pragma warning disable CA1812
-namespace Unosquare.FFME.Rendering
+namespace Unosquare.FFME.Primitives
 {
     using System;
     using System.Collections.Generic;

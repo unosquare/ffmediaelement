@@ -85,45 +85,48 @@
 
         private static void ExecuteCallbacks(object state)
         {
-            while (true)
+            using (var vsync = new VerticalSyncContext())
             {
-                TickCount++;
-                if (TickCount >= 60)
+                while (true)
                 {
-                    Resolution = TimeSpan.FromMilliseconds(Stopwatch.Elapsed.TotalMilliseconds / TickCount);
-                    Stopwatch.Restart();
-                    TickCount = 0;
-
-                    // Debug.WriteLine($"Timer Resolution is now {Resolution.TotalMilliseconds}");
-                }
-
-                Parallel.ForEach(RegisteredTimers, (t) =>
-                {
-                    if (t.IsRunningCycle || t.IsDisposing)
-                        return;
-
-                    t.IsRunningCycle = true;
-
-                    ThreadPool.QueueUserWorkItem((s) =>
+                    TickCount++;
+                    if (TickCount >= 60)
                     {
-                        try
+                        Resolution = TimeSpan.FromMilliseconds(Stopwatch.Elapsed.TotalMilliseconds / TickCount);
+                        Stopwatch.Restart();
+                        TickCount = 0;
+
+                        // Debug.WriteLine($"Timer Resolution is now {Resolution.TotalMilliseconds}");
+                    }
+
+                    Parallel.ForEach(RegisteredTimers, (t) =>
+                    {
+                        if (t.IsRunningCycle || t.IsDisposing)
+                            return;
+
+                        t.IsRunningCycle = true;
+
+                        ThreadPool.QueueUserWorkItem((s) =>
                         {
-                            t.UserCallback?.Invoke();
-                        }
-                        finally
-                        {
-                            t.IsRunningCycle = false;
-                        }
+                            try
+                            {
+                                t.UserCallback?.Invoke();
+                            }
+                            finally
+                            {
+                                t.IsRunningCycle = false;
+                            }
+                        });
                     });
-                });
 
-                while (PendingAddTimers.TryDequeue(out var addTimer))
-                    RegisteredTimers.Add(addTimer);
+                    while (PendingAddTimers.TryDequeue(out var addTimer))
+                        RegisteredTimers.Add(addTimer);
 
-                while (PendingRemoveTimers.TryDequeue(out var remTimer))
-                    RegisteredTimers.Remove(remTimer);
+                    while (PendingRemoveTimers.TryDequeue(out var remTimer))
+                        RegisteredTimers.Remove(remTimer);
 
-                Thread.Sleep(1);
+                    vsync.Wait();
+                }
             }
         }
     }
