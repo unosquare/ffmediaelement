@@ -35,7 +35,7 @@ namespace Unosquare.FFME.Engine
         private readonly Queue<CycleInfo> CycleDurations = new Queue<CycleInfo>(1024);
 
         private TimeSpan LastAdjustmentRenderTime;
-        private bool HasCaughtUpToRealTime;
+        private DateTime LastSpeedRatioTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
@@ -122,7 +122,8 @@ namespace Unosquare.FFME.Engine
             finally
             {
                 DetectPlaybackEnded(main);
-                CatchUpWithLiveStream(); // TODO: We are on to something good here
+
+                // CatchUpWithLiveStream(); // TODO: We are on to something good here
                 ExitSyncBuffering(main, all, ct);
                 ReportAndResumePlayback(main);
                 AdjustWorkerPeriod(main);
@@ -253,26 +254,30 @@ namespace Unosquare.FFME.Engine
         }
 
         /// <summary>
-        /// Speeds up the speed ratio until the packet buffer
-        /// becomes the essential to continue rendering.
+        /// Speeds up or slows down the speed ratio until the packet buffer
+        /// becomes the ideal to continue stable rendering.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CatchUpWithLiveStream()
         {
+            // TODO: This is not yet complete.
+            // It will fail on m3u8 files for example
+            // I am using 2 approches: dealing with timing and dealing with speed ratios
+            // I need more time to complete.
+            const double DefaultMinBufferMs = 500d;
+            const double DefaultMaxBufferMs = 1000d;
+            const double UpdateTimeoutMs = 100d;
+
             if (!State.IsLiveStream)
                 return;
 
-            if (MediaCore.IsSyncBuffering)
-            {
-                HasCaughtUpToRealTime = false;
+            // Check if we have a valid duration
+            if (State.PacketBufferDuration == TimeSpan.MinValue)
                 return;
-            }
 
-            var targetMs = 500d;
-            var bufferDuration = State.PacketBufferDuration;
-
-            if (HasCaughtUpToRealTime || bufferDuration == TimeSpan.MinValue)
-                return;
+            var maxBufferedMs = DefaultMaxBufferMs;
+            var minBufferedMs = DefaultMinBufferMs;
+            var bufferedMs = Container.Components.Main.BufferDuration.TotalMilliseconds; // State.PacketBufferDuration.TotalMilliseconds;
 
             if (State.HasAudio && State.HasVideo && !MediaCore.Timing.HasDisconnectedClocks)
             {
@@ -281,24 +286,51 @@ namespace Unosquare.FFME.Engine
 
                 if (videoStartOffset != TimeSpan.MinValue && audioStartOffset != TimeSpan.MinValue)
                 {
-                    var offset = Math.Abs(videoStartOffset.TotalMilliseconds - audioStartOffset.TotalMilliseconds);
-                    targetMs = offset * 1.2;
+                    var offsetMs = Math.Abs(videoStartOffset.TotalMilliseconds - audioStartOffset.TotalMilliseconds);
+                    maxBufferedMs = Math.Max(maxBufferedMs, offsetMs * 2);
+                    minBufferedMs = Math.Min(minBufferedMs, maxBufferedMs / 2d);
                 }
             }
 
-            var difference = bufferDuration.TotalMilliseconds - targetMs;
-            var incrementPercent = Math.Min((5d * Math.Sqrt((difference + 1d) / 20d)) + 1d, 50d) / 100d;
+            var canChangeSpeed = !MediaCore.IsSyncBuffering && !Commands.HasPendingCommands;
+            var needsSpeedUp = canChangeSpeed && bufferedMs > maxBufferedMs;
+            var needsSlowDown = canChangeSpeed && bufferedMs < minBufferedMs;
+            var needsSpeedChange = needsSpeedUp || needsSlowDown;
+            var lastUpdateSinceMs = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - LastSpeedRatioTime.Ticks).TotalMilliseconds;
+            var bufferedDelta = needsSpeedUp
+                ? bufferedMs - maxBufferedMs
+                : minBufferedMs - bufferedMs;
 
-            var progress = bufferDuration.TotalMilliseconds / targetMs; // MediaCore.State.BufferingProgress;
-            if (progress >= 1 && !HasCaughtUpToRealTime)
+            if (!needsSpeedChange || lastUpdateSinceMs < UpdateTimeoutMs)
+                return;
+
+            // TODO: Another option is to mess around some with the timing itself
+            // instead of using the speedratio.
+            if (bufferedDelta > 100d && (needsSpeedUp || needsSlowDown))
             {
-                State.SpeedRatio = 1d + incrementPercent;
+                var deltaPosition = TimeSpan.FromMilliseconds(bufferedDelta / 10);
+                if (needsSlowDown) deltaPosition = deltaPosition.Negate();
+
+                MediaCore.Timing.Update(MediaCore.Timing.Position().Add(deltaPosition), MediaType.None);
+                LastSpeedRatioTime = DateTime.UtcNow;
+
+                this.LogWarning(nameof(BlockRenderingWorker),
+                    $"RT SYNC: Buffered: {bufferedMs:0.000} ms. | Delta: {bufferedDelta:0.000} ms. | Adjustment: {deltaPosition.TotalMilliseconds:0.000} ms.");
             }
-            else if (progress < 0.9)
-            {
-                State.SpeedRatio = 1.0;
-                HasCaughtUpToRealTime = true;
-            }
+
+            // function computes large changes for large differences.
+            /*
+            var speedRatioDelta = Math.Min(10d + (Math.Pow(bufferedDelta, 2d) / 100000d), 50d) / 100d;
+            if (bufferedDelta < 100d && !needsSlowDown)
+                speedRatioDelta = 0d;
+
+            var originalSpeedRatio = State.SpeedRatio;
+            var changePercent = (needsSlowDown ? -1d : 1d) * speedRatioDelta;
+            State.SpeedRatio = Constants.DefaultSpeedRatio + changePercent;
+
+            if (originalSpeedRatio != State.SpeedRatio)
+                LastSpeedRatioTime = DateTime.UtcNow;
+            */
         }
 
         /// <summary>

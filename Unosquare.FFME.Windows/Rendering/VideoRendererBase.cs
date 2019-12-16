@@ -224,6 +224,8 @@
             // Update the layout including pixel ratio and video rotation
             ControlDispatcher?.InvokeAsync(() =>
                 UpdateLayout(block, clockPosition), DispatcherPriority.Loaded);
+
+            VerticalSyncContext.Flush();
         }
 
         /// <summary>

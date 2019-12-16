@@ -37,6 +37,7 @@
         private byte[] ReadBuffer;
         private int SampleBlockSize;
         private TimeSpan RealTimeLatency;
+        private DateTime LastSyncrhonize;
 
         #endregion
 
@@ -493,11 +494,17 @@
 
             #endregion
 
-            const double latencyStepMs = 10d;
+            // The maximum change in milliseconds for a skip or rewind operation
+            const double LatencyStepMs = 10d;
+
+            // The minimum emapsed time in milliseconds before another rewind or skip operation can take place.
+            const double UpdateTimeoutMs = 200d;
+
+            var lastSyncSinceMs = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - LastSyncrhonize.Ticks).TotalMilliseconds;
             var hardwareLatencyMs = WaveFormat.ConvertByteSizeToDuration(requestedBytes).TotalMilliseconds;
             var bufferLatencyMs = BufferLatency.TotalMilliseconds; // we want the buffer latency to be the negative of the device latency
             var maxAcceptableLagMs = 0d; // more than this and we need to skip samples
-            var minAcceptableLeadMs = -2 * latencyStepMs; // less than this and we need to rewind samples
+            var minAcceptableLeadMs = -2 * LatencyStepMs; // less than this and we need to rewind samples
             var isLoggingEnabled = Math.Abs(speedRatio - 1.0) <= double.Epsilon;
             var operationName = string.Empty;
 
@@ -508,6 +515,10 @@
                 // we don't want to perform AV sync if the latency is huge
                 // or if we have simply disabled it
                 if (MediaElement.RendererOptions.AudioDisableSync)
+                    return true;
+
+                // Don't perform sycs back and forth so often.
+                if (lastSyncSinceMs < UpdateTimeoutMs)
                     return true;
 
                 // The ideal target latency is the negative of the audio device's desired latency.
@@ -521,7 +532,7 @@
                     // this is the case where the buffer latency is too positive (i.e. buffer is lagging by too much)
                     // the goal is to skip some samples to make the buffer latency approximately that of the hardware latency
                     // so that the buffer leads by the hardware lag and we get sync-perferct results.
-                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(bufferLatencyMs + latencyStepMs);
+                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(bufferLatencyMs + LatencyStepMs);
 
                     if (AudioBuffer.ReadableCount > audioLatencyBytes)
                     {
@@ -540,7 +551,7 @@
                     // this is the case where the buffer latency is too negative (i.e. buffer is leading by too much)
                     // the goal is to rewind some samples to make the buffer latency approximately that of the hardware latency
                     // so that the buffer leads by the hardware lag and we get sync-perferct results.
-                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Math.Abs(bufferLatencyMs) - latencyStepMs);
+                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Math.Abs(bufferLatencyMs) - LatencyStepMs);
 
                     if (AudioBuffer.RewindableCount > audioLatencyBytes)
                     {
@@ -558,10 +569,14 @@
             finally
             {
                 RealTimeLatency = BufferLatency;
-                if (isLoggingEnabled && !string.IsNullOrWhiteSpace(operationName))
+                if (!string.IsNullOrWhiteSpace(operationName))
                 {
-                    this.LogWarning(Aspects.AudioRenderer,
-                        $"SYNC AUDIO: {operationName} | Initial: {bufferLatencyMs:0} ms. Current: {BufferLatency.TotalMilliseconds:0} ms. Requested: {hardwareLatencyMs:0} ms.");
+                    LastSyncrhonize = DateTime.UtcNow;
+                    if (isLoggingEnabled)
+                    {
+                        this.LogWarning(Aspects.AudioRenderer,
+                            $"SYNC AUDIO: {operationName} | Initial: {bufferLatencyMs:0} ms. Current: {BufferLatency.TotalMilliseconds:0} ms. Requested: {hardwareLatencyMs:0} ms.");
+                    }
                 }
             }
 
