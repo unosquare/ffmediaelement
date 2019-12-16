@@ -61,7 +61,10 @@ namespace Unosquare.FFME.Rendering
 
                 var waitResult = NativeMethods.D3DKMTWaitForVerticalBlankEvent(ref VerticalSyncEvent);
                 if (waitResult != 0)
+                {
                     ReleaseAdapter();
+                    IsAdapterOpen = false;
+                }
             }
         }
 
@@ -205,6 +208,9 @@ namespace Unosquare.FFME.Rendering
 
             [DllImport(GDI32, CharSet = CharSet.Unicode)]
             public static extern IntPtr CreateDC(string lpszDriver, string lpszDevice, string lpszOutput, IntPtr lpInitData);
+
+            [DllImport(USER32)]
+            public static extern IntPtr GetDesktopWindow();
 
             [DllImport(USER32)]
             public static extern IntPtr GetDC(IntPtr windowHandle);
