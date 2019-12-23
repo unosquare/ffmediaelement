@@ -1435,6 +1435,25 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.UnloadedBehaviorProperty
   fullName: Unosquare.FFME.MediaElement.UnloadedBehaviorProperty
   nameWithType: MediaElement.UnloadedBehaviorProperty
+- uid: Unosquare.FFME.MediaElement.VerticalSyncEnabled
+  name: VerticalSyncEnabled
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VerticalSyncEnabled
+  commentId: P:Unosquare.FFME.MediaElement.VerticalSyncEnabled
+  fullName: Unosquare.FFME.MediaElement.VerticalSyncEnabled
+  nameWithType: MediaElement.VerticalSyncEnabled
+- uid: Unosquare.FFME.MediaElement.VerticalSyncEnabled*
+  name: VerticalSyncEnabled
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VerticalSyncEnabled_
+  commentId: Overload:Unosquare.FFME.MediaElement.VerticalSyncEnabled
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.VerticalSyncEnabled
+  nameWithType: MediaElement.VerticalSyncEnabled
+- uid: Unosquare.FFME.MediaElement.VerticalSyncEnabledProperty
+  name: VerticalSyncEnabledProperty
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VerticalSyncEnabledProperty
+  commentId: F:Unosquare.FFME.MediaElement.VerticalSyncEnabledProperty
+  fullName: Unosquare.FFME.MediaElement.VerticalSyncEnabledProperty
+  nameWithType: MediaElement.VerticalSyncEnabledProperty
 - uid: Unosquare.FFME.MediaElement.Volume
   name: Volume
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Volume
