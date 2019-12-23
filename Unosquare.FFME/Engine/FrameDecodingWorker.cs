@@ -31,7 +31,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public FrameDecodingWorker(MediaEngine mediaCore)
-            : base(nameof(FrameDecodingWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
+            : base(nameof(FrameDecodingWorker))
         {
             MediaCore = mediaCore;
             Container = mediaCore.Container;
@@ -122,12 +122,6 @@
         /// <inheritdoc />
         protected override void OnCycleException(Exception ex) =>
             this.LogError(Aspects.DecodingWorker, "Worker Cycle exception thrown", ex);
-
-        /// <inheritdoc />
-        protected override void OnDisposing()
-        {
-            // placeholder
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int DecodeComponentBlocks(MediaType t, CancellationToken ct)

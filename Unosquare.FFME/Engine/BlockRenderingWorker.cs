@@ -6,7 +6,6 @@ namespace Unosquare.FFME.Engine
     using Diagnostics;
     using Primitives;
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -17,24 +16,13 @@ namespace Unosquare.FFME.Engine
     /// Implements the block rendering worker.
     /// </summary>
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class BlockRenderingWorker : WorkerBase, IMediaWorker, ILoggingSource
     {
-        /// <summary>
-        /// Represetnts 100 FPS -- 10ms per frame.
-        /// </summary>
-        private static readonly TimeSpan MinMonotonicDuration = TimeSpan.FromMilliseconds(1000d / 100d);
-
-        /// <summary>
-        /// Represents 20 FPS -- 50ms per frame.
-        /// </summary>
-        private static readonly TimeSpan MaxMonotonicDuration = TimeSpan.FromMilliseconds(1000d / 20d);
-
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
         private readonly Action<MediaType[]> ParallelRenderBlocks;
-        private readonly Queue<CycleInfo> CycleDurations = new Queue<CycleInfo>(1024);
-
-        private TimeSpan LastAdjustmentRenderTime;
+        private readonly Thread QuantumThread;
+        private readonly ManualResetEventSlim QuantumWaiter = new ManualResetEventSlim(false);
         private DateTime LastSpeedRatioTime;
 
         /// <summary>
@@ -42,7 +30,7 @@ namespace Unosquare.FFME.Engine
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
+            : base(nameof(BlockRenderingWorker))
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -51,6 +39,15 @@ namespace Unosquare.FFME.Engine
             State = MediaCore.State;
             ParallelRenderBlocks = (all) => Parallel.ForEach(all, (t) => RenderBlock(t));
             SerialRenderBlocks = (all) => { foreach (var t in all) RenderBlock(t); };
+
+            QuantumThread = new Thread(RunQuantumThread)
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.Highest,
+                Name = $"{nameof(BlockRenderingWorker)}.Thread",
+            };
+
+            QuantumThread.Start();
         }
 
         /// <inheritdoc />
@@ -83,6 +80,35 @@ namespace Unosquare.FFME.Engine
         /// Gets the Media Engine's state.
         /// </summary>
         private MediaEngineState State { get; }
+
+        /// <summary>
+        /// Gets the remaining cycle time.
+        /// </summary>
+        private TimeSpan RemainingCycleTime
+        {
+            get
+            {
+                try
+                {
+                    var frameDuration = Container.Components.MainMediaType == MediaType.Video && MediaCore.Blocks[MediaType.Video].Count > 0
+                        ? MediaCore.Blocks[MediaType.Video].AverageBlockDuration
+                        : Constants.DefaultTimingPeriod;
+
+                    // protect against too slow of a video framerate
+                    // which might impact audio rendering.
+                    if (frameDuration.TotalMilliseconds > 50d)
+                        frameDuration = TimeSpan.FromMilliseconds(50);
+
+                    return TimeSpan.FromTicks(frameDuration.Ticks - CurrentCycleElapsed.Ticks);
+                }
+                catch
+                {
+                    // ignore
+                }
+
+                return Constants.DefaultTimingPeriod;
+            }
+        }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
@@ -126,7 +152,6 @@ namespace Unosquare.FFME.Engine
                 // CatchUpWithLiveStream(); // TODO: We are on to something good here
                 ExitSyncBuffering(main, all, ct);
                 ReportAndResumePlayback(main);
-                AdjustWorkerPeriod(main);
             }
         }
 
@@ -139,6 +164,48 @@ namespace Unosquare.FFME.Engine
         {
             // Reset the state to non-sync-buffering
             MediaCore.SignalSyncBufferingExited();
+        }
+
+        /// <inheritdoc />
+        protected override void Dispose(bool alsoManaged)
+        {
+            base.Dispose(alsoManaged);
+            QuantumWaiter.Dispose();
+        }
+
+        /// <summary>
+        /// Executes render thread logic in a cycle.
+        /// </summary>
+        private void RunQuantumThread(object state)
+        {
+            // TODO: VerticalSyncContext.IsAvailable
+            using var vsync = new VerticalSyncContext();
+            while (WorkerState != WorkerState.Stopped)
+            {
+                // VerticalSyncContext.Flush();
+                if (State.VerticalSyncEnabled && Container.Components.MainMediaType == MediaType.Video)
+                {
+                    // wait a few times as there is no need to move on to the next frame
+                    // if the remaining cycle time is more than twice the refresh rate.
+                    while (RemainingCycleTime.Ticks > vsync.RefreshPeriod.Ticks * 2)
+                        vsync.Wait();
+
+                    // wait one last time for the actual v-sync
+                    if (RemainingCycleTime.Ticks > 0)
+                        vsync.Wait();
+                }
+                else
+                {
+                    var waitTime = RemainingCycleTime;
+                    if (waitTime.TotalMilliseconds >= 1)
+                        QuantumWaiter.Wait(waitTime);
+                }
+
+                if (!TryBeginCycle())
+                    continue;
+
+                ExecuteCyle();
+            }
         }
 
         /// <summary>
@@ -334,67 +401,6 @@ namespace Unosquare.FFME.Engine
         }
 
         /// <summary>
-        /// Adjusts the worker period to match video frame durations.
-        /// </summary>
-        /// <param name="main">The main component type.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AdjustWorkerPeriod(MediaType main)
-        {
-            if (main != MediaType.Video)
-                return;
-
-            var currentRenderStartTime = MediaCore.CurrentRenderStartTime.ContainsKey(main)
-                    ? MediaCore.CurrentRenderStartTime[main]
-                    : TimeSpan.MinValue;
-
-            // Check if we already adjusted
-            if (LastAdjustmentRenderTime == currentRenderStartTime && currentRenderStartTime != TimeSpan.MinValue)
-                return;
-            else
-                LastAdjustmentRenderTime = currentRenderStartTime;
-
-            var timing = MediaCore.Timing;
-            var blocks = MediaCore.Blocks[main];
-            var frameDuration = blocks == null ? TimeSpan.Zero : blocks.IsMonotonic ? blocks.MonotonicDuration : blocks.AverageBlockDuration;
-
-            if (frameDuration > TimeSpan.Zero && frameDuration.Ticks < MinMonotonicDuration.Ticks)
-                frameDuration = MinMonotonicDuration;
-
-            var canBeHighPrecision = currentRenderStartTime != TimeSpan.MinValue &&
-                frameDuration > TimeSpan.Zero && frameDuration.Ticks <= MaxMonotonicDuration.Ticks &&
-                timing != null && timing.IsRunning && timing.SpeedRatio == 1d &&
-                !MediaCore.IsSyncBuffering;
-
-            // Determine if we need to enter or leave high precision mode
-            if (canBeHighPrecision && (Mode != IntervalWorkerMode.HighPrecision || frameDuration.Ticks != Period.Ticks))
-            {
-                Period = frameDuration;
-                Mode = IntervalWorkerMode.HighPrecision;
-            }
-            else if (!canBeHighPrecision && Mode == IntervalWorkerMode.HighPrecision)
-            {
-                Period = Constants.DefaultTimingPeriod;
-                Mode = IntervalWorkerMode.SystemDefault;
-            }
-
-            if (!Debugger.IsAttached || !timing.IsRunning) return;
-
-            // Log some cycle metadata for debugging purposes
-            if (CycleDurations.Count >= 1000)
-                CycleDurations.Dequeue();
-
-            // Capture the difference between the presentation time and the real-time clock
-            var currentDelay = TimeSpan.FromTicks(timing.Position(main).Ticks - currentRenderStartTime.Ticks);
-
-            CycleDurations.Enqueue(new CycleInfo
-            {
-                LastCycleDuration = LastCycleElapsed.TotalMilliseconds,
-                CorrectionDelay = LastCorrectionDelay.TotalMilliseconds,
-                FrameDelay = currentDelay.TotalMilliseconds,
-            });
-        }
-
-        /// <summary>
         /// Enters the sync-buffering scenario if needed.
         /// </summary>
         /// <param name="main">The main renderer component.</param>
@@ -515,7 +521,7 @@ namespace Unosquare.FFME.Engine
                 if (Commands.ActiveSeekMode == CommandManager.SeekMode.Normal &&
                     !Commands.WaitForSeekBlocks(1))
                 {
-                    if (MediaOptions.IsFluidSeekingDisabled)
+                    if (!State.ScrubbingEnabled)
                         continue;
                     else
                         break;
@@ -699,20 +705,6 @@ namespace Unosquare.FFME.Engine
             catch
             {
                 // swallow
-            }
-        }
-
-        private class CycleInfo
-        {
-            public double LastCycleDuration { get; set; }
-
-            public double FrameDelay { get; set; }
-
-            public double CorrectionDelay { get; set; }
-
-            public override string ToString()
-            {
-                return $"{LastCycleDuration,8:0.000},{FrameDelay,8:0.000},{CorrectionDelay,8:0.000}";
             }
         }
     }

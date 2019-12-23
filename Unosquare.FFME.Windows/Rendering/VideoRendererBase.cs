@@ -198,6 +198,7 @@
             // Flag the start of a rendering cycle
             IsRenderingInProgress = true;
 
+            // VerticalSyncContext.Flush();
             // Send the packets to the CC renderer
             MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
 
@@ -224,8 +225,6 @@
             // Update the layout including pixel ratio and video rotation
             ControlDispatcher?.InvokeAsync(() =>
                 UpdateLayout(block, clockPosition), DispatcherPriority.Loaded);
-
-            VerticalSyncContext.Flush();
         }
 
         /// <summary>

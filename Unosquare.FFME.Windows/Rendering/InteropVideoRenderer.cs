@@ -1,5 +1,4 @@
-﻿#pragma warning disable CA1812
-namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Rendering
 {
     using System;
     using System.IO.MemoryMappedFiles;
@@ -165,4 +164,3 @@ namespace Unosquare.FFME.Rendering
         }
     }
 }
-#pragma warning restore CA1812

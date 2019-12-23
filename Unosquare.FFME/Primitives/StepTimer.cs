@@ -8,8 +8,11 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Defines a timer for discrete intervals.
-    /// It provides access to high resolution time quanta when available.
+    /// Defines a timer for discrete event firing.
+    /// Execution of callbacks is ensured non re-entrant.
+    /// A single thread is used to execute callbacks in <see cref="ThreadPool"/> threads
+    /// for all registered <see cref="StepTimer"/> instances. This effectively reduces
+    /// the amount <see cref="Timer"/> instances when many of such objects are required.
     /// </summary>
     internal sealed class StepTimer : IDisposable
     {
@@ -31,9 +34,12 @@
         private int m_IsDisposing;
         private int m_IsRunningCycle;
 
+        /// <summary>
+        /// Initializes static members of the <see cref="StepTimer"/> class.
+        /// </summary>
         static StepTimer()
         {
-            Resolution = TimeSpan.FromMilliseconds(1000d / 60d);
+            Resolution = Constants.DefaultTimingPeriod;
             Stopwatch.Start();
             TimerThread.Start();
         }
@@ -48,6 +54,9 @@
             PendingAddTimers.Enqueue(this);
         }
 
+        /// <summary>
+        /// Gets the current time interval at which callbacks are being enqueued.
+        /// </summary>
         public static TimeSpan Resolution
         {
             get;
@@ -83,6 +92,10 @@
             PendingRemoveTimers.Enqueue(this);
         }
 
+        /// <summary>
+        /// Implements the execute-wait cycles of the thread.
+        /// </summary>
+        /// <param name="state">The state.</param>
         private static void ExecuteCallbacks(object state)
         {
             while (true)
@@ -104,7 +117,7 @@
 
                     t.IsRunningCycle = true;
 
-                    ThreadPool.QueueUserWorkItem((s) =>
+                    Task.Run(() =>
                     {
                         try
                         {
@@ -123,7 +136,7 @@
                 while (PendingRemoveTimers.TryDequeue(out var remTimer))
                     RegisteredTimers.Remove(remTimer);
 
-                Thread.Sleep(1);
+                Task.Delay(Constants.DefaultTimingPeriod).Wait();
             }
         }
     }

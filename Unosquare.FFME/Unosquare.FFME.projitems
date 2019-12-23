@@ -35,7 +35,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\StepTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\RealtimeClock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioComponent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioFrame.cs" />
@@ -57,7 +56,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\ContainerConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\DecoderOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\DemuxerGlobalOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\NativeTiming.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\VerticalSyncContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFmpegLoadMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\HardwareDeviceInfo.cs" />

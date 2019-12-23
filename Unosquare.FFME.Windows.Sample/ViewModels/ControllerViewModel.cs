@@ -114,6 +114,26 @@
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether media should start playing from the start when it reaches the end.
+        /// </summary>
+        public bool IsLoopingMediaEnabled
+        {
+            get
+            {
+                var m = App.ViewModel.MediaElement;
+                if (m == null) return false;
+                return m.LoopingBehavior == MediaPlaybackState.Play;
+            }
+            set
+            {
+                var m = App.ViewModel.MediaElement;
+                if (m == null) return;
+                m.LoopingBehavior = value ? MediaPlaybackState.Play : MediaPlaybackState.Pause;
+                NotifyPropertyChanged(nameof(IsLoopingMediaEnabled));
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the pause button visibility.
         /// </summary>
         public Visibility PauseButtonVisibility
@@ -238,7 +258,7 @@
             m.WhenChanged(() => IsMediaOpenVisibility = m.IsOpen ? Visibility.Visible : Visibility.Hidden,
                 nameof(m.IsOpen));
 
-            m.WhenChanged(() => ClosedCaptionsVisibility = m.HasClosedCaptions ? Visibility.Visible : Visibility.Hidden,
+            m.WhenChanged(() => ClosedCaptionsVisibility = m.HasClosedCaptions ? Visibility.Visible : Visibility.Collapsed,
                 nameof(m.HasClosedCaptions));
 
             m.WhenChanged(() =>
@@ -276,11 +296,11 @@
             nameof(m.IsChanging),
             nameof(m.IsSeeking));
 
-            m.WhenChanged(() => CloseButtonVisibility = (m.IsOpen || m.IsOpening) ? Visibility.Visible : Visibility.Hidden,
+            m.WhenChanged(() => CloseButtonVisibility = (m.IsOpen || m.IsOpening) ? Visibility.Visible : Visibility.Collapsed,
                 nameof(m.IsOpen),
                 nameof(m.IsOpening));
 
-            m.WhenChanged(() => SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Hidden, nameof(m.IsSeekable));
+            m.WhenChanged(() => SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Collapsed, nameof(m.IsSeekable));
 
             m.WhenChanged(() =>
             {
