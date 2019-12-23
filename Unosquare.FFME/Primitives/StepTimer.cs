@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Primitives
+﻿#pragma warning disable CA1812
+namespace Unosquare.FFME.Primitives
 {
     using System;
     using System.Collections.Concurrent;
@@ -85,49 +86,47 @@
 
         private static void ExecuteCallbacks(object state)
         {
-            using (var vsync = new VerticalSyncContext())
+            while (true)
             {
-                while (true)
+                TickCount++;
+                if (TickCount >= 60)
                 {
-                    TickCount++;
-                    if (TickCount >= 60)
-                    {
-                        Resolution = TimeSpan.FromMilliseconds(Stopwatch.Elapsed.TotalMilliseconds / TickCount);
-                        Stopwatch.Restart();
-                        TickCount = 0;
+                    Resolution = TimeSpan.FromMilliseconds(Stopwatch.Elapsed.TotalMilliseconds / TickCount);
+                    Stopwatch.Restart();
+                    TickCount = 0;
 
-                        // Debug.WriteLine($"Timer Resolution is now {Resolution.TotalMilliseconds}");
-                    }
-
-                    Parallel.ForEach(RegisteredTimers, (t) =>
-                    {
-                        if (t.IsRunningCycle || t.IsDisposing)
-                            return;
-
-                        t.IsRunningCycle = true;
-
-                        ThreadPool.QueueUserWorkItem((s) =>
-                        {
-                            try
-                            {
-                                t.UserCallback?.Invoke();
-                            }
-                            finally
-                            {
-                                t.IsRunningCycle = false;
-                            }
-                        });
-                    });
-
-                    while (PendingAddTimers.TryDequeue(out var addTimer))
-                        RegisteredTimers.Add(addTimer);
-
-                    while (PendingRemoveTimers.TryDequeue(out var remTimer))
-                        RegisteredTimers.Remove(remTimer);
-
-                    vsync.Wait();
+                    // Debug.WriteLine($"Timer Resolution is now {Resolution.TotalMilliseconds}");
                 }
+
+                Parallel.ForEach(RegisteredTimers, (t) =>
+                {
+                    if (t.IsRunningCycle || t.IsDisposing)
+                        return;
+
+                    t.IsRunningCycle = true;
+
+                    Task.Run(() =>
+                    {
+                        try
+                        {
+                            t.UserCallback?.Invoke();
+                        }
+                        finally
+                        {
+                            t.IsRunningCycle = false;
+                        }
+                    });
+                });
+
+                while (PendingAddTimers.TryDequeue(out var addTimer))
+                    RegisteredTimers.Add(addTimer);
+
+                while (PendingRemoveTimers.TryDequeue(out var remTimer))
+                    RegisteredTimers.Remove(remTimer);
+
+                Task.Delay(1).Wait();
             }
         }
     }
 }
+#pragma warning disable CA1812

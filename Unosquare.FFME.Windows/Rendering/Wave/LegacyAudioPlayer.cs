@@ -30,7 +30,7 @@
         /// <param name="renderer">The renderer.</param>
         /// <param name="deviceNumber">The device number.</param>
         public LegacyAudioPlayer(AudioRenderer renderer, int deviceNumber)
-            : base(nameof(LegacyAudioPlayer), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
+            : base(nameof(LegacyAudioPlayer))
         {
             // Initialize the default values
             var deviceId = deviceNumber < -1 ? -1 : deviceNumber;

@@ -107,7 +107,7 @@ namespace Unosquare.FFME.Rendering
                 {
                     FinishRenderingCycle(block, clockPosition);
                 }
-            }, DispatcherPriority.Loaded);
+            }, DispatcherPriority.Render);
         }
 
         #endregion

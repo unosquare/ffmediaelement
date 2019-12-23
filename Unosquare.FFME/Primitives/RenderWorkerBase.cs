@@ -9,14 +9,13 @@
     /// <summary>
     /// A base class for implementing interval workers.
     /// </summary>
-    internal abstract class IntervalWorkerBase : IWorker
+    internal abstract class RenderWorkerBase : IWorker
     {
         private readonly object SyncLock = new object();
-        private readonly StepTimer QuantumTimer;
+        private readonly Thread QuantumThread;
         private readonly Stopwatch CycleClock = new Stopwatch();
         private readonly ManualResetEventSlim WantedStateCompleted = new ManualResetEventSlim(true);
 
-        private int m_IsRunningCycle;
         private int m_IsDisposed;
         private int m_IsDisposing;
         private int m_WorkerState = (int)WorkerState.Created;
@@ -24,14 +23,20 @@
         private CancellationTokenSource TokenSource = new CancellationTokenSource();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IntervalWorkerBase"/> class.
+        /// Initializes a new instance of the <see cref="RenderWorkerBase"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        protected IntervalWorkerBase(string name)
+        protected RenderWorkerBase(string name)
         {
             Name = name;
-            QuantumTimer = new StepTimer(OnQuantumTicked);
+            QuantumThread = new Thread(RunQuantumThread)
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.Highest,
+                Name = $"{name}.Thread",
+            };
             CycleClock.Restart();
+            QuantumThread.Start();
         }
 
         /// <summary>
@@ -78,16 +83,6 @@
         /// Gets the elapsed time of the last cycle.
         /// </summary>
         protected TimeSpan LastCycleElapsed { get; private set; }
-
-        /// <summary>
-        /// Gets or set wether a cycle is currently executing.
-        /// PRevents timer re-entancy.
-        /// </summary>
-        protected bool IsRunningCycle
-        {
-            get => Interlocked.CompareExchange(ref m_IsRunningCycle, 0, 0) != 0;
-            private set => Interlocked.Exchange(ref m_IsRunningCycle, value ? 1 : 0);
-        }
 
         /// <inheritdoc />
         public Task<WorkerState> StartAsync()
@@ -178,7 +173,7 @@
         protected virtual void Dispose(bool alsoManaged)
         {
             StopAsync().Wait();
-            QuantumTimer.Dispose();
+            QuantumThread.Join();
 
             lock (SyncLock)
             {
@@ -237,16 +232,13 @@
         /// Called when every quantum of time. Will be called frequently with
         /// a multimedia timer and infrequently with a standard threadin timer.
         /// </summary>
-        private void OnQuantumTicked()
+        private void RunQuantumThread(object state)
         {
-            if (IsRunningCycle)
-                return;
-
-            try
+            using var vsync = new VerticalSyncContext();
+            while (true)
             {
-                IsRunningCycle = true;
-                if (WorkerState == WorkerState.Created || WorkerState == WorkerState.Stopped)
-                    return;
+                // VerticalSyncContext.Flush();
+                vsync.Wait();
 
                 LastCycleElapsed = CycleClock.Elapsed;
                 CycleClock.Restart();
@@ -257,7 +249,7 @@
                     WantedStateCompleted.Set();
 
                     if (WorkerState == WorkerState.Stopped)
-                        return;
+                        break;
                 }
 
                 // Recreate the token source -- applies to cycle logic and delay
@@ -279,11 +271,12 @@
                         OnCycleException(ex);
                     }
                 }
+
+                vsync.Wait();
             }
-            finally
-            {
-                IsRunningCycle = false;
-            }
+
+            WorkerState = WorkerState.Stopped;
+            WantedStateCompleted.Set();
         }
     }
 }

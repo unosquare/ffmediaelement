@@ -55,7 +55,7 @@
         /// <param name="renderer">The renderer.</param>
         /// <param name="deviceId">Selected device.</param>
         public DirectSoundPlayer(AudioRenderer renderer, Guid deviceId)
-            : base(nameof(DirectSoundPlayer), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
+            : base(nameof(DirectSoundPlayer))
         {
             Renderer = renderer;
             DeviceId = deviceId == Guid.Empty ? DefaultPlaybackDeviceId : deviceId;

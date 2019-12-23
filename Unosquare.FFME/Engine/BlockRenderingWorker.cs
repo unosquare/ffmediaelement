@@ -17,7 +17,7 @@ namespace Unosquare.FFME.Engine
     /// Implements the block rendering worker.
     /// </summary>
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class BlockRenderingWorker : RenderWorkerBase, IMediaWorker, ILoggingSource
     {
         /// <summary>
         /// Represetnts 100 FPS -- 10ms per frame.
@@ -42,7 +42,7 @@ namespace Unosquare.FFME.Engine
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
+            : base(nameof(BlockRenderingWorker))
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -366,6 +366,7 @@ namespace Unosquare.FFME.Engine
                 !MediaCore.IsSyncBuffering;
 
             // Determine if we need to enter or leave high precision mode
+            /*
             if (canBeHighPrecision && (Mode != IntervalWorkerMode.HighPrecision || frameDuration.Ticks != Period.Ticks))
             {
                 Period = frameDuration;
@@ -376,7 +377,7 @@ namespace Unosquare.FFME.Engine
                 Period = Constants.DefaultTimingPeriod;
                 Mode = IntervalWorkerMode.SystemDefault;
             }
-
+            */
             if (!Debugger.IsAttached || !timing.IsRunning) return;
 
             // Log some cycle metadata for debugging purposes
@@ -389,7 +390,6 @@ namespace Unosquare.FFME.Engine
             CycleDurations.Enqueue(new CycleInfo
             {
                 LastCycleDuration = LastCycleElapsed.TotalMilliseconds,
-                CorrectionDelay = LastCorrectionDelay.TotalMilliseconds,
                 FrameDelay = currentDelay.TotalMilliseconds,
             });
         }
@@ -708,11 +708,9 @@ namespace Unosquare.FFME.Engine
 
             public double FrameDelay { get; set; }
 
-            public double CorrectionDelay { get; set; }
-
             public override string ToString()
             {
-                return $"{LastCycleDuration,8:0.000},{FrameDelay,8:0.000},{CorrectionDelay,8:0.000}";
+                return $"{LastCycleDuration,8:0.000},{FrameDelay,8:0.000}";
             }
         }
     }

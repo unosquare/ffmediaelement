@@ -14,7 +14,7 @@
     internal sealed class PacketReadingWorker : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {
         public PacketReadingWorker(MediaEngine mediaCore)
-            : base(nameof(PacketReadingWorker), Constants.DefaultTimingPeriod, IntervalWorkerMode.SystemDefault)
+            : base(nameof(PacketReadingWorker))
         {
             MediaCore = mediaCore;
             Container = mediaCore.Container;
@@ -51,7 +51,7 @@
             while (MediaCore.ShouldReadMorePackets)
             {
                 if (Container.IsReadAborted || Container.IsAtEndOfStream || ct.IsCancellationRequested ||
-                    WorkerState != WantedWorkerState || RemainingCycleTime.Ticks <= 0)
+                    WorkerState != WantedWorkerState)
                 {
                     break;
                 }
