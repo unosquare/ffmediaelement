@@ -259,6 +259,16 @@
         double SpeedRatio { get; }
 
         /// <summary>
+        /// Gets a value indicating whether video frames are displayed for seek operations before the final seek position is reached.
+        /// </summary>
+        bool ScrubbingEnabled { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether video frames are synchronized with the monitor refresh rate.
+        /// </summary>
+        bool VerticalSyncEnabled { get; }
+
+        /// <summary>
         /// Gets the video bit rate.
         /// </summary>
         long VideoBitRate { get; }

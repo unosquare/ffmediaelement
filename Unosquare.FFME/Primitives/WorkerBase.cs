@@ -6,13 +6,9 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    /// <summary>
-    /// A base class for implementing interval workers.
-    /// </summary>
-    internal abstract class RenderWorkerBase : IWorker
+    internal abstract class WorkerBase : IWorker
     {
         private readonly object SyncLock = new object();
-        private readonly Thread QuantumThread;
         private readonly Stopwatch CycleClock = new Stopwatch();
         private readonly ManualResetEventSlim WantedStateCompleted = new ManualResetEventSlim(true);
 
@@ -22,21 +18,10 @@
         private int m_WantedWorkerState = (int)WorkerState.Running;
         private CancellationTokenSource TokenSource = new CancellationTokenSource();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RenderWorkerBase"/> class.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        protected RenderWorkerBase(string name)
+        protected WorkerBase(string name)
         {
             Name = name;
-            QuantumThread = new Thread(RunQuantumThread)
-            {
-                IsBackground = true,
-                Priority = ThreadPriority.Highest,
-                Name = $"{name}.Thread",
-            };
             CycleClock.Restart();
-            QuantumThread.Start();
         }
 
         /// <summary>
@@ -173,7 +158,6 @@
         protected virtual void Dispose(bool alsoManaged)
         {
             StopAsync().Wait();
-            QuantumThread.Join();
 
             lock (SyncLock)
             {
@@ -181,9 +165,9 @@
                     return;
 
                 IsDisposing = true;
-                OnDisposing();
-                CycleClock.Reset();
                 WantedStateCompleted.Set();
+                try { OnDisposing(); } catch { /* Ignore */ }
+                CycleClock.Reset();
                 WantedStateCompleted.Dispose();
                 TokenSource.Dispose();
                 IsDisposed = true;
@@ -195,7 +179,19 @@
         /// Handles the cycle logic exceptions.
         /// </summary>
         /// <param name="ex">The exception that was thrown.</param>
-        protected abstract void OnCycleException(Exception ex);
+        protected virtual void OnCycleException(Exception ex)
+        {
+            // placeholder
+        }
+
+        /// <summary>
+        /// This method is called automatically when <see cref="Dispose()"/> is called.
+        /// Makes sure you release all resources within this call.
+        /// </summary>
+        protected virtual void OnDisposing()
+        {
+            // placeholder
+        }
 
         /// <summary>
         /// Represents the user defined logic to be executed on a single worker cycle.
@@ -205,16 +201,60 @@
         protected abstract void ExecuteCycleLogic(CancellationToken ct);
 
         /// <summary>
-        /// This method is called automatically when <see cref="Dispose()"/> is called.
-        /// Makes sure you release all resources within this call.
-        /// </summary>
-        protected abstract void OnDisposing();
-
-        /// <summary>
         /// Interrupts a cycle or a wait operation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void Interrupt() => TokenSource.Cancel();
+
+        /// <summary>
+        /// Tries to acquire a cycle for execution.
+        /// </summary>
+        /// <returns>True if a cycle should be executed.</returns>
+        protected bool TryBeginCycle()
+        {
+            if (WorkerState == WorkerState.Created || WorkerState == WorkerState.Stopped)
+                return false;
+
+            LastCycleElapsed = CycleClock.Elapsed;
+            CycleClock.Restart();
+
+            lock (SyncLock)
+            {
+                WorkerState = WantedWorkerState;
+                WantedStateCompleted.Set();
+
+                if (WorkerState == WorkerState.Stopped)
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Executes the cyle calling the user-defined code.
+        /// </summary>
+        protected void ExecuteCyle()
+        {
+            // Recreate the token source -- applies to cycle logic and delay
+            var ts = TokenSource;
+            if (ts.IsCancellationRequested)
+            {
+                TokenSource = new CancellationTokenSource();
+                ts.Dispose();
+            }
+
+            if (WorkerState == WorkerState.Running)
+            {
+                try
+                {
+                    ExecuteCycleLogic(TokenSource.Token);
+                }
+                catch (Exception ex)
+                {
+                    OnCycleException(ex);
+                }
+            }
+        }
 
         /// <summary>
         /// Returns a hot task that waits for the state of the worker to change.
@@ -222,61 +262,10 @@
         /// <returns>The awaitable state change task.</returns>
         private Task<WorkerState> RunWaitForWantedState() => Task.Run(() =>
         {
-            while (!WantedStateCompleted.Wait(StepTimer.Resolution))
+            while (!WantedStateCompleted.Wait(Constants.DefaultTimingPeriod))
                 Interrupt();
 
             return WorkerState;
         });
-
-        /// <summary>
-        /// Called when every quantum of time. Will be called frequently with
-        /// a multimedia timer and infrequently with a standard threadin timer.
-        /// </summary>
-        private void RunQuantumThread(object state)
-        {
-            using var vsync = new VerticalSyncContext();
-            while (true)
-            {
-                // VerticalSyncContext.Flush();
-                vsync.Wait();
-
-                LastCycleElapsed = CycleClock.Elapsed;
-                CycleClock.Restart();
-
-                lock (SyncLock)
-                {
-                    WorkerState = WantedWorkerState;
-                    WantedStateCompleted.Set();
-
-                    if (WorkerState == WorkerState.Stopped)
-                        break;
-                }
-
-                // Recreate the token source -- applies to cycle logic and delay
-                var ts = TokenSource;
-                if (ts.IsCancellationRequested)
-                {
-                    TokenSource = new CancellationTokenSource();
-                    ts.Dispose();
-                }
-
-                if (WorkerState == WorkerState.Running)
-                {
-                    try
-                    {
-                        ExecuteCycleLogic(TokenSource.Token);
-                    }
-                    catch (Exception ex)
-                    {
-                        OnCycleException(ex);
-                    }
-                }
-
-                vsync.Wait();
-            }
-
-            WorkerState = WorkerState.Stopped;
-            WantedStateCompleted.Set();
-        }
     }
 }

@@ -1,5 +1,4 @@
-﻿#pragma warning disable CA1812
-namespace Unosquare.FFME.Primitives
+﻿namespace Unosquare.FFME.Primitives
 {
     using System;
     using System.Collections.Generic;
@@ -232,4 +231,3 @@ namespace Unosquare.FFME.Primitives
         }
     }
 }
-#pragma warning restore CA1812

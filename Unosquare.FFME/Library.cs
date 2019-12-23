@@ -3,7 +3,6 @@
     using Common;
     using Container;
     using FFmpeg.AutoGen;
-    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -21,7 +20,6 @@
         private static readonly object SyncLock = new object();
         private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
-        private static bool m_IsNativeTimingDisabled;
         private static IReadOnlyList<string> m_InputFormatNames;
         private static IReadOnlyList<OptionMetadata> m_GlobalInputFormatOptions;
         private static IReadOnlyDictionary<string, IReadOnlyList<OptionMetadata>> m_InputFormatOptions;
@@ -31,59 +29,6 @@
         private static IReadOnlyDictionary<string, IReadOnlyList<OptionMetadata>> m_DecoderOptions;
         private static unsafe AVCodec*[] m_AllCodecs;
         private static int m_FFmpegLogLevel = Debugger.IsAttached ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING;
-
-        /// <summary>
-        /// Initializes static members of the <see cref="Library"/> class.
-        /// </summary>
-        static Library()
-        {
-            IsNativeTimingDisabled = false;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the use of multimedia resolution
-        /// for system-wide interrupts is disabled. Disabling this might increase CPU
-        /// usage because waiting mechanisms for high precision timers turn into tight loops
-        /// as opposed to short sleeps and yields. Interrupt resolution is kept at 1ms
-        /// while the application runs and gets restored when the application terminates.
-        /// </summary>
-        public static bool IsNativeTimingDisabled
-        {
-            get
-            {
-                lock (SyncLock)
-                {
-                    return m_IsNativeTimingDisabled;
-                }
-            }
-            set
-            {
-                lock (SyncLock)
-                {
-                    var wantsNativeTiming = !value;
-
-                    if (wantsNativeTiming)
-                    {
-                        if (NativeTiming.IsAvailable)
-                        {
-                            NativeTiming.ChangeResolution(0);
-                            m_IsNativeTimingDisabled = false;
-                        }
-                        else
-                        {
-                            m_IsNativeTimingDisabled = true;
-                        }
-
-                        return;
-                    }
-
-                    if (NativeTiming.IsAvailable)
-                        NativeTiming.ResetResolution();
-
-                    m_IsNativeTimingDisabled = true;
-                }
-            }
-        }
 
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.

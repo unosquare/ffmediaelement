@@ -64,10 +64,5 @@
         /// <inheritdoc />
         protected override void OnCycleException(Exception ex) =>
             this.LogError(Aspects.ReadingWorker, "Worker Cycle exception thrown", ex);
-
-        protected override void OnDisposing()
-        {
-            // placeholder
-        }
     }
 }

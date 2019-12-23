@@ -242,15 +242,41 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (targetType != typeof(bool))
-                throw new InvalidOperationException("The target must be a boolean");
+            if (targetType != typeof(bool) && targetType != typeof(bool?))
+                throw new InvalidOperationException("The target must be a boolean or a nullable boolean");
 
-            return value != null && !(bool)value;
+            if (value is bool?)
+            {
+                var nullableBool = (bool?)value;
+                return nullableBool.HasValue ? !nullableBool.Value : true;
+            }
+
+            if (value.GetType() == typeof(bool))
+            {
+                return !((bool)value);
+            }
+
+            return true;
         }
 
         /// <inheritdoc />
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
-            throw new NotSupportedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null) return true;
+
+            if (value is bool?)
+            {
+                var nullableBool = (bool?)value;
+                return nullableBool.HasValue ? !nullableBool.Value : true;
+            }
+
+            if (value.GetType() == typeof(bool))
+            {
+                return !((bool)value);
+            }
+
+            return true;
+        }
     }
 
     /// <inheritdoc />

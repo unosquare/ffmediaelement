@@ -1,5 +1,4 @@
-﻿#pragma warning disable CA1812
-namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Rendering
 {
     using Common;
     using Container;
@@ -107,7 +106,7 @@ namespace Unosquare.FFME.Rendering
                 {
                     FinishRenderingCycle(block, clockPosition);
                 }
-            }, DispatcherPriority.Render);
+            }, DispatcherPriority.Normal);
         }
 
         #endregion
@@ -188,4 +187,3 @@ namespace Unosquare.FFME.Rendering
         }
     }
 }
-#pragma warning restore CA1812

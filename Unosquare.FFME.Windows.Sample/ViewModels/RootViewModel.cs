@@ -91,22 +91,6 @@
         }
 
         /// <summary>
-        /// Gets or sets whether the battery saver mode is enabled.
-        /// </summary>
-        public bool IsBatterySaverEnabled
-        {
-            get
-            {
-                return Library.IsNativeTimingDisabled;
-            }
-            set
-            {
-                Library.IsNativeTimingDisabled = value;
-                NotifyPropertyChanged(nameof(IsBatterySaverEnabled));
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the playback progress.
         /// </summary>
         public double PlaybackProgress

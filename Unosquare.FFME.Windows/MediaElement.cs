@@ -372,6 +372,14 @@
                     {
                         IsMuted = MediaCore.State.IsMuted;
                     }
+                    else if (p == nameof(ScrubbingEnabled))
+                    {
+                        ScrubbingEnabled = MediaCore.State.ScrubbingEnabled;
+                    }
+                    else if (p == nameof(VerticalSyncEnabled))
+                    {
+                        VerticalSyncEnabled = MediaCore.State.VerticalSyncEnabled;
+                    }
                     else if (p == nameof(SpeedRatio))
                     {
                         SpeedRatio = MediaCore.State.SpeedRatio;

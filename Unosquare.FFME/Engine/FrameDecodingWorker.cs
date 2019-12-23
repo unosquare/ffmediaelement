@@ -123,12 +123,6 @@
         protected override void OnCycleException(Exception ex) =>
             this.LogError(Aspects.DecodingWorker, "Worker Cycle exception thrown", ex);
 
-        /// <inheritdoc />
-        protected override void OnDisposing()
-        {
-            // placeholder
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int DecodeComponentBlocks(MediaType t, CancellationToken ct)
         {

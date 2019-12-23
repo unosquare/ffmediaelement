@@ -146,10 +146,9 @@
         internal static TimeSpan TimeSyncMaxOffset { get; } = TimeSpan.FromSeconds(10);
 
         /// <summary>
-        /// Gets the thread worker period for default scenarios.
-        /// This is computed at 30 Frames per second.
+        /// Gets the timing period for default scenarios.
         /// </summary>
-        internal static TimeSpan DefaultTimingPeriod => TimeSpan.FromMilliseconds(1000d / 30d);
+        internal static TimeSpan DefaultTimingPeriod => TimeSpan.FromMilliseconds(15);
 
         /// <summary>
         /// Gets the maximum blocks to cache for the given component type.

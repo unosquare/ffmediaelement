@@ -34,6 +34,8 @@
         private readonly AtomicDouble m_Volume = new AtomicDouble(Constants.DefaultVolume);
         private readonly AtomicDouble m_Balance = new AtomicDouble(Constants.DefaultBalance);
         private readonly AtomicBoolean m_IsMuted = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_ScrubbingEnabled = new AtomicBoolean(true);
+        private readonly AtomicBoolean m_VerticalSyncEnabled = new AtomicBoolean(true);
 
         private Uri m_Source;
         private bool m_IsOpen;
@@ -124,6 +126,20 @@
         {
             get => m_IsMuted.Value;
             set => SetProperty(m_IsMuted, value);
+        }
+
+        /// <inheritdoc />
+        public bool ScrubbingEnabled
+        {
+            get => m_ScrubbingEnabled.Value;
+            set => SetProperty(m_ScrubbingEnabled, value);
+        }
+
+        /// <inheritdoc />
+        public bool VerticalSyncEnabled
+        {
+            get => m_VerticalSyncEnabled.Value;
+            set => SetProperty(m_VerticalSyncEnabled, value);
         }
 
         #endregion
