@@ -94,6 +94,11 @@ namespace Unosquare.FFME.Engine
                         ? MediaCore.Blocks[MediaType.Video].AverageBlockDuration
                         : Constants.DefaultTimingPeriod;
 
+                    // protect against too slow of a video framerate
+                    // which might impact audio rendering.
+                    if (frameDuration.TotalMilliseconds > 50d)
+                        frameDuration = TimeSpan.FromMilliseconds(50);
+
                     return TimeSpan.FromTicks(frameDuration.Ticks - CurrentCycleElapsed.Ticks);
                 }
                 catch
