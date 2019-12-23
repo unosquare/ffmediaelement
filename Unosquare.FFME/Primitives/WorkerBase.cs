@@ -69,6 +69,11 @@
         /// </summary>
         protected TimeSpan LastCycleElapsed { get; private set; }
 
+        /// <summary>
+        /// Gets the elapsed time of the current cycle.
+        /// </summary>
+        protected TimeSpan CurrentCycleElapsed => CycleClock.Elapsed;
+
         /// <inheritdoc />
         public Task<WorkerState> StartAsync()
         {

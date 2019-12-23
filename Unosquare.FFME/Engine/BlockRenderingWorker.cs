@@ -22,6 +22,7 @@ namespace Unosquare.FFME.Engine
         private readonly Action<MediaType[]> SerialRenderBlocks;
         private readonly Action<MediaType[]> ParallelRenderBlocks;
         private readonly Thread QuantumThread;
+        private readonly ManualResetEventSlim QuantumWaiter = new ManualResetEventSlim(false);
         private DateTime LastSpeedRatioTime;
 
         /// <summary>
@@ -80,6 +81,30 @@ namespace Unosquare.FFME.Engine
         /// </summary>
         private MediaEngineState State { get; }
 
+        /// <summary>
+        /// Gets the remaining cycle time.
+        /// </summary>
+        private TimeSpan RemainingCycleTime
+        {
+            get
+            {
+                try
+                {
+                    var frameDuration = Container.Components.MainMediaType == MediaType.Video && MediaCore.Blocks[MediaType.Video].Count > 0
+                        ? MediaCore.Blocks[MediaType.Video].AverageBlockDuration
+                        : Constants.DefaultTimingPeriod;
+
+                    return TimeSpan.FromTicks(frameDuration.Ticks - CurrentCycleElapsed.Ticks);
+                }
+                catch
+                {
+                    // ignore
+                }
+
+                return Constants.DefaultTimingPeriod;
+            }
+        }
+
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
@@ -136,6 +161,13 @@ namespace Unosquare.FFME.Engine
             MediaCore.SignalSyncBufferingExited();
         }
 
+        /// <inheritdoc />
+        protected override void Dispose(bool alsoManaged)
+        {
+            base.Dispose(alsoManaged);
+            QuantumWaiter.Dispose();
+        }
+
         /// <summary>
         /// Executes render thread logic in a cycle.
         /// </summary>
@@ -146,10 +178,17 @@ namespace Unosquare.FFME.Engine
             while (WorkerState != WorkerState.Stopped)
             {
                 // VerticalSyncContext.Flush();
-                if (State.VerticalSyncEnabled && State.HasVideo)
-                    vsync.Wait();
+                if (State.VerticalSyncEnabled && Container.Components.MainMediaType == MediaType.Video)
+                {
+                    if (RemainingCycleTime.Ticks > 0)
+                        vsync.Wait();
+                }
                 else
-                    Task.Delay(Constants.DefaultTimingPeriod).Wait();
+                {
+                    var waitTime = RemainingCycleTime;
+                    if (waitTime.Ticks > 0)
+                        QuantumWaiter.Wait(waitTime);
+                }
 
                 if (!TryBeginCycle())
                     continue;
