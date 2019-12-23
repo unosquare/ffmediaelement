@@ -471,7 +471,7 @@
         }
 
         /// <summary>
-        /// Loads the index of the or create media seek.
+        /// Loads or creates a seek index for short media files.
         /// </summary>
         /// <param name="mediaFilePath">The URL.</param>
         /// <param name="streamIndex">The associated stream index.</param>

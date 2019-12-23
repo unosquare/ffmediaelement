@@ -296,11 +296,11 @@
             nameof(m.IsChanging),
             nameof(m.IsSeeking));
 
-            m.WhenChanged(() => CloseButtonVisibility = (m.IsOpen || m.IsOpening) ? Visibility.Visible : Visibility.Hidden,
+            m.WhenChanged(() => CloseButtonVisibility = (m.IsOpen || m.IsOpening) ? Visibility.Visible : Visibility.Collapsed,
                 nameof(m.IsOpen),
                 nameof(m.IsOpening));
 
-            m.WhenChanged(() => SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Hidden, nameof(m.IsSeekable));
+            m.WhenChanged(() => SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Collapsed, nameof(m.IsSeekable));
 
             m.WhenChanged(() =>
             {

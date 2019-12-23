@@ -180,13 +180,19 @@ namespace Unosquare.FFME.Engine
                 // VerticalSyncContext.Flush();
                 if (State.VerticalSyncEnabled && Container.Components.MainMediaType == MediaType.Video)
                 {
+                    // wait a few times as there is no need to move on to the next frame
+                    // if the remaining cycle time is more than twice the refresh rate.
+                    while (RemainingCycleTime.Ticks > vsync.RefreshPeriod.Ticks * 2)
+                        vsync.Wait();
+
+                    // wait one last time for the actual v-sync
                     if (RemainingCycleTime.Ticks > 0)
                         vsync.Wait();
                 }
                 else
                 {
                     var waitTime = RemainingCycleTime;
-                    if (waitTime.Ticks > 0)
+                    if (waitTime.TotalMilliseconds >= 1)
                         QuantumWaiter.Wait(waitTime);
                 }
 

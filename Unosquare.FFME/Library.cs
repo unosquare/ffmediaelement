@@ -314,7 +314,7 @@
         }
 
         /// <summary>
-        /// Creates a viedo seek index object.
+        /// Creates a viedo seek index object by decoding video frames and obtaining the intra-frames that are valid for index positions.
         /// </summary>
         /// <param name="mediaSource">The source URL.</param>
         /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>

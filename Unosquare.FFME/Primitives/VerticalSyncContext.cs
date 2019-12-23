@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Threading;
@@ -16,11 +17,13 @@
     /// </summary>
     internal sealed class VerticalSyncContext : IDisposable
     {
+        private readonly Stopwatch RefreshStopwatch = Stopwatch.StartNew();
         private readonly object SyncLock = new object();
         private bool IsDisposed;
         private AdapterInfo CurrentAdapterInfo;
         private bool IsAdapterOpen;
         private VerticalSyncEventInfo VerticalSyncEvent;
+        private double RefreshCount;
 
         public VerticalSyncContext()
         {
@@ -44,6 +47,10 @@
             Disconnect = 0x2000000
         }
 
+        public double RefreshRateHz { get; private set; } = 60;
+
+        public TimeSpan RefreshPeriod => TimeSpan.FromSeconds(1d / RefreshRateHz);
+
         public static void Flush() => NativeMethods.DwmFlush();
 
         public void Wait()
@@ -59,6 +66,15 @@
                 }
 
                 var waitResult = NativeMethods.D3DKMTWaitForVerticalBlankEvent(ref VerticalSyncEvent);
+                RefreshCount++;
+
+                if (RefreshStopwatch.Elapsed.TotalMilliseconds >= 1000)
+                {
+                    RefreshRateHz = RefreshCount / RefreshStopwatch.Elapsed.TotalSeconds;
+                    RefreshStopwatch.Restart();
+                    RefreshCount = 0;
+                }
+
                 if (waitResult != 0)
                 {
                     ReleaseAdapter();
