@@ -193,11 +193,11 @@ namespace Unosquare.FFME.Engine
                     // wait a few times as there is no need to move on to the next frame
                     // if the remaining cycle time is more than twice the refresh rate.
                     while (RemainingCycleTime.Ticks >= vsync.RefreshPeriod.Ticks * 2)
-                        vsync.Wait();
+                        vsync.WaitForBlank();
 
                     // wait one last time for the actual v-sync
                     if (RemainingCycleTime.Ticks > 0)
-                        vsync.Wait();
+                        vsync.WaitForBlank();
                 }
                 else
                 {

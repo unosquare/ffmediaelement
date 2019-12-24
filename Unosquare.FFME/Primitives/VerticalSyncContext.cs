@@ -31,7 +31,7 @@
         /// </summary>
         static VerticalSyncContext()
         {
-            IsAvailable = PrimaryDisplayDevice != null;
+            IsAvailable = IsWindowsVistaOrAbove && PrimaryDisplayDevice != null;
         }
 
         /// <summary>
@@ -76,6 +76,13 @@
         /// Gets the refresh period of the display device.
         /// </summary>
         public TimeSpan RefreshPeriod => TimeSpan.FromSeconds(1d / RefreshRateHz);
+
+        /// <summary>
+        /// Gets a value indicating whether this system is running Windows Vista or above.
+        /// </summary>
+        private static bool IsWindowsVistaOrAbove =>
+            Environment.OSVersion.Platform == PlatformID.Win32NT &&
+            Environment.OSVersion.Version.Major >= 6;
 
         /// <summary>
         /// Gets the display devices.
@@ -129,11 +136,17 @@
         }
 
         /// <summary>
-        /// An alternative, less precise method of waiting for the monitor's vertical synchronization.
+        /// An alternative, less precise method to <see cref="WaitForBlank"/> for synchronizing pictures to the monitor's refresh rate.
+        /// Requires DWM composition enabled on Windows Vista and above.
+        /// For further info, see https://docs.microsoft.com/en-us/windows/win32/api/dwmapi/nf-dwmapi-dwmflush.
         /// </summary>
         public static void Flush() => NativeMethods.DwmFlush();
 
-        public void Wait()
+        /// <summary>
+        /// Waits for the vertical blanking interval on the primary display adapter to occur and then returns.
+        /// </summary>
+        /// <returns>True if the wait was performed using the adapter, and false otherwise.</returns>
+        public bool WaitForBlank()
         {
             lock (SyncLock)
             {
@@ -142,7 +155,7 @@
                     if (!IsAvailable || !EnsureAdapter())
                     {
                         Thread.Sleep(Constants.DefaultTimingPeriod);
-                        return;
+                        return false;
                     }
 
                     try
@@ -150,17 +163,20 @@
                         var waitResult = NativeMethods.D3DKMTWaitForVerticalBlankEvent(ref VerticalSyncEvent);
                         if (waitResult != 0)
                             throw new Exception("Adapter needs to be recreated. Resources will be released.");
+
+                        return true;
                     }
                     catch
                     {
                         ReleaseAdapter();
+                        return false;
                     }
                 }
                 finally
                 {
                     RefreshCount++;
 
-                    if (RefreshStopwatch.Elapsed.TotalMilliseconds >= 1000)
+                    if (RefreshCount >= 60)
                     {
                         RefreshRateHz = RefreshCount / RefreshStopwatch.Elapsed.TotalSeconds;
                         RefreshStopwatch.Restart();
@@ -170,6 +186,7 @@
             }
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             lock (SyncLock)
@@ -181,6 +198,11 @@
             }
         }
 
+        /// <summary>
+        /// Ensures the adapter is avaliable.
+        /// If the adapter cannot be created, the <see cref="IsAvailable"/> property is permanently set to false.
+        /// </summary>
+        /// <returns>True if the adapter is available, and false otherwise.</returns>
         private bool EnsureAdapter()
         {
             if (DisplayDevice == null)
@@ -238,6 +260,9 @@
             return VerticalSyncEvent.AdapterHandle != 0;
         }
 
+        /// <summary>
+        /// Releases the adapter and associated unmanaged references.
+        /// </summary>
         private void ReleaseAdapter()
         {
             if (CurrentAdapterInfo.AdapterHandle != 0)
