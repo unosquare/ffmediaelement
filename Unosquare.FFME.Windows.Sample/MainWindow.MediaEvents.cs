@@ -110,9 +110,9 @@
             }
 
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
-            // e.Options.GlobalOptions.FlagNoBuffer = true;
-            // e.Options.GlobalOptions.ProbeSize = 8192;
-            // e.Options.GlobalOptions.MaxAnalyzeDuration = System.TimeSpan.FromSeconds(1);
+            // e.Configuration.GlobalOptions.FlagNoBuffer = true;
+            // e.Configuration.GlobalOptions.ProbeSize = 8192;
+            // e.Configuration.GlobalOptions.MaxAnalyzeDuration = TimeSpan.FromSeconds(1);
         }
 
         /// <summary>
@@ -471,7 +471,7 @@
         }
 
         /// <summary>
-        /// Loads the index of the or create media seek.
+        /// Loads or creates a seek index for short media files.
         /// </summary>
         /// <param name="mediaFilePath">The URL.</param>
         /// <param name="streamIndex">The associated stream index.</param>

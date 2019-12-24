@@ -9,7 +9,6 @@
     <Import_RootNamespace>Unosquare.FFME</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Common\ViewModelBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\DataBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\DataComponent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\DataFrame.cs" />
@@ -37,6 +36,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryAttributeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\StepTimer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IntervalWorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\RealtimeClock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioComponent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioFrame.cs" />
@@ -58,6 +59,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\ContainerConfiguration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\DecoderOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\DemuxerGlobalOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\VerticalSyncContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFmpegLoadMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\HardwareDeviceInfo.cs" />
@@ -96,20 +99,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AtomicTypeBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Benchmark.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\BenchmarkResult.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\CancellationTokenOwner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\CircularBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\ISyncLocker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWaitEvent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWorker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWorkerDelayProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\MediaBlockBuffer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\MediaTypeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\SyncLockerFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\ThreadWorkerBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\TimerWorkerBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\WaitEventFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerDelayProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\BlockRenderingWorker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\FrameDecodingWorker.cs" />

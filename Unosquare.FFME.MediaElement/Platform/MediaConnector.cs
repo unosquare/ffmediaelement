@@ -74,9 +74,11 @@
             {
                 // Set initial controller properties
                 // Has to be on the GUI thread as we are reading dependency properties
+                sender.State.Balance = Parent.Balance;
                 sender.State.Volume = Parent.Volume;
                 sender.State.IsMuted = Parent.IsMuted;
-                sender.State.Balance = Parent.Balance;
+                sender.State.VerticalSyncEnabled = Parent.VerticalSyncEnabled;
+                sender.State.ScrubbingEnabled = Parent.ScrubbingEnabled;
 
                 // Notify the end user media has opened successfully
                 Parent.PostMediaOpenedEvent(mediaInfo);

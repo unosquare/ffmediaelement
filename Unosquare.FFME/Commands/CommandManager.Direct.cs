@@ -297,7 +297,9 @@
                 var containerConfig = new ContainerConfiguration();
 
                 // Convert the URI object to something the Media Container understands (Uri to String)
-                var mediaSource = Uri.EscapeUriString(source.ToString());
+                var mediaSource = source.IsWellFormedOriginalString()
+                    ? source.OriginalString
+                    : Uri.EscapeUriString(source.OriginalString);
 
                 // When opening via URL (and not via custom input stream), fix up the protocols and stuff
                 if (inputStream == null)
@@ -482,7 +484,7 @@
             DisposePreloadedSubtitles();
 
             // Clear the render times
-            MediaCore.LastRenderTime.Clear();
+            MediaCore.CurrentRenderStartTime.Clear();
 
             // Reset the clock
             MediaCore.ResetPlaybackPosition();
@@ -492,7 +494,10 @@
         private MediaType[] GetCurrentComponentTypes()
         {
             var result = new List<MediaType>(4);
-            result.AddRange(MediaCore.Container.Components.MediaTypes);
+
+            var components = MediaCore.Container?.Components;
+            if (components != null)
+                result.AddRange(components.MediaTypes);
 
             if (MediaCore.PreloadedSubtitles != null)
                 result.Add(MediaType.Subtitle);

@@ -13,23 +13,24 @@
 
 ## Current NuGet Release Status
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2019-06-30) - Release 4.1.310 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2019-11-16) - Release 4.1.320 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: 4.2.0 <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip">64-bit</a>
+- BREAKING CHANGE: Starting realease 4.1.330 the `Source` dependency property has been downgraded to a notification property. Please use the asynchronous `Open` and `Close` methods instead.
 
 *Please note the current NuGet realease might require a different version of the FFmpeg binaries than the ones of the current state of the source code.*
 
 ## Quick Usage Guide for WPF Apps
 
 Here is a quick guide on how to get started.
-1. Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above, or .Net Core 3.0.
+1. Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above, or .Net Core 3.0 or above.
 2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
 3. You need FFmpeg **shared** binaries (64 or 32 bit, depending on your app's target architecture). Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](https://ffmpeg.zeranoe.com/builds/).
 4. Your FFmpeg build should have a `bin` folder with 3 exe files and some dll files. Copy all those files to a folder such as `c:\ffmpeg`
 5. Within you application's startup code (`Main` method), set `Unosquare.FFME.Library.FFmpegDirectory = @"c:\ffmpeg";`.
 6. Use the FFME `MediaElement` control as any other WPF control.
 For example: In your `MainForm.xaml`, add the namespace: `xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"` and then add the FFME control your window's XAML: `<ffme:MediaElement x:Name="Media" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />` 
-7. To play files or streams, simply set the `Source` property: `Media.Source = new Uri(@"c:\your-file-here");`. Since `Source` is a dependency property, it need to be set from the GUI thread.
+7. To play files or streams, simply call the asynchronous method `Open`: `await Media.Open(new Uri(@"c:\your-file-here"));`. Conversely you close the media by calling `await Media.Close();`
 
 Note: To build your own FFmpeg binaries, I recommend the [Media Autobuild Suite](https://github.com/jb-alvarado/media-autobuild_suite) but please don't ask for help on it here.
 
@@ -41,22 +42,23 @@ Note: To build your own FFmpeg binaries, I recommend the [Media Autobuild Suite]
 FFME is an advanced and close drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft's WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME *might* just be the answer. 
 
 FFME provides multiple improvements over the standard MediaElement such as:
-- Fast media seeking and frame-by-frame seeking
+- Fast media seeking and frame-by-frame seeking.
 - Properties such as Position, Balance, SpeedRatio, IsMuted, and Volume are all Dependency Properties.
 - Additional and extended media events. Extracting (and modifying) video, audio and subtitle frames is very easy.
 - Easily apply FFmpeg video and audio filtergraphs.
-- Extract media metadata and tech specs of a media stream (title, album, bit rate, codecs, FPS, etc).
+- Extract media metadata and specs of a media stream (title, album, bit rate, codecs, FPS, etc).
 - Apply volume, balance and speed ratio to media playback.
-- MediaState actually works on this control. The standard WPF MediaElement severely lacks in this area.
+- MediaState actually works on this control. The standard WPF MediaElement is severely lacking in this area.
 - Ability to pick media streams contained in a file or a URL.
 - Specify input and codec parameters.
 - Opt-in hardware decoding acceleration via devices or via codecs.
-- Capture stream packets, audio, video and subtitle frames
-- Perform custom stream reading and stream recording
+- Capture stream packets, audio, video and subtitle frames.
+- Change raw video, audio and subtitle data upon rendering.
+- Perform custom stream reading and stream recording.
 
 *... all in a single MediaElement control*
 
-FFME also supports opening capture devices. See example Source URLs below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
+FFME also supports opening capture devices. See example URLs below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
 ```
 device://dshow/?audio=Microphone (Vengeance 2100):video=MS Webcam 4000
 device://gdigrab?title=Command Prompt
@@ -93,7 +95,7 @@ A high-level diagram is provided as additional reference below.
 
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.*
 
-1. Clone this repository and make sure you have <a href="https://dotnet.microsoft.com/download/dotnet-core/3.0">.Net Core 3.0 preview 7 SDK or above</a> installed.
+1. Clone this repository and make sure you have <a href="https://dotnet.microsoft.com/download/dotnet-core/3.1">.Net Core 3.1 preview or above</a> installed.
 2. Download the FFmpeg **shared** binaries for your target architecture: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip">64-bit</a>.
 3. Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and multiple <code>dll</code> files. Select and copy all of them.
 4. Now paste all files from the prior step onto a well-known folder. Take note of the full path. (I used `c:\ffmpeg\`)
@@ -103,6 +105,35 @@ A high-level diagram is provided as additional reference below.
 8. You should see a sample media player. Click on the <code>Open</code> icon located at the bottom right and enter a URL or path to a media file.
 9. The file or URL should play immediately, and all the properties should display to the right of the media display by clicking on the <code>Info</code> icon.
 10. You can use the resulting compiled assemblies in your project without further dependencies. Look for ```ffme.win.dll```.
+
+### ffmeplay.exe Sample Application
+
+The source code for this project contains a very capable media player (`FFME.Windows.Sample`) covering most of the use cases for the `FFME` control. If you are just checking things out, here is a quick set of shortcut keys that `ffmeplay` accepts.
+
+| Shortcut Key | Function Description |
+| --- | --- |
+| G | Example of toggling subtitle color |
+| Left | Seek 1 frame to the left |
+| Right | Seek 1 frame to the right |
+| + / Volume Up | Increase Audio Volume |
+| - / Volume Down | Decrease Audio Volume |
+| M / Volume Mute | Mute Audio |
+| Up | Increase playback Speed |
+| Down | Decrease playback speed |
+| A | Cycle Through Audio Streams |
+| S | Cycle Through Subtitle Streams |
+| Q | Cycle Through Video Streams |
+| C | Cycle Through Closed Caption Channels |
+| R | Reset Changes |
+| Y / H | Contrast: Increase / Decrease |
+| U / J | Brightness: Increase / Decrease |
+| I / K | Saturation: Increase / Decrease |
+| E | Example of cycling through audio filters |
+| T | Capture Screenshot to `desktop/ffplay` folder |
+| W | Start/Stop recording packets (no transcoding) into a transport stream to `desktop/ffplay` folder. |
+| Double-click | Enter fullscreen |
+| Escape | Exit fullscreen |
+| Mouse Wheel Up / Down | Zoom: In / Out |
 
 ## Thanks
 *In no particular order*

@@ -308,15 +308,13 @@
         /// <returns>The contents of the media information.</returns>
         public static MediaInfo RetrieveMediaInfo(string mediaSource)
         {
-            using (var container = new MediaContainer(mediaSource, null, null))
-            {
-                container.Initialize();
-                return container.MediaInfo;
-            }
+            using var container = new MediaContainer(mediaSource, null, null);
+            container.Initialize();
+            return container.MediaInfo;
         }
 
         /// <summary>
-        /// Creates a viedo seek index object.
+        /// Creates a viedo seek index object by decoding video frames and obtaining the intra-frames that are valid for index positions.
         /// </summary>
         /// <param name="mediaSource">The source URL.</param>
         /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>

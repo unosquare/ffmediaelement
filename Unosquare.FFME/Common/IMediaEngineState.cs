@@ -85,6 +85,13 @@
         long PacketBufferLength { get; }
 
         /// <summary>
+        /// Gets the the least duration between the buffered audio and video packets.
+        /// If no duration information is encoded in neither, this value will return
+        /// <see cref="TimeSpan.MinValue"/>.
+        /// </summary>
+        TimeSpan PacketBufferDuration { get; }
+
+        /// <summary>
         /// Gets the number of packets buffered for all media components.
         /// </summary>
         int PacketBufferCount { get; }
@@ -266,6 +273,16 @@
         /// Gets the playback speed ratio.
         /// </summary>
         double SpeedRatio { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether video frames are displayed for seek operations before the final seek position is reached.
+        /// </summary>
+        bool ScrubbingEnabled { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether video frames are synchronized with the monitor refresh rate.
+        /// </summary>
+        bool VerticalSyncEnabled { get; }
 
         /// <summary>
         /// Gets the video bit rate.

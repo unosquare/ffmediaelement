@@ -34,5 +34,12 @@
         /// Defaults to 0 and means no limit. Units are in frames per second.
         /// </summary>
         public int VideoRefreshRateLimit { get; set; }
+
+        /// <summary>
+        /// Gets or sets which image type is used for the video renderer.
+        /// Use WriteableBitmap for tear-free scenarios, or use the InteropBitmap for
+        /// faster, lower CPU usage. InteropBitmap might introduce some tearing.
+        /// </summary>
+        public VideoRendererImageType VideoImageType { get; set; } = VideoRendererImageType.WriteableBitmap;
     }
 }

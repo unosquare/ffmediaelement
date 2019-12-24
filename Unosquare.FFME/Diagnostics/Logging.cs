@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Diagnostics
+namespace Unosquare.FFME.Diagnostics
 {
     using Common;
     using Primitives;
@@ -39,7 +39,7 @@
         /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
-        /// <param name="aspectName">The apect of the code where the message is coming from.</param>
+        /// <param name="aspectName">The aspect of the code where the message is coming from.</param>
         /// <param name="message">The message text.</param>
         public static void LogDebug(this ILoggingSource sender, string aspectName, string message) =>
             Log(sender.LoggingHandler, MediaLogMessageType.Debug, aspectName, message);
@@ -48,7 +48,7 @@
         /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
-        /// <param name="aspectName">The apect of the code where the message is coming from.</param>
+        /// <param name="aspectName">The aspect of the code where the message is coming from.</param>
         /// <param name="message">The message text.</param>
         public static void LogInfo(this ILoggingSource sender, string aspectName, string message) =>
             Log(sender.LoggingHandler, MediaLogMessageType.Info, aspectName, message);
@@ -57,7 +57,7 @@
         /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
-        /// <param name="aspectName">The apect of the code where the message is coming from.</param>
+        /// <param name="aspectName">The aspect of the code where the message is coming from.</param>
         /// <param name="message">The message text.</param>
         public static void LogWarning(this ILoggingSource sender, string aspectName, string message) =>
             Log(sender.LoggingHandler, MediaLogMessageType.Warning, aspectName, message);
@@ -66,7 +66,7 @@
         /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
-        /// <param name="aspectName">The apect of the code where the message is coming from.</param>
+        /// <param name="aspectName">The aspect of the code where the message is coming from.</param>
         /// <param name="message">The message text.</param>
         public static void LogTrace(this ILoggingSource sender, string aspectName, string message) =>
             Log(sender.LoggingHandler, MediaLogMessageType.Trace, aspectName, message);
@@ -75,7 +75,7 @@
         /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
-        /// <param name="aspectName">The apect of the code where the message is coming from.</param>
+        /// <param name="aspectName">The aspect of the code where the message is coming from.</param>
         /// <param name="message">The message text.</param>
         public static void LogError(this ILoggingSource sender, string aspectName, string message) =>
            Log(sender.LoggingHandler, MediaLogMessageType.Error, aspectName, message);
@@ -84,7 +84,7 @@
         /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
-        /// <param name="aspectName">The apect of the code where the message is coming from.</param>
+        /// <param name="aspectName">The aspect of the code where the message is coming from.</param>
         /// <param name="message">The message text.</param>
         /// <param name="ex">The exception to log.</param>
         public static void LogError(this ILoggingSource sender, string aspectName, string message, Exception ex) =>
@@ -126,19 +126,19 @@
         /// <summary>
         /// Implements the timer worker that outputs data to the log.
         /// </summary>
-        /// <seealso cref="TimerWorkerBase" />
-        private sealed class LogOutputTimerWorker : TimerWorkerBase
+        /// <seealso cref="IntervalWorkerBase" />
+        private sealed class LogOutputTimerWorker : IntervalWorkerBase
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="LogOutputTimerWorker"/> class.
             /// </summary>
             public LogOutputTimerWorker()
-                : base(nameof(LogOutputWorker), DefaultPeriod)
+                : base(nameof(LogOutputWorker))
             {
                 // placeholder
             }
 
-            // <inheritdoc />
+            /// <inheritdoc />
             protected override void ExecuteCycleLogic(CancellationToken ct)
             {
                 try
@@ -160,13 +160,13 @@
                 }
             }
 
-            // <inheritdoc />
+            /// <inheritdoc />
             protected override void OnCycleException(Exception ex)
             {
                 // placeholder
             }
 
-            // <inheritdoc />
+            /// <inheritdoc />
             protected override void OnDisposing()
             {
                 // placeholder - nothing to dispose.

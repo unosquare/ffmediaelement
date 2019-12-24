@@ -23,19 +23,6 @@
         bool IsDisposed { get; }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is currently being disposed.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is disposing; otherwise, <c>false</c>.
-        /// </value>
-        bool IsDisposing { get; }
-
-        /// <summary>
-        /// Gets or sets the time interval used to execute cycles.
-        /// </summary>
-        TimeSpan Period { get; set; }
-
-        /// <summary>
         /// Gets the name identifier of this worker.
         /// </summary>
         string Name { get; }

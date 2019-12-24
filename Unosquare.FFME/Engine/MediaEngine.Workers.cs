@@ -47,7 +47,7 @@
         /// <summary>
         /// Holds the last rendered StartTime for each of the media block types.
         /// </summary>
-        internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
+        internal MediaTypeDictionary<TimeSpan> CurrentRenderStartTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
         /// <summary>
         /// Gets a value indicating whether the decoder worker is sync-buffering.
@@ -221,7 +221,7 @@
         {
             // This forces the rendering worker to send the
             // corresponding block to its renderer
-            LastRenderTime[t] = TimeSpan.MinValue;
+            CurrentRenderStartTime[t] = TimeSpan.MinValue;
             Renderers[t]?.OnSeek();
         }
 

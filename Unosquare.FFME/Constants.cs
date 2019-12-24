@@ -18,18 +18,19 @@
         /// </summary>
         static Constants()
         {
-            var entryAssemblyPath = ".";
             try
             {
-                entryAssemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? ".";
+                var entryAssemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ?? ".";
+                FFmpegSearchPath = Path.GetFullPath(entryAssemblyPath);
+                return;
             }
             catch
             {
-                // ignore (we might be in winforms degin time)
+                // ignore (we might be in winforms design time)
                 // see issue #311
             }
 
-            FFmpegSearchPath = Path.GetFullPath(entryAssemblyPath);
+            FFmpegSearchPath = Path.GetFullPath(".");
         }
 
         /// <summary>
@@ -145,9 +146,9 @@
         internal static TimeSpan TimeSyncMaxOffset { get; } = TimeSpan.FromSeconds(10);
 
         /// <summary>
-        /// Gets the thread worker period.
+        /// Gets the timing period for default scenarios.
         /// </summary>
-        internal static TimeSpan ThreadWorkerPeriod => TimeSpan.FromMilliseconds(5);
+        internal static TimeSpan DefaultTimingPeriod => TimeSpan.FromMilliseconds(15);
 
         /// <summary>
         /// Gets the maximum blocks to cache for the given component type.

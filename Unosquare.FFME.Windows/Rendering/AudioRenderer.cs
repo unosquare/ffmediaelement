@@ -25,7 +25,6 @@
         private const int SyncLockTimeout = 100;
 
         private readonly AtomicBoolean IsClosing = new AtomicBoolean(false);
-        private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
 
         private IWavePlayer AudioDevice;
@@ -38,6 +37,7 @@
         private byte[] ReadBuffer;
         private int SampleBlockSize;
         private TimeSpan RealTimeLatency;
+        private DateTime LastSyncrhonize;
 
         #endregion
 
@@ -55,9 +55,6 @@
                 Constants.AudioSampleRate,
                 Constants.AudioBitsPerSample,
                 Constants.AudioChannelCount);
-
-            if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
-                throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
 
             if (MediaCore.State.HasAudio)
                 Initialize();
@@ -258,7 +255,10 @@
         }
 
         /// <inheritdoc />
-        public void OnStarting() => WaitForReadyEvent?.Wait();
+        public void OnStarting()
+        {
+            // placeholder
+        }
 
         /// <inheritdoc />
         public void Dispose()
@@ -271,7 +271,6 @@
 
                 IsDisposed = true;
                 Destroy();
-                WaitForReadyEvent.Dispose();
             }
         }
 
@@ -296,7 +295,6 @@
 
             try
             {
-                WaitForReadyEvent.Complete();
                 var speedRatio = MediaCore.State.SpeedRatio;
 
                 // Render silence if we don't need to output samples
@@ -382,6 +380,10 @@
         {
             Destroy();
 
+            // Check the wave format
+            if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
+                throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
+
             // Release the audio device always upon exiting
             if (Application.Current is Application app)
                 app.Dispatcher?.BeginInvoke(new Action(() => { app.Exit += OnApplicationExit; }));
@@ -395,7 +397,6 @@
             // Check if we have an audio output device.
             if (hasAudioDevices == false)
             {
-                WaitForReadyEvent.Complete();
                 HasFiredAudioDeviceStopped = true;
                 this.LogWarning(Aspects.AudioRenderer,
                     "No audio device found for output.");
@@ -493,11 +494,17 @@
 
             #endregion
 
-            const double latencyStepMs = 10d;
+            // The maximum change in milliseconds for a skip or rewind operation
+            const double LatencyStepMs = 10d;
+
+            // The minimum emapsed time in milliseconds before another rewind or skip operation can take place.
+            const double UpdateTimeoutMs = 200d;
+
+            var lastSyncSinceMs = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - LastSyncrhonize.Ticks).TotalMilliseconds;
             var hardwareLatencyMs = WaveFormat.ConvertByteSizeToDuration(requestedBytes).TotalMilliseconds;
             var bufferLatencyMs = BufferLatency.TotalMilliseconds; // we want the buffer latency to be the negative of the device latency
             var maxAcceptableLagMs = 0d; // more than this and we need to skip samples
-            var minAcceptableLeadMs = -2 * latencyStepMs; // less than this and we need to rewind samples
+            var minAcceptableLeadMs = -2 * LatencyStepMs; // less than this and we need to rewind samples
             var isLoggingEnabled = Math.Abs(speedRatio - 1.0) <= double.Epsilon;
             var operationName = string.Empty;
 
@@ -508,6 +515,10 @@
                 // we don't want to perform AV sync if the latency is huge
                 // or if we have simply disabled it
                 if (MediaElement.RendererOptions.AudioDisableSync)
+                    return true;
+
+                // Don't perform sycs back and forth so often.
+                if (lastSyncSinceMs < UpdateTimeoutMs)
                     return true;
 
                 // The ideal target latency is the negative of the audio device's desired latency.
@@ -521,7 +532,7 @@
                     // this is the case where the buffer latency is too positive (i.e. buffer is lagging by too much)
                     // the goal is to skip some samples to make the buffer latency approximately that of the hardware latency
                     // so that the buffer leads by the hardware lag and we get sync-perferct results.
-                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(bufferLatencyMs + latencyStepMs);
+                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(bufferLatencyMs + LatencyStepMs);
 
                     if (AudioBuffer.ReadableCount > audioLatencyBytes)
                     {
@@ -540,7 +551,7 @@
                     // this is the case where the buffer latency is too negative (i.e. buffer is leading by too much)
                     // the goal is to rewind some samples to make the buffer latency approximately that of the hardware latency
                     // so that the buffer leads by the hardware lag and we get sync-perferct results.
-                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Math.Abs(bufferLatencyMs) - latencyStepMs);
+                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Math.Abs(bufferLatencyMs) - LatencyStepMs);
 
                     if (AudioBuffer.RewindableCount > audioLatencyBytes)
                     {
@@ -558,10 +569,14 @@
             finally
             {
                 RealTimeLatency = BufferLatency;
-                if (isLoggingEnabled && !string.IsNullOrWhiteSpace(operationName))
+                if (!string.IsNullOrWhiteSpace(operationName))
                 {
-                    this.LogWarning(Aspects.AudioRenderer,
-                        $"SYNC AUDIO: {operationName} | Initial: {bufferLatencyMs:0} ms. Current: {BufferLatency.TotalMilliseconds:0} ms. Requested: {hardwareLatencyMs:0} ms.");
+                    LastSyncrhonize = DateTime.UtcNow;
+                    if (isLoggingEnabled)
+                    {
+                        this.LogWarning(Aspects.AudioRenderer,
+                            $"SYNC AUDIO: {operationName} | Initial: {bufferLatencyMs:0} ms. Current: {BufferLatency.TotalMilliseconds:0} ms. Requested: {hardwareLatencyMs:0} ms.");
+                    }
                 }
             }
 

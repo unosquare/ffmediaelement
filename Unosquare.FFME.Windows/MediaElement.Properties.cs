@@ -176,6 +176,78 @@ namespace Unosquare.FFME
 
         #endregion
 
+        #region ScrubbingEnabled Dependency Property
+
+        /// <summary>
+        /// Gets or sets a value that indicates whether the MediaElement will update frames
+        /// for seek operations while paused. This is a dependency property.
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("Gets or sets a value that indicates whether the MediaElement will display frames for seek operations before the final seek position is reached.")]
+        public bool ScrubbingEnabled
+        {
+            get => (bool)GetValue(ScrubbingEnabledProperty);
+            set => SetValue(ScrubbingEnabledProperty, value);
+        }
+
+        /// <summary>
+        /// The DependencyProperty for the MediaElement.ScrubbingEnabled property.
+        /// </summary>
+        public static readonly DependencyProperty ScrubbingEnabledProperty = DependencyProperty.Register(
+            nameof(ScrubbingEnabled), typeof(bool), typeof(MediaElement),
+            new FrameworkPropertyMetadata(true, null, OnScrubbingEnabledPropertyChanging));
+
+        private static object OnScrubbingEnabledPropertyChanging(DependencyObject d, object value)
+        {
+            if (d == null || d is MediaElement == false)
+                return false;
+
+            var element = (MediaElement)d;
+            if (element.IsStateUpdating)
+                return value;
+
+            element.MediaCore.State.ScrubbingEnabled = (bool)value;
+            return element.MediaCore.State.ScrubbingEnabled;
+        }
+
+        #endregion
+
+        #region VerticalSyncEnabled Dependency Property
+
+        /// <summary>
+        /// Gets or sets a value that indicates whether the MediaElement will update frames
+        /// for seek operations while paused. This is a dependency property.
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("Gets or sets a value that indicates whether the MediaElement will display frames for seek operations before the final seek position is reached.")]
+        public bool VerticalSyncEnabled
+        {
+            get => (bool)GetValue(VerticalSyncEnabledProperty);
+            set => SetValue(VerticalSyncEnabledProperty, value);
+        }
+
+        /// <summary>
+        /// The DependencyProperty for the MediaElement.VerticalSyncEnabled property.
+        /// </summary>
+        public static readonly DependencyProperty VerticalSyncEnabledProperty = DependencyProperty.Register(
+            nameof(VerticalSyncEnabled), typeof(bool), typeof(MediaElement),
+            new FrameworkPropertyMetadata(true, null, OnVerticalSyncEnabledPropertyChanging));
+
+        private static object OnVerticalSyncEnabledPropertyChanging(DependencyObject d, object value)
+        {
+            if (d == null || d is MediaElement == false)
+                return false;
+
+            var element = (MediaElement)d;
+            if (element.IsStateUpdating)
+                return value;
+
+            element.MediaCore.State.VerticalSyncEnabled = (bool)value;
+            return element.MediaCore.State.VerticalSyncEnabled;
+        }
+
+        #endregion
+
         #region SpeedRatio Dependency Property
 
         /// <summary>
@@ -207,52 +279,6 @@ namespace Unosquare.FFME
 
             element.MediaCore.State.SpeedRatio = (double)value;
             return element.MediaCore.State.SpeedRatio;
-        }
-
-        #endregion
-
-        #region Source Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the Source on this MediaElement.
-        /// The Source property is the Uri of the media to be played.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
-        public Uri Source
-        {
-            get => GetValue(SourceProperty) as Uri;
-            set => SetValue(SourceProperty, value);
-        }
-
-        /// <summary>
-        /// DependencyProperty for FFmpegMediaElement Source property.
-        /// </summary>
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
-            nameof(Source), typeof(Uri), typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, OnSourcePropertyChanging));
-
-        private static object OnSourcePropertyChanging(DependencyObject d, object value)
-        {
-            if (d == null || d is MediaElement == false)
-                return null;
-
-            var element = (MediaElement)d;
-            if (element.IsStateUpdating)
-                return value;
-
-            var uri = value as Uri;
-            var mediaCore = element.MediaCore;
-            if (mediaCore == null) return null;
-
-            if (uri == null)
-            {
-                mediaCore.Close();
-                return null;
-            }
-
-            mediaCore.Open(uri);
-            return uri;
         }
 
         #endregion
@@ -310,29 +336,6 @@ namespace Unosquare.FFME
 
             return targetSeek;
         }
-
-        #endregion
-
-        #region ScrubbingEnabled Dependency Property
-
-        /// <summary>
-        /// Gets or sets a value that indicates whether the MediaElement will update frames
-        /// for seek operations while paused. This is a dependency property.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("Gets or sets a value that indicates whether the MediaElement will update frames for seek operations while paused.")]
-        public bool ScrubbingEnabled
-        {
-            get => (bool)GetValue(ScrubbingEnabledProperty);
-            set => SetValue(ScrubbingEnabledProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.ScrubbingEnabled property.
-        /// </summary>
-        public static readonly DependencyProperty ScrubbingEnabledProperty = DependencyProperty.Register(
-            nameof(ScrubbingEnabled), typeof(bool), typeof(MediaElement),
-            new FrameworkPropertyMetadata(true));
 
         #endregion
 
@@ -501,6 +504,29 @@ namespace Unosquare.FFME
             if (d is MediaElement m && m.VideoView != null && m.VideoView.IsLoaded && e.NewValue is StretchDirection v)
                 m.VideoView.StretchDirection = v;
         }
+
+        #endregion
+
+        #region IgnorePixelAspectRatio Dependency Property
+
+        /// <summary>
+        /// Gets/Sets the stretch direction of the ViewBox, which determines the restrictions on
+        /// scaling that are applied to the content inside the ViewBox.  For instance, this property
+        /// can be used to prevent the content from being smaller than its native size or larger than
+        /// its native size.
+        /// </summary>
+        public bool IgnorePixelAspectRatio
+        {
+            get => (bool)GetValue(IgnorePixelAspectRatioProperty);
+            set => SetValue(IgnorePixelAspectRatioProperty, value);
+        }
+
+        /// <summary>
+        /// DependencyProperty for StretchDirection property.
+        /// </summary>
+        public static readonly DependencyProperty IgnorePixelAspectRatioProperty = DependencyProperty.Register(
+            nameof(IgnorePixelAspectRatio), typeof(bool), typeof(MediaElement),
+            new FrameworkPropertyMetadata(false, AffectsMeasureAndRender));
 
         #endregion
     }

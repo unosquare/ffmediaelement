@@ -213,7 +213,7 @@
         }
 
         /// <summary>
-        /// Converst a hexadecimal string to a byte array.
+        /// Converts a hexadecimal string to a byte array.
         /// </summary>
         /// <param name="hexString">The hexadecimal string to convert.</param>
         /// <returns>The byte array with the data of the hexadecimal string.</returns>

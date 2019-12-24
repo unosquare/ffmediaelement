@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Engine
+namespace Unosquare.FFME.Engine
 {
     using Commands;
     using Common;
@@ -15,20 +15,22 @@
     /// <summary>
     /// Implements the block rendering worker.
     /// </summary>
-    /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class BlockRenderingWorker : WorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
         private readonly Action<MediaType[]> ParallelRenderBlocks;
+        private readonly Thread QuantumThread;
+        private readonly ManualResetEventSlim QuantumWaiter = new ManualResetEventSlim(false);
+        private DateTime LastSpeedRatioTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), Constants.ThreadWorkerPeriod)
+            : base(nameof(BlockRenderingWorker))
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -37,6 +39,15 @@
             State = MediaCore.State;
             ParallelRenderBlocks = (all) => Parallel.ForEach(all, (t) => RenderBlock(t));
             SerialRenderBlocks = (all) => { foreach (var t in all) RenderBlock(t); };
+
+            QuantumThread = new Thread(RunQuantumThread)
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.Highest,
+                Name = $"{nameof(BlockRenderingWorker)}.Thread",
+            };
+
+            QuantumThread.Start();
         }
 
         /// <inheritdoc />
@@ -69,6 +80,35 @@
         /// Gets the Media Engine's state.
         /// </summary>
         private MediaEngineState State { get; }
+
+        /// <summary>
+        /// Gets the remaining cycle time.
+        /// </summary>
+        private TimeSpan RemainingCycleTime
+        {
+            get
+            {
+                try
+                {
+                    var frameDuration = Container.Components.MainMediaType == MediaType.Video && MediaCore.Blocks[MediaType.Video].Count > 0
+                        ? MediaCore.Blocks[MediaType.Video].AverageBlockDuration
+                        : Constants.DefaultTimingPeriod;
+
+                    // protect against too slow of a video framerate
+                    // which might impact audio rendering.
+                    if (frameDuration.TotalMilliseconds > 50d)
+                        frameDuration = TimeSpan.FromMilliseconds(50);
+
+                    return TimeSpan.FromTicks(frameDuration.Ticks - CurrentCycleElapsed.Ticks);
+                }
+                catch
+                {
+                    // ignore
+                }
+
+                return Constants.DefaultTimingPeriod;
+            }
+        }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
@@ -108,6 +148,8 @@
             finally
             {
                 DetectPlaybackEnded(main);
+
+                // CatchUpWithLiveStream(); // TODO: We are on to something good here
                 ExitSyncBuffering(main, all, ct);
                 ReportAndResumePlayback(main);
             }
@@ -122,6 +164,53 @@
         {
             // Reset the state to non-sync-buffering
             MediaCore.SignalSyncBufferingExited();
+        }
+
+        /// <inheritdoc />
+        protected override void Dispose(bool alsoManaged)
+        {
+            base.Dispose(alsoManaged);
+            QuantumWaiter.Dispose();
+        }
+
+        /// <summary>
+        /// Executes render thread logic in a cycle.
+        /// </summary>
+        private void RunQuantumThread(object state)
+        {
+            using var vsync = new VerticalSyncContext();
+            while (WorkerState != WorkerState.Stopped)
+            {
+                if (!VerticalSyncContext.IsAvailable)
+                    State.VerticalSyncEnabled = false;
+
+                var performVersticalSyncWait = MediaCore.Timing.IsRunning &&
+                    State.VerticalSyncEnabled &&
+                    Container.Components.MainMediaType == MediaType.Video;
+
+                if (performVersticalSyncWait)
+                {
+                    // wait a few times as there is no need to move on to the next frame
+                    // if the remaining cycle time is more than twice the refresh rate.
+                    while (RemainingCycleTime.Ticks >= vsync.RefreshPeriod.Ticks * 2)
+                        vsync.WaitForBlank();
+
+                    // wait one last time for the actual v-sync
+                    if (RemainingCycleTime.Ticks > 0)
+                        vsync.WaitForBlank();
+                }
+                else
+                {
+                    var waitTime = RemainingCycleTime;
+                    if (waitTime.Ticks > 0)
+                        QuantumWaiter.Wait(waitTime);
+                }
+
+                if (!TryBeginCycle())
+                    continue;
+
+                ExecuteCyle();
+            }
         }
 
         /// <summary>
@@ -234,6 +323,86 @@
                 this.LogTrace(Aspects.Timing,
                     $"CLOCK AHEAD : playback clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
             }
+        }
+
+        /// <summary>
+        /// Speeds up or slows down the speed ratio until the packet buffer
+        /// becomes the ideal to continue stable rendering.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void CatchUpWithLiveStream()
+        {
+            // TODO: This is not yet complete.
+            // It will fail on m3u8 files for example
+            // I am using 2 approches: dealing with timing and dealing with speed ratios
+            // I need more time to complete.
+            const double DefaultMinBufferMs = 500d;
+            const double DefaultMaxBufferMs = 1000d;
+            const double UpdateTimeoutMs = 100d;
+
+            if (!State.IsLiveStream)
+                return;
+
+            // Check if we have a valid duration
+            if (State.PacketBufferDuration == TimeSpan.MinValue)
+                return;
+
+            var maxBufferedMs = DefaultMaxBufferMs;
+            var minBufferedMs = DefaultMinBufferMs;
+            var bufferedMs = Container.Components.Main.BufferDuration.TotalMilliseconds; // State.PacketBufferDuration.TotalMilliseconds;
+
+            if (State.HasAudio && State.HasVideo && !MediaCore.Timing.HasDisconnectedClocks)
+            {
+                var videoStartOffset = MediaCore.Container.Components[MediaType.Video].StartTime;
+                var audioStartOffset = MediaCore.Container.Components[MediaType.Audio].StartTime;
+
+                if (videoStartOffset != TimeSpan.MinValue && audioStartOffset != TimeSpan.MinValue)
+                {
+                    var offsetMs = Math.Abs(videoStartOffset.TotalMilliseconds - audioStartOffset.TotalMilliseconds);
+                    maxBufferedMs = Math.Max(maxBufferedMs, offsetMs * 2);
+                    minBufferedMs = Math.Min(minBufferedMs, maxBufferedMs / 2d);
+                }
+            }
+
+            var canChangeSpeed = !MediaCore.IsSyncBuffering && !Commands.HasPendingCommands;
+            var needsSpeedUp = canChangeSpeed && bufferedMs > maxBufferedMs;
+            var needsSlowDown = canChangeSpeed && bufferedMs < minBufferedMs;
+            var needsSpeedChange = needsSpeedUp || needsSlowDown;
+            var lastUpdateSinceMs = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - LastSpeedRatioTime.Ticks).TotalMilliseconds;
+            var bufferedDelta = needsSpeedUp
+                ? bufferedMs - maxBufferedMs
+                : minBufferedMs - bufferedMs;
+
+            if (!needsSpeedChange || lastUpdateSinceMs < UpdateTimeoutMs)
+                return;
+
+            // TODO: Another option is to mess around some with the timing itself
+            // instead of using the speedratio.
+            if (bufferedDelta > 100d && (needsSpeedUp || needsSlowDown))
+            {
+                var deltaPosition = TimeSpan.FromMilliseconds(bufferedDelta / 10);
+                if (needsSlowDown) deltaPosition = deltaPosition.Negate();
+
+                MediaCore.Timing.Update(MediaCore.Timing.Position().Add(deltaPosition), MediaType.None);
+                LastSpeedRatioTime = DateTime.UtcNow;
+
+                this.LogWarning(nameof(BlockRenderingWorker),
+                    $"RT SYNC: Buffered: {bufferedMs:0.000} ms. | Delta: {bufferedDelta:0.000} ms. | Adjustment: {deltaPosition.TotalMilliseconds:0.000} ms.");
+            }
+
+            // function computes large changes for large differences.
+            /*
+            var speedRatioDelta = Math.Min(10d + (Math.Pow(bufferedDelta, 2d) / 100000d), 50d) / 100d;
+            if (bufferedDelta < 100d && !needsSlowDown)
+                speedRatioDelta = 0d;
+
+            var originalSpeedRatio = State.SpeedRatio;
+            var changePercent = (needsSlowDown ? -1d : 1d) * speedRatioDelta;
+            State.SpeedRatio = Constants.DefaultSpeedRatio + changePercent;
+
+            if (originalSpeedRatio != State.SpeedRatio)
+                LastSpeedRatioTime = DateTime.UtcNow;
+            */
         }
 
         /// <summary>
@@ -357,7 +526,7 @@
                 if (Commands.ActiveSeekMode == CommandManager.SeekMode.Normal &&
                     !Commands.WaitForSeekBlocks(1))
                 {
-                    if (MediaOptions.IsFluidSeekingDisabled)
+                    if (!State.ScrubbingEnabled)
                         continue;
                     else
                         break;
@@ -473,26 +642,25 @@
         /// <summary>
         /// Sends the given block to its corresponding media renderer.
         /// </summary>
-        /// <param name="currentBlock">The block.</param>
+        /// <param name="incomingBlock">The block.</param>
         /// <param name="playbackPosition">The clock position.</param>
         /// <returns>
         /// The number of blocks sent to the renderer.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int SendBlockToRenderer(MediaBlock currentBlock, TimeSpan playbackPosition)
+        private int SendBlockToRenderer(MediaBlock incomingBlock, TimeSpan playbackPosition)
         {
             // No blocks were rendered
-            if (currentBlock == null || currentBlock.IsDisposed) return 0;
+            if (incomingBlock == null || incomingBlock.IsDisposed) return 0;
 
-            var t = currentBlock.MediaType;
+            var t = incomingBlock.MediaType;
             var isAttachedPicture = t == MediaType.Video && Container.Components[t].StreamInfo.IsAttachedPictureDisposition;
-            var lastBlockStartTime = MediaCore.LastRenderTime[t];
-            var isRepeatedBlock = lastBlockStartTime != TimeSpan.MinValue && lastBlockStartTime == currentBlock.StartTime;
-            var requiresRepeatedBlocks = t == MediaType.Audio || isAttachedPicture;
+            var currentBlockStartTime = MediaCore.CurrentRenderStartTime.ContainsKey(t)
+                ? MediaCore.CurrentRenderStartTime[t]
+                : TimeSpan.MinValue;
 
-            // For live streams, we don't want to display previosu blocks
-            if (t == MediaType.Video && !isRepeatedBlock && !isAttachedPicture && Container.IsLiveStream)
-                isRepeatedBlock = lastBlockStartTime.Ticks >= currentBlock.StartTime.Ticks;
+            var isRepeatedBlock = currentBlockStartTime != TimeSpan.MinValue && currentBlockStartTime == incomingBlock.StartTime;
+            var requiresRepeatedBlocks = t == MediaType.Audio || isAttachedPicture;
 
             // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
             // otherwise simply skip block rendering as we have sent the block already.
@@ -500,16 +668,16 @@
                 return 0;
 
             // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(currentBlock);
+            State.UpdateDynamicBlockProperties(incomingBlock);
 
             // Capture the last render time so we don't repeat the block
-            MediaCore.LastRenderTime[t] = currentBlock.StartTime;
+            MediaCore.CurrentRenderStartTime[t] = incomingBlock.StartTime;
 
             // Send the block to its corresponding renderer
-            MediaCore.Renderers[t]?.Render(currentBlock, playbackPosition);
+            MediaCore.Renderers[t]?.Render(incomingBlock, playbackPosition);
 
             // Log the block statistics for debugging
-            LogRenderBlock(currentBlock, playbackPosition);
+            LogRenderBlock(incomingBlock, playbackPosition);
 
             return 1;
         }

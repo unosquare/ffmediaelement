@@ -7,6 +7,11 @@
     public partial class MediaElement
     {
         /// <summary>
+        /// Gets the source URI of the media.
+        /// </summary>
+        public Uri Source => MediaCore?.State.Source;
+
+        /// <summary>
         /// Gets the current playback state.
         /// </summary>
         public MediaPlaybackState MediaState => MediaCore?.State.MediaState ?? MediaPlaybackState.Close;
@@ -311,6 +316,13 @@
         /// Gets the amount of bytes in the packet buffer for the active stream components.
         /// </summary>
         public long PacketBufferLength => MediaCore?.State.PacketBufferLength ?? default;
+
+        /// <summary>
+        /// Gets the the least duration between the buffered audio and video packets.
+        /// If no duration information is encoded in neither, this property will return
+        /// <see cref="TimeSpan.MinValue"/>.
+        /// </summary>
+        public TimeSpan PacketBufferDuration => MediaCore?.State.PacketBufferDuration ?? TimeSpan.Zero;
 
         /// <summary>
         /// Gets the number of packets buffered for all components.

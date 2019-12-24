@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop" ToolsVersion="Current">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
@@ -19,9 +19,9 @@
     <RepositoryType>GitHub</RepositoryType>
     <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
 
-    <Version>4.2.320</Version>
-    <AssemblyVersion>4.2.320.0</AssemblyVersion>
-    <FileVersion>4.2.320.0</FileVersion>
+    <Version>4.2.330</Version>
+    <AssemblyVersion>4.2.330.0</AssemblyVersion>
+    <FileVersion>4.2.330.0</FileVersion>
     <LangVersion>latest</LangVersion>
 
     <Authors>Mario Di Vece, and Contributors to the FFME project</Authors>

@@ -20,7 +20,7 @@
         public RealTimeClock() => Reset();
 
         /// <summary>
-        /// Gets or sets the clock position.
+        /// Gets the clock position.
         /// </summary>
         public TimeSpan Position
         {
@@ -33,6 +33,11 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the elapsed time of the internal stopwatch.
+        /// </summary>
+        public TimeSpan ElapsedInternal => Chronometer.Elapsed;
 
         /// <summary>
         /// Gets a value indicating whether the clock is running.
@@ -110,6 +115,33 @@
             {
                 OffsetTicks = 0;
                 Chronometer.Reset();
+            }
+        }
+
+        /// <summary>
+        /// Sets the clock position to 0 and restarts it.
+        /// The speed ratio is not modified.
+        /// </summary>
+        public void Restart()
+        {
+            lock (SyncLock)
+            {
+                OffsetTicks = 0;
+                Chronometer.Restart();
+            }
+        }
+
+        /// <summary>
+        /// Sets the clock position to the specificed offsetand restarts it.
+        /// The speed ratio is not modified.
+        /// </summary>
+        /// <param name="offset">The offset to start at.</param>
+        public void Restart(TimeSpan offset)
+        {
+            lock (SyncLock)
+            {
+                OffsetTicks = offset.Ticks;
+                Chronometer.Restart();
             }
         }
     }

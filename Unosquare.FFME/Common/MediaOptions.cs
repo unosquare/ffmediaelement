@@ -183,12 +183,5 @@
         /// renderers in parallel. This defaults to false.
         /// </summary>
         public bool UseParallelRendering { get; set; }
-
-        /// <summary>
-        /// When seeking, the default behavior is to render video frames as soon as they become available and
-        /// thus creating an effect of fluidity when quickly seeking through the media stream. You can
-        /// disable this effect and frames will not be rendered until the seek operation completes.
-        /// </summary>
-        public bool IsFluidSeekingDisabled { get; set; }
     }
 }

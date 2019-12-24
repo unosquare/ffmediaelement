@@ -30,7 +30,7 @@
             typeof(ElementHostBase<T>));
 
         private readonly object UnloadLock = new object();
-        private bool m_IsDisposed = false;
+        private bool m_IsDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElementHostBase{T}"/> class.
@@ -342,11 +342,9 @@
         {
             Loaded -= HandleLoadedEvent;
 
-            var doneCreating = WaitEventFactory.Create(isCompleted: false, useSlim: true);
             var thread = new Thread(() =>
             {
                 PresentationSource = new HostedPresentationSource(Host);
-                doneCreating.Complete();
                 Element = CreateHostedElement();
                 PresentationSource.RootVisual = Element;
                 Element.SizeChanged += async (snd, eva) =>
@@ -359,19 +357,19 @@
                 // and blocks until dispatcher is requested an exit.
                 Dispatcher.Run();
 
-                // After the dispatcher is done, dispose the objects
-                doneCreating.Dispose();
+                // After the dispatcher is done, dispose the presentation source.
                 PresentationSource.Dispose();
             });
 
             thread.SetApartmentState(ApartmentState.STA);
             thread.IsBackground = true;
-            thread.Priority = ThreadPriority.Highest;
             thread.Start();
-            doneCreating.Wait();
 
-            while (Dispatcher.FromThread(thread) == null)
-                Thread.Sleep(50);
+            using (var doneCreating = new ManualResetEventSlim(false))
+            {
+                while (Dispatcher.FromThread(thread) == null)
+                    doneCreating.Wait(1);
+            }
 
             ElementDispatcher = Dispatcher.FromThread(thread);
             Dispatcher.BeginInvoke(new Action(InvalidateMeasure));

@@ -25,6 +25,7 @@
         private readonly AtomicDouble m_BufferingProgress = new AtomicDouble(default);
         private readonly AtomicDouble m_DownloadProgress = new AtomicDouble(default);
         private readonly AtomicLong m_PacketBufferLength = new AtomicLong(default);
+        private readonly AtomicTimeSpan m_PacketBufferDuration = new AtomicTimeSpan(TimeSpan.MinValue);
         private readonly AtomicInteger m_PacketBufferCount = new AtomicInteger(default);
 
         private readonly AtomicTimeSpan m_FramePosition = new AtomicTimeSpan(default);
@@ -34,6 +35,8 @@
         private readonly AtomicDouble m_Volume = new AtomicDouble(Constants.DefaultVolume);
         private readonly AtomicDouble m_Balance = new AtomicDouble(Constants.DefaultBalance);
         private readonly AtomicBoolean m_IsMuted = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_ScrubbingEnabled = new AtomicBoolean(true);
+        private readonly AtomicBoolean m_VerticalSyncEnabled = new AtomicBoolean(true);
 
         private Uri m_Source;
         private bool m_IsOpen;
@@ -104,9 +107,7 @@
         public double SpeedRatio
         {
             get => m_SpeedRatio.Value;
-            set => SetProperty(m_SpeedRatio, IsLiveStream
-                ? Constants.DefaultSpeedRatio
-                : value.Clamp(Constants.MinSpeedRatio, Constants.MaxSpeedRatio));
+            set => SetProperty(m_SpeedRatio, value.Clamp(Constants.MinSpeedRatio, Constants.MaxSpeedRatio));
         }
 
         /// <inheritdoc />
@@ -128,6 +129,20 @@
         {
             get => m_IsMuted.Value;
             set => SetProperty(m_IsMuted, value);
+        }
+
+        /// <inheritdoc />
+        public bool ScrubbingEnabled
+        {
+            get => m_ScrubbingEnabled.Value;
+            set => SetProperty(m_ScrubbingEnabled, value);
+        }
+
+        /// <inheritdoc />
+        public bool VerticalSyncEnabled
+        {
+            get => m_VerticalSyncEnabled.Value;
+            set => SetProperty(m_VerticalSyncEnabled, value);
         }
 
         #endregion
@@ -509,6 +524,13 @@
         }
 
         /// <inheritdoc />
+        public TimeSpan PacketBufferDuration
+        {
+            get => m_PacketBufferDuration.Value;
+            private set => SetProperty(m_PacketBufferDuration, value);
+        }
+
+        /// <inheritdoc />
         public int PacketBufferCount
         {
             get => m_PacketBufferCount.Value;
@@ -761,11 +783,13 @@
         /// <param name="bufferLength">Length of the packet buffer.</param>
         /// <param name="bufferCount">The packet buffer count.</param>
         /// <param name="bufferCountMax">The packet buffer count maximum for all components.</param>
+        /// <param name="bufferDuration">Duration of the packet buffer.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateBufferingStats(long bufferLength, int bufferCount, int bufferCountMax)
+        internal void UpdateBufferingStats(long bufferLength, int bufferCount, int bufferCountMax, TimeSpan bufferDuration)
         {
             PacketBufferCount = bufferCount;
             PacketBufferLength = bufferLength;
+            PacketBufferDuration = bufferDuration;
             BufferingProgress = bufferCountMax <= 0 ? 0 : Math.Min(1d, (double)bufferCount / bufferCountMax);
             DownloadProgress = Math.Min(1d, (double)bufferLength / MediaEngine.BufferLengthMax);
 
@@ -795,6 +819,7 @@
             BufferingProgress = default;
             DownloadProgress = default;
             PacketBufferLength = default;
+            PacketBufferDuration = TimeSpan.MinValue;
             PacketBufferCount = default;
         }
 

@@ -1,208 +1,202 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
 
-    /// <summary>
-    /// Provides base infrastructure for Timer and Thread workers.
-    /// </summary>
-    /// <seealso cref="IWorker" />
     internal abstract class WorkerBase : IWorker
     {
-        // Since these are API property backers, we use interlocked to read from them
-        // to avoid deadlocked reads
         private readonly object SyncLock = new object();
-        private long m_Period;
+        private readonly Stopwatch CycleClock = new Stopwatch();
+        private readonly ManualResetEventSlim WantedStateCompleted = new ManualResetEventSlim(true);
+
         private int m_IsDisposed;
         private int m_IsDisposing;
         private int m_WorkerState = (int)WorkerState.Created;
+        private int m_WantedWorkerState = (int)WorkerState.Running;
+        private CancellationTokenSource TokenSource = new CancellationTokenSource();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WorkerBase"/> class.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="period">The execution interval.</param>
-        protected WorkerBase(string name, TimeSpan period)
+        protected WorkerBase(string name)
         {
             Name = name;
-            Period = period;
-
-            StateChangeRequests = new Dictionary<StateChangeRequest, bool>(5)
-            {
-                [StateChangeRequest.Start] = false,
-                [StateChangeRequest.Pause] = false,
-                [StateChangeRequest.Resume] = false,
-                [StateChangeRequest.Stop] = false
-            };
+            CycleClock.Restart();
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="WorkerBase"/> class.
+        /// Gets the name of the worker.
         /// </summary>
-        ~WorkerBase() => Dispose(false);
-
-        /// <summary>
-        /// Enumerates all the different state change requests.
-        /// </summary>
-        protected enum StateChangeRequest
-        {
-            /// <summary>
-            /// No state change request.
-            /// </summary>
-            None,
-
-            /// <summary>
-            /// Start state change request
-            /// </summary>
-            Start,
-
-            /// <summary>
-            /// Pause state change request
-            /// </summary>
-            Pause,
-
-            /// <summary>
-            /// Resume state change request
-            /// </summary>
-            Resume,
-
-            /// <summary>
-            /// Stop state change request
-            /// </summary>
-            Stop
-        }
-
-        /// <inheritdoc />
         public string Name { get; }
-
-        /// <inheritdoc />
-        public TimeSpan Period
-        {
-            get => TimeSpan.FromTicks(Interlocked.Read(ref m_Period));
-            set => Interlocked.Exchange(ref m_Period, value.Ticks < 0 ? 0 : value.Ticks);
-        }
 
         /// <inheritdoc />
         public WorkerState WorkerState
         {
             get => (WorkerState)Interlocked.CompareExchange(ref m_WorkerState, 0, 0);
-            protected set => Interlocked.Exchange(ref m_WorkerState, (int)value);
+            private set => Interlocked.Exchange(ref m_WorkerState, (int)value);
         }
 
         /// <inheritdoc />
         public bool IsDisposed
         {
             get => Interlocked.CompareExchange(ref m_IsDisposed, 0, 0) != 0;
-            protected set => Interlocked.Exchange(ref m_IsDisposed, value ? 1 : 0);
+            private set => Interlocked.Exchange(ref m_IsDisposed, value ? 1 : 0);
         }
 
-        /// <inheritdoc />
-        public bool IsDisposing
+        /// <summary>
+        /// Gets a value indicating whether this instance is currently being disposed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is disposing; otherwise, <c>false</c>.
+        /// </value>
+        protected bool IsDisposing
         {
             get => Interlocked.CompareExchange(ref m_IsDisposing, 0, 0) != 0;
-            protected set => Interlocked.Exchange(ref m_IsDisposing, value ? 1 : 0);
+            private set => Interlocked.Exchange(ref m_IsDisposing, value ? 1 : 0);
         }
 
         /// <summary>
-        /// Gets the default period of 15 milliseconds which is the default precision for timers.
+        /// Gets or sets the desired state of the worker.
         /// </summary>
-        protected static TimeSpan DefaultPeriod { get; } = TimeSpan.FromMilliseconds(15);
-
-        /// <summary>
-        /// Gets a value indicating whether stop has been requested.
-        /// This is useful to prevent more requests from being issued.
-        /// </summary>
-        protected bool IsStopRequested => StateChangeRequests[StateChangeRequest.Stop];
-
-        /// <summary>
-        /// Gets the cycle stopwatch.
-        /// </summary>
-        protected Stopwatch CycleStopwatch { get; } = new Stopwatch();
-
-        /// <summary>
-        /// Gets the state change requests.
-        /// </summary>
-        protected Dictionary<StateChangeRequest, bool> StateChangeRequests { get; }
-
-        /// <summary>
-        /// Gets the cycle completed event.
-        /// </summary>
-        protected ManualResetEventSlim CycleCompletedEvent { get; } = new ManualResetEventSlim(true);
-
-        /// <summary>
-        /// Gets the state changed event.
-        /// </summary>
-        protected ManualResetEventSlim StateChangedEvent { get; } = new ManualResetEventSlim(true);
-
-        /// <summary>
-        /// Gets the cycle logic cancellation owner.
-        /// </summary>
-        protected CancellationTokenOwner CycleCancellation { get; } = new CancellationTokenOwner();
-
-        /// <summary>
-        /// Gets or sets the state change task.
-        /// </summary>
-        protected Task<WorkerState> StateChangeTask { get; set; }
-
-        /// <inheritdoc />
-        public abstract Task<WorkerState> StartAsync();
-
-        /// <inheritdoc />
-        public abstract Task<WorkerState> PauseAsync();
-
-        /// <inheritdoc />
-        public abstract Task<WorkerState> ResumeAsync();
-
-        /// <inheritdoc />
-        public abstract Task<WorkerState> StopAsync();
-
-        /// <inheritdoc />
-        public void Dispose()
+        protected WorkerState WantedWorkerState
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            get => (WorkerState)Interlocked.CompareExchange(ref m_WantedWorkerState, 0, 0);
+            set => Interlocked.Exchange(ref m_WantedWorkerState, (int)value);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
+        /// Gets the elapsed time of the last cycle.
         /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool alsoManaged)
+        protected TimeSpan LastCycleElapsed { get; private set; }
+
+        /// <summary>
+        /// Gets the elapsed time of the current cycle.
+        /// </summary>
+        protected TimeSpan CurrentCycleElapsed => CycleClock.Elapsed;
+
+        /// <inheritdoc />
+        public Task<WorkerState> StartAsync()
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing) return;
-                IsDisposing = true;
+                if (IsDisposed || IsDisposing)
+                    return Task.FromResult(WorkerState);
+
+                if (WorkerState == WorkerState.Created)
+                {
+                    WantedWorkerState = WorkerState.Running;
+                    WorkerState = WorkerState.Running;
+                    return Task.FromResult(WorkerState);
+                }
+                else if (WorkerState == WorkerState.Paused)
+                {
+                    WantedStateCompleted.Reset();
+                    WantedWorkerState = WorkerState.Running;
+                }
             }
 
-            if (alsoManaged)
+            return RunWaitForWantedState();
+        }
+
+        /// <inheritdoc />
+        public Task<WorkerState> PauseAsync()
+        {
+            lock (SyncLock)
             {
-                // This also ensures the state change queue gets cleared
-                StopAsync().Wait();
-                StateChangedEvent.Set();
-                CycleCompletedEvent.Set();
+                if (IsDisposed || IsDisposing)
+                    return Task.FromResult(WorkerState);
 
-                OnDisposing();
+                if (WorkerState != WorkerState.Running)
+                    return Task.FromResult(WorkerState);
+
+                WantedStateCompleted.Reset();
+                WantedWorkerState = WorkerState.Paused;
             }
 
-            CycleStopwatch.Stop();
-            StateChangedEvent.Dispose();
-            CycleCompletedEvent.Dispose();
-            CycleCancellation.Dispose();
+            return RunWaitForWantedState();
+        }
 
-            IsDisposed = true;
-            IsDisposing = false;
+        /// <inheritdoc />
+        public Task<WorkerState> ResumeAsync()
+        {
+            lock (SyncLock)
+            {
+                if (IsDisposed || IsDisposing)
+                    return Task.FromResult(WorkerState);
+
+                if (WorkerState != WorkerState.Paused)
+                    return Task.FromResult(WorkerState);
+
+                WantedStateCompleted.Reset();
+                WantedWorkerState = WorkerState.Running;
+            }
+
+            return RunWaitForWantedState();
+        }
+
+        /// <inheritdoc />
+        public Task<WorkerState> StopAsync()
+        {
+            lock (SyncLock)
+            {
+                if (IsDisposed || IsDisposing)
+                    return Task.FromResult(WorkerState);
+
+                if (WorkerState != WorkerState.Running && WorkerState != WorkerState.Paused)
+                    return Task.FromResult(WorkerState);
+
+                WantedStateCompleted.Reset();
+                WantedWorkerState = WorkerState.Stopped;
+                Interrupt();
+            }
+
+            return RunWaitForWantedState();
+        }
+
+        /// <inheritdoc />
+        public virtual void Dispose() => Dispose(true);
+
+        /// <summary>
+        /// Releases unmanaged and optionally managed resources.
+        /// </summary>
+        /// <param name="alsoManaged">Determines if managed resources hsould also be released.</param>
+        protected virtual void Dispose(bool alsoManaged)
+        {
+            StopAsync().Wait();
+
+            lock (SyncLock)
+            {
+                if (IsDisposed || IsDisposing)
+                    return;
+
+                IsDisposing = true;
+                WantedStateCompleted.Set();
+                try { OnDisposing(); } catch { /* Ignore */ }
+                CycleClock.Reset();
+                WantedStateCompleted.Dispose();
+                TokenSource.Dispose();
+                IsDisposed = true;
+                IsDisposing = false;
+            }
         }
 
         /// <summary>
         /// Handles the cycle logic exceptions.
         /// </summary>
         /// <param name="ex">The exception that was thrown.</param>
-        protected abstract void OnCycleException(Exception ex);
+        protected virtual void OnCycleException(Exception ex)
+        {
+            // placeholder
+        }
+
+        /// <summary>
+        /// This method is called automatically when <see cref="Dispose()"/> is called.
+        /// Makes sure you release all resources within this call.
+        /// </summary>
+        protected virtual void OnDisposing()
+        {
+            // placeholder
+        }
 
         /// <summary>
         /// Represents the user defined logic to be executed on a single worker cycle.
@@ -212,40 +206,71 @@
         protected abstract void ExecuteCycleLogic(CancellationToken ct);
 
         /// <summary>
-        /// This method is called automatically when <see cref="Dispose()"/> is called.
-        /// Makes sure you release all resources within this call.
+        /// Interrupts a cycle or a wait operation.
         /// </summary>
-        protected abstract void OnDisposing();
-
-        /// <summary>
-        /// Called when a state change request is processed.
-        /// </summary>
-        /// <param name="previousState">The state befor the change.</param>
-        /// <param name="newState">The new state.</param>
-        protected virtual void OnStateChangeProcessed(WorkerState previousState, WorkerState newState)
-        {
-            // placeholder
-        }
-
-        /// <summary>
-        /// Computes the cycle delay.
-        /// </summary>
-        /// <param name="initialWorkerState">Initial state of the worker.</param>
-        /// <returns>The number of milliseconds to delay for.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected int ComputeCycleDelay(WorkerState initialWorkerState)
-        {
-            var elapsedMillis = CycleStopwatch.ElapsedMilliseconds;
-            var period = Period;
-            var periodMillis = period.TotalMilliseconds;
-            var delayMillis = periodMillis - elapsedMillis;
+        protected void Interrupt() => TokenSource.Cancel();
 
-            if (initialWorkerState == WorkerState.Paused || period == TimeSpan.MaxValue || delayMillis >= int.MaxValue)
-                return Timeout.Infinite;
-            else if (elapsedMillis >= periodMillis)
-                return 0;
-            else
-                return Convert.ToInt32(Math.Floor(delayMillis));
+        /// <summary>
+        /// Tries to acquire a cycle for execution.
+        /// </summary>
+        /// <returns>True if a cycle should be executed.</returns>
+        protected bool TryBeginCycle()
+        {
+            if (WorkerState == WorkerState.Created || WorkerState == WorkerState.Stopped)
+                return false;
+
+            LastCycleElapsed = CycleClock.Elapsed;
+            CycleClock.Restart();
+
+            lock (SyncLock)
+            {
+                WorkerState = WantedWorkerState;
+                WantedStateCompleted.Set();
+
+                if (WorkerState == WorkerState.Stopped)
+                    return false;
+            }
+
+            return true;
         }
+
+        /// <summary>
+        /// Executes the cyle calling the user-defined code.
+        /// </summary>
+        protected void ExecuteCyle()
+        {
+            // Recreate the token source -- applies to cycle logic and delay
+            var ts = TokenSource;
+            if (ts.IsCancellationRequested)
+            {
+                TokenSource = new CancellationTokenSource();
+                ts.Dispose();
+            }
+
+            if (WorkerState == WorkerState.Running)
+            {
+                try
+                {
+                    ExecuteCycleLogic(TokenSource.Token);
+                }
+                catch (Exception ex)
+                {
+                    OnCycleException(ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns a hot task that waits for the state of the worker to change.
+        /// </summary>
+        /// <returns>The awaitable state change task.</returns>
+        private Task<WorkerState> RunWaitForWantedState() => Task.Run(() =>
+        {
+            while (!WantedStateCompleted.Wait(Constants.DefaultTimingPeriod))
+                Interrupt();
+
+            return WorkerState;
+        });
     }
 }

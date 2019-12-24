@@ -217,9 +217,9 @@
         public virtual void Decrement() => Interlocked.Decrement(ref backingValue);
 
         /// <inheritdoc />
-        public int CompareTo(object other)
+        public int CompareTo(object obj)
         {
-            switch (other)
+            switch (obj)
             {
                 case null:
                     return 1;
@@ -239,9 +239,9 @@
         public int CompareTo(AtomicTypeBase<T> other) => CompareTo(this, other);
 
         /// <inheritdoc />
-        public override bool Equals(object other)
+        public override bool Equals(object obj)
         {
-            switch (other)
+            switch (obj)
             {
                 case null:
                     return false;

@@ -54,7 +54,7 @@
         }
 
         /// <summary>
-        /// Releases unmanaged resources and prvents more packets from being handled.
+        /// Releases unmanaged resources and prevents more packets from being handled.
         /// </summary>
         private void Release()
         {

@@ -180,6 +180,11 @@
                             <TextBlock Style="{StaticResource Value}" Text="{Binding PacketBufferLength, Mode=OneWay, Converter={StaticResource ByteFormatter}}" />
                         </DockPanel>
 
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Buffered Duration</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding PacketBufferDuration, Mode=OneWay, Converter={StaticResource TimeSpanFormatter}}" />
+                        </DockPanel>
+
                         <DockPanel Background="{StaticResource KeyHeader}">
                             <TextBlock Style="{StaticResource Key}">Has Video</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding HasVideo, Mode=OneWay}" />

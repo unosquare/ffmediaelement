@@ -73,6 +73,7 @@
                 videoBlock.ClosedCaptions,
                 videoBlock.SmtpeTimeCode,
                 videoBlock.DisplayPictureNumber,
+                videoBlock.PictureType,
                 MediaCore.State,
                 MediaCore.MediaInfo.Streams[videoBlock.StreamIndex],
                 videoBlock.StartTime,

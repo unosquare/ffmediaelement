@@ -27,6 +27,11 @@
         /// </summary>
         public bool HasEnoughPackets;
 
+        /// <summary>
+        /// The duration of the packets. An invalid value will return <see cref="TimeSpan.MinValue"/>.
+        /// </summary>
+        public TimeSpan Duration;
+
         /// <inheritdoc />
         public bool Equals(PacketBufferState other) =>
                     Length == other.Length &&

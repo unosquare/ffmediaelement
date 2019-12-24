@@ -49,7 +49,7 @@
         private readonly AtomicBoolean m_IsStateUpdating = new AtomicBoolean(false);
         private readonly DispatcherTimer UpdatesTimer;
 
-        private bool m_IsDisposed = false;
+        private bool m_IsDisposed;
 
         #endregion
 
@@ -185,9 +185,13 @@
 
             // Since VideoView might be hosted on a different dispatcher,
             // we use the custom InvokeAsync method
-            await VideoView?.InvokeAsync(() =>
+            var videoView = VideoView;
+            if (videoView == null)
+                return null;
+
+            await videoView.InvokeAsync(() =>
             {
-                var source = VideoView?.Source?.Clone() as BitmapSource;
+                var source = videoView.Source?.Clone() as BitmapSource;
                 if (source == null)
                     return;
 
@@ -368,13 +372,17 @@
                     {
                         IsMuted = MediaCore.State.IsMuted;
                     }
+                    else if (p == nameof(ScrubbingEnabled))
+                    {
+                        ScrubbingEnabled = MediaCore.State.ScrubbingEnabled;
+                    }
+                    else if (p == nameof(VerticalSyncEnabled))
+                    {
+                        VerticalSyncEnabled = MediaCore.State.VerticalSyncEnabled;
+                    }
                     else if (p == nameof(SpeedRatio))
                     {
                         SpeedRatio = MediaCore.State.SpeedRatio;
-                    }
-                    else if (p == nameof(Source))
-                    {
-                        Source = MediaCore.State.Source;
                     }
 
                     NotifyPropertyChangedEvent(p);

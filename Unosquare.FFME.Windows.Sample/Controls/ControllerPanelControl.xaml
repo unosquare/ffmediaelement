@@ -53,6 +53,12 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <DockPanel Name="LeftControls" HorizontalAlignment="Left" Grid.Column="0">
+                    <ToggleButton Visibility="{Binding Controller.CloseButtonVisibility}" Style="{DynamicResource ModernToggleButtonStyle}" IsChecked="{Binding MediaElement.VerticalSyncEnabled, Mode=TwoWay}" ToolTip="Enable Vertical Sync">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource VerticalSyncIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
+                    <ToggleButton Visibility="{Binding Controller.SeekBarVisibility}" Style="{DynamicResource ModernToggleButtonStyle}" IsChecked="{Binding MediaElement.ScrubbingEnabled, Mode=TwoWay}" ToolTip="Enable Seek Scrubbing">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource ScrubbingIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
                     <ToggleButton Visibility="{Binding Controller.IsMediaOpenVisibility}" Name="SoundMenuButton" Style="{DynamicResource ModernToggleButtonStyle}">
                         <Path Stretch="Uniform" Data="{Binding Source={StaticResource AudioMenuIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
                     </ToggleButton>
@@ -109,6 +115,10 @@
                 </DockPanel>
 
                 <DockPanel Name="RightControls" HorizontalAlignment="Right" Grid.Column="2">
+
+                    <ToggleButton Visibility="{Binding Controller.SeekBarVisibility}" Style="{DynamicResource ModernToggleButtonStyle}" IsChecked="{Binding Controller.IsLoopingMediaEnabled, Mode=TwoWay}" ToolTip="Enable Looping">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource RepeatIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
 
                     <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding Commands.CloseCommand}" Visibility="{Binding Controller.CloseButtonVisibility}">
                         <Path Stretch="Uniform" Data="{Binding Source={StaticResource CloseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
