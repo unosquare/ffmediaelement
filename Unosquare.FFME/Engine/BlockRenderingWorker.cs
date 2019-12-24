@@ -178,16 +178,21 @@ namespace Unosquare.FFME.Engine
         /// </summary>
         private void RunQuantumThread(object state)
         {
-            // TODO: VerticalSyncContext.IsAvailable
             using var vsync = new VerticalSyncContext();
             while (WorkerState != WorkerState.Stopped)
             {
-                // VerticalSyncContext.Flush();
-                if (State.VerticalSyncEnabled && Container.Components.MainMediaType == MediaType.Video)
+                if (!VerticalSyncContext.IsAvailable)
+                    State.VerticalSyncEnabled = false;
+
+                var performVersticalSyncWait = MediaCore.Timing.IsRunning &&
+                    State.VerticalSyncEnabled &&
+                    Container.Components.MainMediaType == MediaType.Video;
+
+                if (performVersticalSyncWait)
                 {
                     // wait a few times as there is no need to move on to the next frame
                     // if the remaining cycle time is more than twice the refresh rate.
-                    while (RemainingCycleTime.Ticks > vsync.RefreshPeriod.Ticks * 2)
+                    while (RemainingCycleTime.Ticks >= vsync.RefreshPeriod.Ticks * 2)
                         vsync.Wait();
 
                     // wait one last time for the actual v-sync
@@ -197,7 +202,7 @@ namespace Unosquare.FFME.Engine
                 else
                 {
                     var waitTime = RemainingCycleTime;
-                    if (waitTime.TotalMilliseconds >= 1)
+                    if (waitTime.Ticks > 0)
                         QuantumWaiter.Wait(waitTime);
                 }
 

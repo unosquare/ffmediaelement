@@ -17,14 +17,26 @@
     /// </summary>
     internal sealed class VerticalSyncContext : IDisposable
     {
+        private static readonly object NativeSyncLock = new object();
         private readonly Stopwatch RefreshStopwatch = Stopwatch.StartNew();
         private readonly object SyncLock = new object();
         private bool IsDisposed;
+        private DisplayDeviceInfo? DisplayDevice;
         private AdapterInfo CurrentAdapterInfo;
-        private bool IsAdapterOpen;
         private VerticalSyncEventInfo VerticalSyncEvent;
         private double RefreshCount;
 
+        /// <summary>
+        /// Initializes static members of the <see cref="VerticalSyncContext"/> class.
+        /// </summary>
+        static VerticalSyncContext()
+        {
+            IsAvailable = PrimaryDisplayDevice != null;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VerticalSyncContext"/> class.
+        /// </summary>
         public VerticalSyncContext()
         {
             lock (SyncLock)
@@ -33,6 +45,9 @@
             }
         }
 
+        /// <summary>
+        /// Enumerates the device state flags.
+        /// </summary>
         [Flags]
         private enum DisplayDeviceStateFlags : int
         {
@@ -47,38 +62,110 @@
             Disconnect = 0x2000000
         }
 
+        /// <summary>
+        /// Gets a value indicating whether Vertical Synchronization is available on the system.
+        /// </summary>
+        public static bool IsAvailable { get; private set; }
+
+        /// <summary>
+        /// Gets the display device refresh rate in Hz.
+        /// </summary>
         public double RefreshRateHz { get; private set; } = 60;
 
+        /// <summary>
+        /// Gets the refresh period of the display device.
+        /// </summary>
         public TimeSpan RefreshPeriod => TimeSpan.FromSeconds(1d / RefreshRateHz);
 
+        /// <summary>
+        /// Gets the display devices.
+        /// </summary>
+        private static DisplayDeviceInfo[] DisplayDevices
+        {
+            get
+            {
+                lock (NativeSyncLock)
+                {
+                    var structSize = Marshal.SizeOf<DisplayDeviceInfo>();
+                    var result = new List<DisplayDeviceInfo>(16);
+
+                    try
+                    {
+                        var deviceIndex = 0u;
+                        while (true)
+                        {
+                            var d = default(DisplayDeviceInfo);
+                            d.StructSize = structSize;
+                            if (!NativeMethods.EnumDisplayDevices(null, deviceIndex, ref d, 0))
+                                break;
+
+                            result.Add(d);
+                            deviceIndex++;
+                        }
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+
+                    return result.ToArray();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the primary display device.
+        /// </summary>
+        private static DisplayDeviceInfo? PrimaryDisplayDevice
+        {
+            get
+            {
+                var devices = DisplayDevices;
+                if (devices.Length == 0 || !devices.Any(d => d.StateFlags.HasFlag(DisplayDeviceStateFlags.PrimaryDevice)))
+                    return null;
+
+                return devices.First(d => d.StateFlags.HasFlag(DisplayDeviceStateFlags.PrimaryDevice));
+            }
+        }
+
+        /// <summary>
+        /// An alternative, less precise method of waiting for the monitor's vertical synchronization.
+        /// </summary>
         public static void Flush() => NativeMethods.DwmFlush();
 
         public void Wait()
         {
             lock (SyncLock)
             {
-                EnsureAdapter();
-
-                if (!IsAdapterOpen)
+                try
                 {
-                    Thread.Sleep(1);
-                    return;
+                    if (!IsAvailable || !EnsureAdapter())
+                    {
+                        Thread.Sleep(Constants.DefaultTimingPeriod);
+                        return;
+                    }
+
+                    try
+                    {
+                        var waitResult = NativeMethods.D3DKMTWaitForVerticalBlankEvent(ref VerticalSyncEvent);
+                        if (waitResult != 0)
+                            throw new Exception("Adapter needs to be recreated. Resources will be released.");
+                    }
+                    catch
+                    {
+                        ReleaseAdapter();
+                    }
                 }
-
-                var waitResult = NativeMethods.D3DKMTWaitForVerticalBlankEvent(ref VerticalSyncEvent);
-                RefreshCount++;
-
-                if (RefreshStopwatch.Elapsed.TotalMilliseconds >= 1000)
+                finally
                 {
-                    RefreshRateHz = RefreshCount / RefreshStopwatch.Elapsed.TotalSeconds;
-                    RefreshStopwatch.Restart();
-                    RefreshCount = 0;
-                }
+                    RefreshCount++;
 
-                if (waitResult != 0)
-                {
-                    ReleaseAdapter();
-                    IsAdapterOpen = false;
+                    if (RefreshStopwatch.Elapsed.TotalMilliseconds >= 1000)
+                    {
+                        RefreshRateHz = RefreshCount / RefreshStopwatch.Elapsed.TotalSeconds;
+                        RefreshStopwatch.Restart();
+                        RefreshCount = 0;
+                    }
                 }
             }
         }
@@ -94,81 +181,97 @@
             }
         }
 
-        private static DisplayDeviceInfo[] EnumerateDisplayDevices()
-        {
-            var structSize = Marshal.SizeOf<DisplayDeviceInfo>();
-            var result = new List<DisplayDeviceInfo>(16);
-
-            try
-            {
-                var deviceIndex = 0u;
-                while (true)
-                {
-                    var d = default(DisplayDeviceInfo);
-                    d.StructSize = structSize;
-                    if (!NativeMethods.EnumDisplayDevices(null, deviceIndex, ref d, 0))
-                        break;
-
-                    result.Add(d);
-                    deviceIndex++;
-                }
-            }
-            catch
-            {
-                // ignore
-            }
-
-            return result.ToArray();
-        }
-
         private bool EnsureAdapter()
         {
-            if (IsAdapterOpen)
-                return true;
-
-            var displayDevices = EnumerateDisplayDevices();
-            if (displayDevices.Length == 0)
+            if (DisplayDevice == null)
             {
-                ReleaseAdapter();
-                return false;
+                DisplayDevice = PrimaryDisplayDevice;
+                if (DisplayDevice == null)
+                {
+                    IsAvailable = false;
+                    return false;
+                }
             }
 
-            var primaryDisplayName = displayDevices.FirstOrDefault(d => d.StateFlags.HasFlag(DisplayDeviceStateFlags.PrimaryDevice)).DeviceName;
-            CurrentAdapterInfo = default;
-            CurrentAdapterInfo.DCHandle = NativeMethods.CreateDC(primaryDisplayName, null, null, IntPtr.Zero);
-
-            var openAdapterResult = NativeMethods.D3DKMTOpenAdapterFromHdc(ref CurrentAdapterInfo);
-            if (openAdapterResult == 0)
+            if (CurrentAdapterInfo.DCHandle == IntPtr.Zero)
             {
-                IsAdapterOpen = true;
-                VerticalSyncEvent = default;
-                VerticalSyncEvent.AdapterHandle = CurrentAdapterInfo.AdapterHandle;
-                VerticalSyncEvent.DeviceHandle = 0;
-                VerticalSyncEvent.PresentSourceId = CurrentAdapterInfo.PresentSourceId;
-            }
-            else
-            {
-                IsAdapterOpen = false;
-                VerticalSyncEvent = default;
+                try
+                {
+                    CurrentAdapterInfo = default;
+                    CurrentAdapterInfo.DCHandle = NativeMethods.CreateDC(DisplayDevice.Value.DeviceName, null, null, IntPtr.Zero);
+                    if (CurrentAdapterInfo.DCHandle == IntPtr.Zero)
+                        throw new NotSupportedException("Unable to create DC for adapter.");
+                }
+                catch
+                {
+                    ReleaseAdapter();
+                    IsAvailable = false;
+                    return false;
+                }
             }
 
-            return IsAdapterOpen;
+            if (VerticalSyncEvent.AdapterHandle == 0 && CurrentAdapterInfo.DCHandle != IntPtr.Zero)
+            {
+                try
+                {
+                    var openAdapterResult = NativeMethods.D3DKMTOpenAdapterFromHdc(ref CurrentAdapterInfo);
+                    if (openAdapterResult == 0)
+                    {
+                        VerticalSyncEvent = default;
+                        VerticalSyncEvent.AdapterHandle = CurrentAdapterInfo.AdapterHandle;
+                        VerticalSyncEvent.DeviceHandle = 0;
+                        VerticalSyncEvent.PresentSourceId = CurrentAdapterInfo.PresentSourceId;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Unable to open D3D adapter.");
+                    }
+                }
+                catch
+                {
+                    ReleaseAdapter();
+                    IsAvailable = false;
+                    return false;
+                }
+            }
+
+            return VerticalSyncEvent.AdapterHandle != 0;
         }
 
-        private bool ReleaseAdapter()
+        private void ReleaseAdapter()
         {
-            if (!IsAdapterOpen)
-                return true;
+            if (CurrentAdapterInfo.AdapterHandle != 0)
+            {
+                try
+                {
+                    var closeInfo = default(CloseAdapterInfo);
+                    closeInfo.AdapterHandle = CurrentAdapterInfo.AdapterHandle;
 
-            var closeInfo = default(CloseAdapterInfo);
-            closeInfo.AdapterHandle = CurrentAdapterInfo.AdapterHandle;
-            var closeAdapterResult = NativeMethods.D3DKMTCloseAdapter(ref closeInfo);
+                    // This will return 0 on success, and another value for failure.
+                    var closeAdapterResult = NativeMethods.D3DKMTCloseAdapter(ref closeInfo);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
 
-            // this will return 1 on success, 0 on failure.
-            var deleteContextResult = NativeMethods.DeleteDC(CurrentAdapterInfo.DCHandle);
+            if (CurrentAdapterInfo.DCHandle != IntPtr.Zero)
+            {
+                try
+                {
+                    // this will return 1 on success, 0 on failure.
+                    var deleteContextResult = NativeMethods.DeleteDC(CurrentAdapterInfo.DCHandle);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
 
-            IsAdapterOpen = false;
-            return deleteContextResult != 0 && closeAdapterResult == 0;
+            DisplayDevice = null;
+            CurrentAdapterInfo = default;
+            VerticalSyncEvent = default;
         }
 
         [StructLayout(LayoutKind.Sequential)]
