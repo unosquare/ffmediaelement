@@ -9,6 +9,8 @@
     <Import_RootNamespace>Unosquare.FFME</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Common\DataFrame.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Container\DataComponentSet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Aspects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClosedCaptions\CaptionsChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClosedCaptions\CaptionsColor.cs" />

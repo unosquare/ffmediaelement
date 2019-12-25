@@ -145,6 +145,10 @@
             Parent?.RaisePacketReadEvent(packet, context);
 
         /// <inheritdoc />
+        public void OnDataFrameReceived(DataFrame dataFrame, StreamInfo stream) =>
+            Parent?.RaiseDataFrameReceivedEvent(dataFrame, stream);
+
+        /// <inheritdoc />
         public unsafe void OnVideoFrameDecoded(AVFrame* videoFrame, AVFormatContext* context) =>
             Parent?.RaiseVideoFrameDecodedEvent(videoFrame, context);
 

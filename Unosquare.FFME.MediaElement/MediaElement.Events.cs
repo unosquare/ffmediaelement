@@ -63,6 +63,14 @@
         public event EventHandler<PacketReadEventArgs> PacketRead;
 
         /// <summary>
+        /// Raised immediately after a data (non-media) frame is read from the input stream.
+        /// This event is not raised on the UI thread and the data pointers in the event arguments
+        /// are only valid for the call. This event is useful when you need to extract
+        /// data outside the video, audio or subtitle streams.
+        /// </summary>
+        public event EventHandler<DataFrameReceivedEventArgs> DataFrameReceived;
+
+        /// <summary>
         /// Raised when an audio frame is decoded from input stream. Useful for capturing streams.
         /// This event is not raised on the UI thread and the pointers in the event arguments
         /// are only valid for the call. If you need to keep a queue you will need to clone and
@@ -195,6 +203,15 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void RaisePacketReadEvent(AVPacket* packet, AVFormatContext* context) =>
             PacketRead?.Invoke(this, new PacketReadEventArgs(packet, context));
+
+        /// <summary>
+        /// Raises the data frame received event.
+        /// </summary>
+        /// <param name="dataFrame">The data frame.</param>
+        /// <param name="stream">The stream.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseDataFrameReceivedEvent(DataFrame dataFrame, StreamInfo stream) =>
+            DataFrameReceived?.Invoke(this, new DataFrameReceivedEventArgs(dataFrame, stream));
 
         /// <summary>
         /// Raises the audio frame decoded event.

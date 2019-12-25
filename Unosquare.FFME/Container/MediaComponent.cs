@@ -454,7 +454,7 @@
         /// <returns>The received Media Frame. It is null if no frame could be retrieved.</returns>
         public MediaFrame ReceiveNextFrame()
         {
-            var frame = DecodePacketFunction();
+            var frame = DecodePacketFunction?.Invoke();
 
             // Check if we need to update the playback duration.
             // This means we have decoded more frames than what was initially reported by the container.

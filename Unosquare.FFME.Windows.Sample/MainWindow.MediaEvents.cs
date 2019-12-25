@@ -422,6 +422,17 @@
         #region Other Media Event Handlers and Methods
 
         /// <summary>
+        /// Handles the reception of data frames.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="DataFrameReceivedEventArgs"/> instance containing the event data.</param>
+        private void OnDataFrameReceived(object sender, DataFrameReceivedEventArgs e)
+        {
+            // Inspect the contents of the event arguments to extract raw packet data.
+            // decoding is left up to the user. See #442
+        }
+
+        /// <summary>
         /// Handles the PositionChanged event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>

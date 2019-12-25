@@ -207,6 +207,7 @@
             Media.MediaFailed += OnMediaFailed;
             Media.MessageLogged += OnMediaMessageLogged;
             Media.MediaStateChanged += OnMediaStateChanged;
+            Media.DataFrameReceived += OnDataFrameReceived;
 
             // Complex examples of Media Rendering Events
             BindMediaRenderingEvents();

@@ -66,9 +66,6 @@
         /// <summary>
         /// Gets the type of the media.
         /// </summary>
-        /// <value>
-        /// The type of the media.
-        /// </value>
         public MediaType MediaType { get; }
 
         /// <summary>

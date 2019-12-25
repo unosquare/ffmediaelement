@@ -124,11 +124,19 @@
         void OnMediaStateChanged(MediaEngine sender, MediaPlaybackState oldValue, MediaPlaybackState newValue);
 
         /// <summary>
-        /// Called when a packet is read from the input context.
+        /// Called when a media packet is read from the input context.
         /// </summary>
         /// <param name="packet">The unmanaged packet pointer.</param>
         /// <param name="context">The unmanaged input format context.</param>
         unsafe void OnPacketRead(AVPacket* packet, AVFormatContext* context);
+
+        /// <summary>
+        /// Called when a data (non-media) frame is received.
+        /// Data packets are immediately converted to data frames as soon as they are read.
+        /// </summary>
+        /// <param name="dataFrame">The data frame.</param>
+        /// <param name="stream">The stream information.</param>
+        void OnDataFrameReceived(DataFrame dataFrame, StreamInfo stream);
 
         /// <summary>
         /// Called when a video frame is decoded.

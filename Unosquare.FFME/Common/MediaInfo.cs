@@ -547,6 +547,15 @@
         /// </summary>
         public string Language => Metadata.ContainsKey("language") ?
             Metadata["language"] : string.Empty;
+
+        /// <summary>
+        /// Gets a value indicating whether the stream contains data that is not considered to be
+        /// audio, video, or subtitles.
+        /// </summary>
+        public bool IsNonMedia =>
+            CodecType == AVMediaType.AVMEDIA_TYPE_DATA ||
+            CodecType == AVMediaType.AVMEDIA_TYPE_ATTACHMENT ||
+            CodecType == AVMediaType.AVMEDIA_TYPE_UNKNOWN;
     }
 
     /// <summary>

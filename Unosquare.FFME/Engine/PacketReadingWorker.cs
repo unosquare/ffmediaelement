@@ -19,6 +19,20 @@
             MediaCore = mediaCore;
             Container = mediaCore.Container;
 
+            // Enable data frame processing as a connector callback (i.e. hanlde non-media frames)
+            Container.Data.OnDataPacketReceived = (dataPacket, stream) =>
+            {
+                try
+                {
+                    var dataFrame = new DataFrame(dataPacket, stream, MediaCore);
+                    MediaCore.Connector?.OnDataFrameReceived(dataFrame, stream);
+                }
+                catch
+                {
+                    // ignore
+                }
+            };
+
             // Packet Buffer Notification Callbacks
             Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
             {

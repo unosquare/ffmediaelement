@@ -288,6 +288,11 @@ namespace Unosquare.FFME.Container
         public MediaComponentSet Components { get; } = new MediaComponentSet();
 
         /// <summary>
+        /// Provides direct access to the infrastructure necessary to handle non-media packets.
+        /// </summary>
+        public DataComponentSet Data { get; } = new DataComponentSet();
+
+        /// <summary>
         /// Gets a value indicating whether reads are in the aborted state.
         /// </summary>
         public bool IsReadAborted => SignalAbortReadsRequested.Value;
@@ -994,6 +999,11 @@ namespace Unosquare.FFME.Container
 
             // Check if we were able to feed the packet. If not, simply discard it
             if (readPacket == null) return MediaType.None;
+
+            // Push a data packet if its not a media component.
+            if (Data.TryHandleDataPacket(this, readPacket))
+                return MediaType.None;
+
             var componentType = Components.SendPacket(readPacket);
 
             // Discard the packet -- it was not accepted by any component
