@@ -24,6 +24,7 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
+        /// <param name="presentationTime">The unadjusted, original presentation timestamp (PTS) of the frame.</param>
         internal RenderingVideoEventArgs(
             BitmapDataBuffer bitmap,
             IReadOnlyList<ClosedCaptionPacket> closedCaptions,
@@ -34,7 +35,8 @@
             StreamInfo stream,
             TimeSpan startTime,
             TimeSpan duration,
-            TimeSpan clock)
+            TimeSpan clock,
+            long presentationTime)
             : base(engineState, stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
@@ -42,6 +44,7 @@
             SmtpeTimeCode = smtpeTimeCode;
             ClosedCaptions = closedCaptions;
             PictureType = pictureType;
+            PresentationTime = presentationTime;
         }
 
         /// <summary>
@@ -71,5 +74,10 @@
         /// Gets the picture type.
         /// </summary>
         public AVPictureType PictureType { get; }
+
+        /// <summary>
+        /// Gets the unadjusted, original presentation timestamp (PTS) of the frame.
+        /// </summary>
+        public long PresentationTime { get; }
     }
 }
