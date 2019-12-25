@@ -68,7 +68,8 @@
         public TimeSpan EndTime { get; internal set; }
 
         /// <summary>
-        /// Gets the unadjusted, original presentation timestamp (PTS) of the frame.
+        /// Gets the unadjusted, original presentation timestamp (PTS) of the frame given in
+        /// the stream's Time Base units.
         /// </summary>
         public long PresentationTime { get; internal set; }
 

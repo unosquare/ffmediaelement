@@ -4,6 +4,7 @@
     using Container;
     using Diagnostics;
     using Engine;
+    using FFmpeg.AutoGen;
     using Platform;
     using Primitives;
     using System;
@@ -342,7 +343,7 @@
 
                 ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
                 MediaElement.RaiseRenderingAudioEvent(
-                    targetBuffer, requestedBytes, startPosition, WaveFormat.ConvertByteSizeToDuration(requestedBytes), RealTimeLatency);
+                    targetBuffer, requestedBytes, startPosition, WaveFormat.ConvertByteSizeToDuration(requestedBytes), RealTimeLatency, ffmpeg.AV_NOPTS_VALUE);
             }
             catch (Exception ex)
             {

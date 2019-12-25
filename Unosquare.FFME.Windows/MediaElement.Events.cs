@@ -87,9 +87,10 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="latency">The latency between the current buffer position and the real-time playback clock.</param>
+        /// <param name="pts">The unadjusted presentation time PTS given in stream time base units.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingAudioEvent(
-            byte[] buffer, int bufferLength, TimeSpan startTime, TimeSpan duration, TimeSpan latency)
+            byte[] buffer, int bufferLength, TimeSpan startTime, TimeSpan duration, TimeSpan latency, long pts)
         {
             if (RenderingAudio == null) return;
             if (MediaCore == null || MediaCore.IsDisposed) return;
@@ -98,12 +99,13 @@
             var e = new RenderingAudioEventArgs(
                     buffer,
                     bufferLength,
+                    latency,
                     MediaCore.State,
                     MediaCore.MediaInfo.Streams[MediaCore.State.AudioStreamIndex],
                     startTime,
                     duration,
                     MediaCore.PlaybackPosition,
-                    latency);
+                    pts);
 
             RenderingAudio?.Invoke(this, e);
         }
@@ -128,7 +130,8 @@
                     MediaCore.MediaInfo.Streams[block.StreamIndex],
                     block.StartTime,
                     block.Duration,
-                    clock);
+                    clock,
+                    block.PresentationTime);
 
             RenderingSubtitles?.Invoke(this, e);
             return e.Cancel;

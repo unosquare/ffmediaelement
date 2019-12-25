@@ -142,6 +142,7 @@
                 ffmpeg.av_samples_get_buffer_size(null, targetSpec.ChannelCount, outputSamplesPerChannel, targetSpec.Format, 1);
 
             // Flag the block if we have to
+            target.PresentationTime = source.PresentationTime;
             target.IsStartTimeGuessed = source.HasValidStartTime == false;
 
             // Try to fix the start time, duration and End time if we don't have valid data

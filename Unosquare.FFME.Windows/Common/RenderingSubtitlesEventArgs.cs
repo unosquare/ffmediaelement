@@ -21,6 +21,7 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
+        /// <param name="pts">The unadjusted PTS of the frame given in stream Time Base units.</param>
         internal RenderingSubtitlesEventArgs(
             IList<string> text,
             IList<string> originalText,
@@ -29,8 +30,9 @@
             StreamInfo stream,
             TimeSpan startTime,
             TimeSpan duration,
-            TimeSpan clock)
-            : base(engineState, stream, startTime, duration, clock)
+            TimeSpan clock,
+            long pts)
+            : base(engineState, stream, startTime, duration, clock, pts)
         {
             Text = text;
             Format = format;

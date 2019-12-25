@@ -17,13 +17,15 @@
         /// <param name="startTime">The position.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        protected RenderingEventArgs(IMediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        /// <param name="pts">The original unadjusted PTS of the frame.</param>
+        protected RenderingEventArgs(IMediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock, long pts)
         {
             EngineState = engineState;
             StartTime = startTime;
             Duration = duration;
             Clock = clock;
             Stream = stream;
+            PresentationTime = pts;
         }
 
         /// <summary>
@@ -52,5 +54,12 @@
         /// Gets how long this media has to be presented.
         /// </summary>
         public TimeSpan Duration { get; }
+
+        /// <summary>
+        /// Gets the unadjusted, original presentation timestamp (PTS) of the frame in
+        /// <see cref="StreamInfo.TimeBase"/> units. May return <see cref="FFmpeg.AutoGen.ffmpeg.AV_NOPTS_VALUE"/>
+        /// when invialid, not applicable (as in continuous audio rendering), or unavailable.
+        /// </summary>
+        public long PresentationTime { get; }
     }
 }

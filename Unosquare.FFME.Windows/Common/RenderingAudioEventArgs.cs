@@ -14,15 +14,16 @@
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="length">The length.</param>
+        /// <param name="latency">The latency between the buffer position and the real-time playback clock.</param>
         /// <param name="engineState">The engine.</param>
         /// <param name="stream">The stream.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        /// <param name="latency">The latency between the buffer position and the real-time playback clock.</param>
+        /// <param name="pts">The unadjusted PTS of the frame in stream Time Base units.</param>
         internal RenderingAudioEventArgs(
-            byte[] buffer, int length, IMediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock, TimeSpan latency)
-            : base(engineState, stream, startTime, duration, clock)
+            byte[] buffer, int length, TimeSpan latency, IMediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock, long pts)
+            : base(engineState, stream, startTime, duration, clock, pts)
         {
             Buffer = buffer;
             BufferLength = length;

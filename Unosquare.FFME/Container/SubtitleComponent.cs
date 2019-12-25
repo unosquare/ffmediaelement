@@ -40,6 +40,7 @@
             var target = (SubtitleBlock)output;
 
             // Set the target data
+            target.PresentationTime = source.PresentationTime;
             target.EndTime = source.EndTime;
             target.StartTime = source.StartTime;
             target.Duration = source.Duration;
