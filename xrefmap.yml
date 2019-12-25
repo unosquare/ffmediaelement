@@ -998,6 +998,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Common.RenderingVideoEventArgs.PictureType
   nameWithType: RenderingVideoEventArgs.PictureType
+- uid: Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
+  name: PresentationTime
+  href: api/Unosquare.FFME.Common.RenderingVideoEventArgs.html#Unosquare_FFME_Common_RenderingVideoEventArgs_PresentationTime
+  commentId: P:Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
+  fullName: Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
+  nameWithType: RenderingVideoEventArgs.PresentationTime
+- uid: Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime*
+  name: PresentationTime
+  href: api/Unosquare.FFME.Common.RenderingVideoEventArgs.html#Unosquare_FFME_Common_RenderingVideoEventArgs_PresentationTime_
+  commentId: Overload:Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
+  isSpec: "True"
+  fullName: Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
+  nameWithType: RenderingVideoEventArgs.PresentationTime
 - uid: Unosquare.FFME.Common.RenderingVideoEventArgs.SmtpeTimeCode
   name: SmtpeTimeCode
   href: api/Unosquare.FFME.Common.RenderingVideoEventArgs.html#Unosquare_FFME_Common_RenderingVideoEventArgs_SmtpeTimeCode
