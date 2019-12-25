@@ -804,12 +804,12 @@ references:
   commentId: T:Unosquare.FFME.Common.RenderingEventArgs
   fullName: Unosquare.FFME.Common.RenderingEventArgs
   nameWithType: RenderingEventArgs
-- uid: Unosquare.FFME.Common.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  name: RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.Common.RenderingEventArgs.html#Unosquare_FFME_Common_RenderingEventArgs__ctor_IMediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.Common.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  fullName: Unosquare.FFME.Common.RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan)
-  nameWithType: RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
+- uid: Unosquare.FFME.Common.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Int64)
+  name: RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan, Int64)
+  href: api/Unosquare.FFME.Common.RenderingEventArgs.html#Unosquare_FFME_Common_RenderingEventArgs__ctor_IMediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_System_Int64_
+  commentId: M:Unosquare.FFME.Common.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Int64)
+  fullName: Unosquare.FFME.Common.RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan, System.Int64)
+  nameWithType: RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan, Int64)
 - uid: Unosquare.FFME.Common.RenderingEventArgs.#ctor*
   name: RenderingEventArgs
   href: api/Unosquare.FFME.Common.RenderingEventArgs.html#Unosquare_FFME_Common_RenderingEventArgs__ctor_
@@ -856,6 +856,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Common.RenderingEventArgs.EngineState
   nameWithType: RenderingEventArgs.EngineState
+- uid: Unosquare.FFME.Common.RenderingEventArgs.PresentationTime
+  name: PresentationTime
+  href: api/Unosquare.FFME.Common.RenderingEventArgs.html#Unosquare_FFME_Common_RenderingEventArgs_PresentationTime
+  commentId: P:Unosquare.FFME.Common.RenderingEventArgs.PresentationTime
+  fullName: Unosquare.FFME.Common.RenderingEventArgs.PresentationTime
+  nameWithType: RenderingEventArgs.PresentationTime
+- uid: Unosquare.FFME.Common.RenderingEventArgs.PresentationTime*
+  name: PresentationTime
+  href: api/Unosquare.FFME.Common.RenderingEventArgs.html#Unosquare_FFME_Common_RenderingEventArgs_PresentationTime_
+  commentId: Overload:Unosquare.FFME.Common.RenderingEventArgs.PresentationTime
+  isSpec: "True"
+  fullName: Unosquare.FFME.Common.RenderingEventArgs.PresentationTime
+  nameWithType: RenderingEventArgs.PresentationTime
 - uid: Unosquare.FFME.Common.RenderingEventArgs.StartTime
   name: StartTime
   href: api/Unosquare.FFME.Common.RenderingEventArgs.html#Unosquare_FFME_Common_RenderingEventArgs_StartTime
@@ -998,19 +1011,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Common.RenderingVideoEventArgs.PictureType
   nameWithType: RenderingVideoEventArgs.PictureType
-- uid: Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
-  name: PresentationTime
-  href: api/Unosquare.FFME.Common.RenderingVideoEventArgs.html#Unosquare_FFME_Common_RenderingVideoEventArgs_PresentationTime
-  commentId: P:Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
-  fullName: Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
-  nameWithType: RenderingVideoEventArgs.PresentationTime
-- uid: Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime*
-  name: PresentationTime
-  href: api/Unosquare.FFME.Common.RenderingVideoEventArgs.html#Unosquare_FFME_Common_RenderingVideoEventArgs_PresentationTime_
-  commentId: Overload:Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
-  isSpec: "True"
-  fullName: Unosquare.FFME.Common.RenderingVideoEventArgs.PresentationTime
-  nameWithType: RenderingVideoEventArgs.PresentationTime
 - uid: Unosquare.FFME.Common.RenderingVideoEventArgs.SmtpeTimeCode
   name: SmtpeTimeCode
   href: api/Unosquare.FFME.Common.RenderingVideoEventArgs.html#Unosquare_FFME_Common_RenderingVideoEventArgs_SmtpeTimeCode

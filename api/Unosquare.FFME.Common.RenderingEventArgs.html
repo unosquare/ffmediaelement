@@ -131,13 +131,13 @@ rendering event arguments.</p>
   
   
   <a id="Unosquare_FFME_Common_RenderingEventArgs__ctor_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Common_RenderingEventArgs__ctor_IMediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)">RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)</h4>
+  <h4 id="Unosquare_FFME_Common_RenderingEventArgs__ctor_IMediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_System_Int64_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Int64)">RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan, Int64)</h4>
   <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Common.RenderingEventArgs.html">RenderingEventArgs</a> class.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected RenderingEventArgs(IMediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)</code></pre>
+    <pre><code class="lang-csharp hljs">protected RenderingEventArgs(IMediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock, long pts)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -177,6 +177,12 @@ rendering event arguments.</p>
         <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
         <td><span class="parametername">clock</span></td>
         <td><p>The clock.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int64">Int64</a></td>
+        <td><span class="parametername">pts</span></td>
+        <td><p>The original unadjusted PTS of the frame.</p>
 </td>
       </tr>
     </tbody>
@@ -258,6 +264,34 @@ was called for rendering.</p>
     <tbody>
       <tr>
         <td><span class="xref">IMediaEngineState</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Common_RenderingEventArgs_PresentationTime_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.PresentationTime*"></a>
+  <h4 id="Unosquare_FFME_Common_RenderingEventArgs_PresentationTime" data-uid="Unosquare.FFME.Common.RenderingEventArgs.PresentationTime">PresentationTime</h4>
+  <div class="markdown level1 summary"><p>Gets the unadjusted, original presentation timestamp (PTS) of the frame in
+<see cref="!:StreamInfo.TimeBase"></see> units. May return <see cref="!:FFmpeg.AutoGen.ffmpeg.AV_NOPTS_VALUE"></see>
+when invialid, not applicable (as in continuous audio rendering), or unavailable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long PresentationTime { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int64">Int64</a></td>
         <td></td>
       </tr>
     </tbody>
