@@ -8,6 +8,9 @@
     using Platform;
     using Primitives;
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Windows;
@@ -27,6 +30,8 @@
 
         private readonly AtomicBoolean IsClosing = new AtomicBoolean(false);
         private readonly object SyncLock = new object();
+        private readonly Queue<double> BufferLatencies = new Queue<double>(1024);
+        private readonly Stopwatch AudioRequestStopwatch = new Stopwatch();
 
         private IWavePlayer AudioDevice;
         private SoundTouch AudioProcessor;
@@ -38,7 +43,7 @@
         private byte[] ReadBuffer;
         private int SampleBlockSize;
         private TimeSpan RealTimeLatency;
-        private DateTime LastSyncrhonize;
+        private TimeSpan RequestedAudioDuration;
 
         #endregion
 
@@ -187,7 +192,7 @@
                             break;
 
                         // Retrieve the following block
-                        audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
+                        audioBlock = audioBlocks.ContinuousNext(audioBlock) as AudioBlock;
                     }
                 }
             }
@@ -247,6 +252,8 @@
         {
             lock (SyncLock)
             {
+                BufferLatencies.Clear();
+                RequestedAudioDuration = TimeSpan.Zero;
                 AudioBuffer?.Clear();
 
                 // AudioDevice?.Clear(); // TODO: This causes crashes
@@ -496,18 +503,17 @@
             #endregion
 
             // The maximum change in milliseconds for a skip or rewind operation
+            // Some additional reference: https://github.com/FFmpeg/FFmpeg/blob/4fa2d5a692f40c398a299acf2c6a20f5b98a3708/fftools/ffplay.c#L2282
             const double LatencyStepMs = 10d;
-
-            // The minimum emapsed time in milliseconds before another rewind or skip operation can take place.
-            const double UpdateTimeoutMs = 200d;
-
-            var lastSyncSinceMs = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - LastSyncrhonize.Ticks).TotalMilliseconds;
-            var hardwareLatencyMs = WaveFormat.ConvertByteSizeToDuration(requestedBytes).TotalMilliseconds;
-            var bufferLatencyMs = BufferLatency.TotalMilliseconds; // we want the buffer latency to be the negative of the device latency
+            var hardwareLatency = WaveFormat.ConvertByteSizeToDuration(requestedBytes);
+            var bufferLatencyMs = 0d; // we want the buffer latency to be the negative of the device latency
+            var bufferLatencyDeviationMs = 0;
             var maxAcceptableLagMs = 0d; // more than this and we need to skip samples
             var minAcceptableLeadMs = -2 * LatencyStepMs; // less than this and we need to rewind samples
             var isLoggingEnabled = Math.Abs(speedRatio - 1.0) <= double.Epsilon;
             var operationName = string.Empty;
+            var elapsedSinceLastRequest = AudioRequestStopwatch.Elapsed;
+            AudioRequestStopwatch.Restart();
 
             try
             {
@@ -515,18 +521,29 @@
 
                 // we don't want to perform AV sync if the latency is huge
                 // or if we have simply disabled it
-                if (MediaElement.RendererOptions.AudioDisableSync)
+                if (MediaElement.RendererOptions.AudioDisableSync && false)
                     return true;
 
-                // Don't perform sycs back and forth so often.
-                if (lastSyncSinceMs < UpdateTimeoutMs)
+                BufferLatencies.Enqueue(BufferLatency.TotalMilliseconds);
+                RequestedAudioDuration = RequestedAudioDuration.Add(WaveFormat.ConvertByteSizeToDuration(requestedBytes));
+                var isLatencyDataFull = RequestedAudioDuration.TotalMilliseconds >= 1000;
+
+                if (isLatencyDataFull)
+                    BufferLatencies.Dequeue();
+
+                bufferLatencyMs = BufferLatencies.Average();
+                bufferLatencyDeviationMs = (int)Math.Sqrt(BufferLatencies.Sum(c => Math.Pow(c - bufferLatencyMs, 2)) / BufferLatencies.Count);
+
+                if (!isLatencyDataFull || bufferLatencyDeviationMs > 0)
                     return true;
 
                 // The ideal target latency is the negative of the audio device's desired latency.
                 // this is approximately -40ms (i.e. have the buffer position 40ms ahead (negative lag) of the playback clock
                 // so that samples are rendered right on time.)
                 if (bufferLatencyMs >= minAcceptableLeadMs && bufferLatencyMs <= maxAcceptableLagMs)
+                {
                     return true;
+                }
 
                 if (bufferLatencyMs > maxAcceptableLagMs)
                 {
@@ -569,14 +586,16 @@
             }
             finally
             {
-                RealTimeLatency = BufferLatency;
+                RealTimeLatency = TimeSpan.FromMilliseconds(bufferLatencyMs); // hardwareLatency; // elapsedSinceLastRequest; // BufferLatency; //
                 if (!string.IsNullOrWhiteSpace(operationName))
                 {
-                    LastSyncrhonize = DateTime.UtcNow;
                     if (isLoggingEnabled)
                     {
                         this.LogWarning(Aspects.AudioRenderer,
-                            $"SYNC AUDIO: {operationName} | Initial: {bufferLatencyMs:0} ms. Current: {BufferLatency.TotalMilliseconds:0} ms. Requested: {hardwareLatencyMs:0} ms.");
+                            $"SYNC AUDIO: {operationName} | " +
+                            $"Initial: {bufferLatencyMs:0} ms. " +
+                            $"Current: {BufferLatency.TotalMilliseconds:0} ms. " +
+                            $"Requested: {hardwareLatency.TotalMilliseconds:0} ms.");
                     }
                 }
             }
