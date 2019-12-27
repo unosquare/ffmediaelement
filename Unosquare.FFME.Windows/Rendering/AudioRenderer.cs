@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿#pragma warning disable CA1801
+namespace Unosquare.FFME.Rendering
 {
     using Common;
     using Container;
@@ -40,10 +41,11 @@
         private bool IsDisposed;
         private bool m_HasFiredAudioDeviceStopped;
 
-        private byte[] ReadBuffer;
+        private byte[]ReadBuffer;
         private int SampleBlockSize;
         private TimeSpan RealTimeLatency;
         private TimeSpan RequestedAudioDuration;
+        private double AdjustmentSpeedRatio;
 
         #endregion
 
@@ -192,7 +194,7 @@
                             break;
 
                         // Retrieve the following block
-                        audioBlock = audioBlocks.ContinuousNext(audioBlock) as AudioBlock;
+                        audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
                     }
                 }
             }
@@ -313,13 +315,15 @@
                 }
 
                 // Ensure a pre-allocated ReadBuffer
-                if (ReadBuffer == null || ReadBuffer.Length < Convert.ToInt32(requestedBytes * Constants.MaxSpeedRatio))
-                    ReadBuffer = new byte[Convert.ToInt32(requestedBytes * Constants.MaxSpeedRatio)];
+                var bufferLength = Convert.ToInt32(requestedBytes * Constants.MaxSpeedRatio);
+                if (ReadBuffer == null || ReadBuffer.Length < bufferLength)
+                    ReadBuffer = new byte[bufferLength];
 
                 // First part of DSP: Perform AV Synchronization if needed
                 if (!Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio))
                     return requestedBytes;
 
+                speedRatio += AdjustmentSpeedRatio;
                 var startPosition = Position;
 
                 // Perform DSP
@@ -509,7 +513,7 @@
             var bufferLatencyMs = 0d; // we want the buffer latency to be the negative of the device latency
             var bufferLatencyDeviationMs = 0;
             var maxAcceptableLagMs = 0d; // more than this and we need to skip samples
-            var minAcceptableLeadMs = -2 * LatencyStepMs; // less than this and we need to rewind samples
+            var minAcceptableLeadMs = -1 * LatencyStepMs; // less than this and we need to rewind samples
             var isLoggingEnabled = Math.Abs(speedRatio - 1.0) <= double.Epsilon;
             var operationName = string.Empty;
             var elapsedSinceLastRequest = AudioRequestStopwatch.Elapsed;
@@ -518,6 +522,7 @@
             try
             {
                 RealTimeLatency = default;
+                AdjustmentSpeedRatio = 0d;
 
                 // we don't want to perform AV sync if the latency is huge
                 // or if we have simply disabled it
@@ -527,14 +532,27 @@
                 BufferLatencies.Enqueue(BufferLatency.TotalMilliseconds);
                 RequestedAudioDuration = RequestedAudioDuration.Add(WaveFormat.ConvertByteSizeToDuration(requestedBytes));
                 var isLatencyDataFull = RequestedAudioDuration.TotalMilliseconds >= 1000;
+                bufferLatencyMs = BufferLatencies.Average();
+                bufferLatencyDeviationMs = (int)Math.Sqrt(BufferLatencies.Sum(c => Math.Pow(c - bufferLatencyMs, 2)) / BufferLatencies.Count);
 
                 if (isLatencyDataFull)
                     BufferLatencies.Dequeue();
 
-                bufferLatencyMs = BufferLatencies.Average();
-                bufferLatencyDeviationMs = (int)Math.Sqrt(BufferLatencies.Sum(c => Math.Pow(c - bufferLatencyMs, 2)) / BufferLatencies.Count);
+                if (bufferLatencyMs > maxAcceptableLagMs)
+                {
+                    AdjustmentSpeedRatio = 0.01;
+                }
+                else if (bufferLatencyMs < minAcceptableLeadMs)
+                {
+                    AdjustmentSpeedRatio = -0.01;
+                }
+                else
+                {
+                    AdjustmentSpeedRatio = 0;
+                }
 
-                if (!isLatencyDataFull || bufferLatencyDeviationMs > 0)
+                /*
+                if (true || !isLatencyDataFull || bufferLatencyDeviationMs > 0)
                     return true;
 
                 // The ideal target latency is the negative of the audio device's desired latency.
@@ -583,6 +601,7 @@
                     Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                     return false;
                 }
+                */
             }
             finally
             {
@@ -820,3 +839,4 @@
         #endregion
     }
 }
+#pragma warning restore CA1801
