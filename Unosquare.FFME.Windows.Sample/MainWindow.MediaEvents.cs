@@ -498,8 +498,8 @@
 
             if (File.Exists(seekFilePath))
             {
-                using (var stream = File.OpenRead(seekFilePath))
-                    return VideoSeekIndex.Load(stream);
+                using var stream = File.OpenRead(seekFilePath);
+                return VideoSeekIndex.Load(stream);
             }
             else
             {

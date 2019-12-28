@@ -10,6 +10,8 @@
     /// </summary>
     public sealed unsafe class DataFrame
     {
+        private readonly byte[] PacketData;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DataFrame"/> class.
         /// </summary>
@@ -31,7 +33,7 @@
                     Buffer.MemoryCopy(packet.Pointer->data, targetPointer, bufferLength, bufferLength);
                 }
 
-                PacketData = new Memory<byte>(targetData);
+                PacketData = targetData;
             }
 
             PacketPosition = packet.Position;
@@ -71,11 +73,6 @@
         public TimeSpan DecodingTime { get; }
 
         /// <summary>
-        /// Gets the raw byte data of the data packet.
-        /// </summary>
-        public Memory<byte> PacketData { get; }
-
-        /// <summary>
         /// Gets a value indicating whether the presentation time of this data
         /// frame was guessed.
         /// </summary>
@@ -94,6 +91,12 @@
         /// Returns -1 if unknown.
         /// </summary>
         public long PacketPosition { get; }
+
+        /// <summary>
+        /// Gets the raw byte data of the data packet.
+        /// </summary>
+        /// <returns>The raw bytes of the packet data. May return null when no packet data is available.</returns>
+        public byte[] GetPacketData() => PacketData;
 
         /// <summary>
         /// Guesses the start time of the packet.
