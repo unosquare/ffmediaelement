@@ -88,16 +88,22 @@ namespace Unosquare.FFME.Engine
         {
             get
             {
+                const double MaxFrameDuration = 50d;
+                const double MinFrameDuration = 10d;
+
                 try
                 {
                     var frameDuration = Container.Components.MainMediaType == MediaType.Video && MediaCore.Blocks[MediaType.Video].Count > 0
                         ? MediaCore.Blocks[MediaType.Video].AverageBlockDuration
                         : Constants.DefaultTimingPeriod;
 
-                    // protect against too slow of a video framerate
+                    // protect against too slow or too fast of a video framerate
                     // which might impact audio rendering.
-                    if (frameDuration.TotalMilliseconds > 50d)
-                        frameDuration = TimeSpan.FromMilliseconds(50);
+                    frameDuration = frameDuration.TotalMilliseconds > MaxFrameDuration
+                        ? TimeSpan.FromMilliseconds(MaxFrameDuration)
+                        : frameDuration.TotalMilliseconds < MinFrameDuration
+                        ? TimeSpan.FromMilliseconds(MinFrameDuration)
+                        : frameDuration;
 
                     return TimeSpan.FromTicks(frameDuration.Ticks - CurrentCycleElapsed.Ticks);
                 }
@@ -202,7 +208,9 @@ namespace Unosquare.FFME.Engine
                 else
                 {
                     // Perform a synthetic wait
-                    QuantumWaiter.Wait(Constants.DefaultTimingPeriod);
+                    var waitTime = RemainingCycleTime;
+                    if (waitTime.Ticks > 0)
+                        QuantumWaiter.Wait(waitTime);
                 }
 
                 if (!TryBeginCycle())
