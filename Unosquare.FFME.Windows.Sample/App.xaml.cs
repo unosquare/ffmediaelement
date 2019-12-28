@@ -20,7 +20,8 @@
         public App()
         {
             // Change the default location of the ffmpeg binaries (same directory as application)
-            // You can get the binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2-win32-shared.zip
+            // You can get the 32-bit binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2.1-win32-shared.zip
+            // You can get the 64-bit binaries here: https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2.1-win64-shared.zip
             Library.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
