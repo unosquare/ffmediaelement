@@ -201,9 +201,8 @@ namespace Unosquare.FFME.Engine
                 }
                 else
                 {
-                    var waitTime = RemainingCycleTime;
-                    if (waitTime.Ticks > 0)
-                        QuantumWaiter.Wait(waitTime);
+                    // Perform a synthetic wait
+                    QuantumWaiter.Wait(Constants.DefaultTimingPeriod);
                 }
 
                 if (!TryBeginCycle())
