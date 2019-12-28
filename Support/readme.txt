@@ -9,7 +9,7 @@ Here are the steps:
 4. Use the FFME MediaElement control as any other WPF control!
    For example: In your MainForm.xaml, add the namespace: xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
    And then add the FFME control your window: <ffme:MediaElement x:Name="Media" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />
-   To play files or streams, call the Open method: await Media.Open(new Uri(@"c:\your-file-here"));
+   To play files or streams, call the asyncrhonous Open method: await Media.Open(new Uri(@"c:\your-file-here"));
 
 Happy coding!
 *Mario, Unosquare and the FFME contributors.*
