@@ -515,7 +515,8 @@
         /// <summary>
         /// Gets a value indicating whether this instance is attached picture disposition.
         /// </summary>
-        public bool IsAttachedPictureDisposition => (Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
+        public bool IsAttachedPictureDisposition => (Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0
+            || (Disposition & ffmpeg.AV_DISPOSITION_STILL_IMAGE) != 0;
 
         /// <summary>
         /// Gets the start time.
