@@ -99,11 +99,9 @@ namespace Unosquare.FFME.Engine
 
                     // protect against too slow or too fast of a video framerate
                     // which might impact audio rendering.
-                    frameDuration = frameDuration.TotalMilliseconds > MaxFrameDuration
-                        ? TimeSpan.FromMilliseconds(MaxFrameDuration)
-                        : frameDuration.TotalMilliseconds < MinFrameDuration
-                        ? TimeSpan.FromMilliseconds(MinFrameDuration)
-                        : frameDuration;
+                    frameDuration = frameDuration.Clamp(
+                        TimeSpan.FromMilliseconds(MinFrameDuration),
+                        TimeSpan.FromMilliseconds(MaxFrameDuration));
 
                     return TimeSpan.FromTicks(frameDuration.Ticks - CurrentCycleElapsed.Ticks);
                 }
@@ -120,7 +118,7 @@ namespace Unosquare.FFME.Engine
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
             // Update Status Properties
-            var main = MediaCore.Timing.ReferenceType; // Container.Components.MainMediaType;
+            var main = MediaCore.Timing.ReferenceType;
             var all = MediaCore.Renderers.Keys.ToArray();
 
             // Ensure we have renderers ready and main blocks available
@@ -157,7 +155,7 @@ namespace Unosquare.FFME.Engine
 
                 // CatchUpWithLiveStream(); // TODO: We are on to something good here
                 ExitSyncBuffering(main, all, ct);
-                ReportAndResumePlayback(main);
+                ReportAndResumePlayback(all);
             }
         }
 
@@ -190,9 +188,10 @@ namespace Unosquare.FFME.Engine
                 if (!VerticalSyncContext.IsAvailable)
                     State.VerticalSyncEnabled = false;
 
-                var performVersticalSyncWait = MediaCore.Timing.IsRunning &&
-                    State.VerticalSyncEnabled &&
-                    Container.Components.HasVideo;
+                var performVersticalSyncWait =
+                    Container.Components.HasVideo &&
+                    MediaCore.Timing.GetIsRunning(MediaType.Video) &&
+                    State.VerticalSyncEnabled;
 
                 if (performVersticalSyncWait)
                 {
@@ -267,7 +266,7 @@ namespace Unosquare.FFME.Engine
                     {
                         MediaCore.PausePlayback(t, false);
 
-                        if (MediaCore.Timing.IsRunning)
+                        if (MediaCore.Timing.GetIsRunning(t))
                         {
                             this.LogDebug(Aspects.Timing,
                                 $"CLOCK PAUSED: {t} clock was paused at {compPosition.Format()} because no decoded {t} content was found");
@@ -289,6 +288,7 @@ namespace Unosquare.FFME.Engine
                             MediaCore.PausePlayback(t, false);
 
                         MediaCore.ChangePlaybackPosition(compBlocks.RangeEndTime, t, false);
+
                         this.LogDebug(Aspects.Timing,
                             $"CLOCK AHEAD : {t} clock was {compPosition.Format()}. It was updated to {compBlocks.RangeEndTime.Format()}");
                     }
@@ -356,12 +356,12 @@ namespace Unosquare.FFME.Engine
 
             var maxBufferedMs = DefaultMaxBufferMs;
             var minBufferedMs = DefaultMinBufferMs;
-            var bufferedMs = Container.Components.Main.BufferDuration.TotalMilliseconds; // State.PacketBufferDuration.TotalMilliseconds;
+            var bufferedMs = Container.Components.Seekable.BufferDuration.TotalMilliseconds; // State.PacketBufferDuration.TotalMilliseconds;
 
-            if (State.HasAudio && State.HasVideo && !MediaCore.Timing.HasDisconnectedClocks)
+            if (State.HasAudio && State.HasVideo && !HasDisconnectedClocks)
             {
-                var videoStartOffset = MediaCore.Container.Components[MediaType.Video].StartTime;
-                var audioStartOffset = MediaCore.Container.Components[MediaType.Audio].StartTime;
+                var videoStartOffset = Container.Components[MediaType.Video].StartTime;
+                var audioStartOffset = Container.Components[MediaType.Audio].StartTime;
 
                 if (videoStartOffset != TimeSpan.MinValue && audioStartOffset != TimeSpan.MinValue)
                 {
@@ -435,7 +435,7 @@ namespace Unosquare.FFME.Engine
                     continue;
 
                 // We don't want to sync-buffer on attached pictures
-                if (Container.Components[t].StreamInfo.IsAttachedPictureDisposition)
+                if (Container.Components[t].IsStillPictures)
                     continue;
 
                 // If we have data on the t component beyond the start time of the main
@@ -490,7 +490,7 @@ namespace Unosquare.FFME.Engine
                         continue;
 
                     // We don't want to consider sync-buffer on attached pictures
-                    if (Container.Components[t].StreamInfo.IsAttachedPictureDisposition)
+                    if (Container.Components[t].IsStillPictures)
                         continue;
 
                     // If we don't have data on the t component beyond the mid time of the main
@@ -586,22 +586,20 @@ namespace Unosquare.FFME.Engine
                 ? MediaCore.Blocks[main].RangeEndTime
                 : MediaCore.Timing.GetEndTime(main) ?? TimeSpan.MaxValue;
 
-            var isAtEndOfPlayback = MediaCore.Timing.GetPosition(main).Ticks >= playbackEndClock.Ticks
-                || MediaCore.Timing.HasDisconnectedClocks;
-
             // Check End of Media Scenarios
             if (!Commands.HasPendingCommands
                 && MediaCore.HasDecodingEnded
-                && isAtEndOfPlayback)
+                && !CanResumeClock(main))
             {
                 // Rendered all and nothing else to render
                 if (State.HasMediaEnded == false)
                 {
-#if RENDERER_ADJUST_COMPONENT_DURATION
-                        var componentStartTime = MediaCore.Container.Components[main].StartTime;
+                    if (Container.IsStreamSeekable)
+                    {
+                        var componentStartTime = Container.Components[main].StartTime;
                         var actualComponentDuration = TimeSpan.FromTicks(playbackEndClock.Ticks - componentStartTime.Ticks);
-                        MediaCore.Container.Components[main].Duration = actualComponentDuration;
-#endif
+                        Container.Components[main].Duration = actualComponentDuration;
+                    }
 
                     MediaCore.PausePlayback();
                     MediaCore.ChangePlaybackPosition(playbackEndClock);
@@ -620,9 +618,9 @@ namespace Unosquare.FFME.Engine
         /// Reports the playback position if needed and
         /// resumes the playback clock if the conditions allow for it.
         /// </summary>
-        /// <param name="main">The main.</param>
+        /// <param name="all">All the media component types.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReportAndResumePlayback(MediaType main)
+        private void ReportAndResumePlayback(MediaType[] all)
         {
             var hasPendingCommands = Commands.HasPendingCommands;
             var isSyncBuffering = MediaCore.IsSyncBuffering;
@@ -633,7 +631,7 @@ namespace Unosquare.FFME.Engine
 
             // We don't want to resume the clock if we are not ready for playback
             if (State.MediaState != MediaPlaybackState.Play || isSyncBuffering ||
-                hasPendingCommands || MediaCore.Blocks[main].Count <= 0)
+                hasPendingCommands)
             {
                 return;
             }
@@ -647,8 +645,39 @@ namespace Unosquare.FFME.Engine
                 return;
             }
 
-            // Resume the clock
-            MediaCore.Timing.Play(MediaType.None);
+            if (!HasDisconnectedClocks)
+            {
+                // Resume the reference type clock.
+                var t = MediaType.None;
+                if (CanResumeClock(t))
+                    MediaCore.Timing.Play(t);
+
+                return;
+            }
+
+            // Resume individual clock components
+            foreach (var t in all)
+            {
+                if (!CanResumeClock(t))
+                    continue;
+
+                MediaCore.Timing.Play(t);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whther a component's timing can be resumed.
+        /// </summary>
+        /// <param name="t">The component media type.</param>
+        /// <returns>Whether the clock can be resumed.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool CanResumeClock(MediaType t)
+        {
+            var blocks = MediaCore.Blocks[t == MediaType.None ? MediaCore.Timing.ReferenceType : t];
+            if (blocks == null || blocks.Count <= 0)
+                return false;
+
+            return MediaCore.Timing.GetPosition(t).Ticks < blocks.RangeEndTime.Ticks;
         }
 
         /// <summary>
@@ -666,7 +695,7 @@ namespace Unosquare.FFME.Engine
             if (incomingBlock == null || incomingBlock.IsDisposed) return 0;
 
             var t = incomingBlock.MediaType;
-            var isAttachedPicture = t == MediaType.Video && Container.Components[t].StreamInfo.IsAttachedPictureDisposition;
+            var isAttachedPicture = t == MediaType.Video && Container.Components[t].IsStillPictures;
             var currentBlockStartTime = MediaCore.CurrentRenderStartTime.ContainsKey(t)
                 ? MediaCore.CurrentRenderStartTime[t]
                 : TimeSpan.MinValue;

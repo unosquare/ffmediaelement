@@ -224,7 +224,13 @@
                     throw new NotSupportedException($"A component of MediaType '{MediaType}' is not supported");
             }
 
-            if (StreamInfo.IsAttachedPictureDisposition)
+            var contentDisposition = StreamInfo.Disposition;
+            IsStillPictures = MediaType == MediaType.Video &&
+                ((contentDisposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0 ||
+                (contentDisposition & ffmpeg.AV_DISPOSITION_STILL_IMAGE) != 0 ||
+                (contentDisposition & ffmpeg.AV_DISPOSITION_TIMED_THUMBNAILS) != 0);
+
+            if (IsStillPictures)
             {
                 BufferCountThreshold = 0;
                 BufferDurationThreshold = TimeSpan.Zero;
@@ -343,7 +349,7 @@
                 // We want to return true when we can't really get a buffer.
                 if (IsDisposed ||
                     BufferCountThreshold <= 0 ||
-                    StreamInfo.IsAttachedPictureDisposition ||
+                    IsStillPictures ||
                     (Container?.IsReadAborted ?? false) ||
                     (Container?.IsAtEndOfStream ?? false))
                     return true;
@@ -375,6 +381,12 @@
         /// Gets the stream information.
         /// </summary>
         public StreamInfo StreamInfo { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this component contains still images as opposed to real video frames.
+        /// Will always return false for non-video components.
+        /// </summary>
+        public bool IsStillPictures { get; }
 
         /// <summary>
         /// Gets whether packets have been fed into the codec and frames can be decoded.

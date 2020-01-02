@@ -74,17 +74,7 @@
         /// <summary>
         /// Gets a value indicating whether the real-time clock of the reference type is running.
         /// </summary>
-        public bool IsRunning
-        {
-            get
-            {
-                lock (SyncLock)
-                {
-                    if (!IsReady) return default;
-                    return Clocks[ReferenceType].IsRunning;
-                }
-            }
-        }
+        public bool IsRunning => GetIsRunning(ReferenceType);
 
         /// <summary>
         /// Gets the playback position of the real-time clock of the timing reference component type.
@@ -197,9 +187,9 @@
                     // By default the continuous type is the audio component if it's a live stream
                     var continuousType = components.HasAudio && !MediaCore.Container.IsStreamSeekable
                         ? MediaType.Audio
-                        : components.MainMediaType;
+                        : components.SeekableMediaType;
 
-                    var discreteType = components.MainMediaType;
+                    var discreteType = components.SeekableMediaType;
                     HasDisconnectedClocks = options.IsTimeSyncDisabled && Clocks[MediaType.Audio] != Clocks[MediaType.Video];
                     ReferenceType = HasDisconnectedClocks ? continuousType : discreteType;
 
@@ -284,6 +274,20 @@
             {
                 var duration = GetComponentDuration(t);
                 return IsReady ? duration.HasValue ? TimeSpan.FromTicks(duration.Value.Ticks + Offsets[t].Ticks) : default : default;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the RTC of the given component type is running.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>Whether the component's RTC is running.</returns>
+        public bool GetIsRunning(MediaType t)
+        {
+            lock (SyncLock)
+            {
+                if (!IsReady) return default;
+                return Clocks[t].IsRunning;
             }
         }
 

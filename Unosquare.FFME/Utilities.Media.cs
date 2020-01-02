@@ -4,7 +4,6 @@
     using Container;
     using Diagnostics;
     using FFmpeg.AutoGen;
-    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -35,7 +34,7 @@
 
             // Open the container
             tempContainer.Open();
-            if (tempContainer.Components.Main == null || tempContainer.Components.MainMediaType != sourceType)
+            if (tempContainer.Components.Seekable == null || tempContainer.Components.SeekableMediaType != sourceType)
                 throw new MediaContainerException($"Could not find a stream of type '{sourceType}' to load blocks from");
 
             // read all the packets and decode them
@@ -65,35 +64,6 @@
 
             tempContainer.Close();
             return result;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="MediaBlockBuffer"/> for the main media type of the specified media container.
-        /// </summary>
-        /// <param name="blocks">The blocks.</param>
-        /// <param name="container">The container.</param>
-        /// <returns>The block buffer of the main media type.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static MediaBlockBuffer Main(this MediaTypeDictionary<MediaBlockBuffer> blocks, MediaContainer container) =>
-            blocks[container.Components?.MainMediaType ?? MediaType.None];
-
-        /// <summary>
-        /// Excludes the type of the media.
-        /// </summary>
-        /// <param name="all">All.</param>
-        /// <param name="main">The main.</param>
-        /// <returns>An array without the media type.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static MediaType[] Except(this IEnumerable<MediaType> all, MediaType main)
-        {
-            var result = new List<MediaType>(4);
-            foreach (var item in all)
-            {
-                if (item != main)
-                    result.Add(item);
-            }
-
-            return result.ToArray();
         }
 
         /// <summary>
@@ -159,8 +129,53 @@
         internal static T Clamp<T>(this T value, T min, T max)
             where T : struct, IComparable
         {
-            if (value.CompareTo(min) < 0) return min;
-            return value.CompareTo(max) > 0 ? max : value;
+            switch (value)
+            {
+                case TimeSpan v:
+                    {
+                        var minT = (TimeSpan)(object)min;
+                        var maxT = (TimeSpan)(object)max;
+
+                        if (v.Ticks > maxT.Ticks) return max;
+                        if (v.Ticks < minT.Ticks) return min;
+
+                        return value;
+                    }
+
+                default:
+                    {
+                        if (value.CompareTo(min) < 0) return min;
+                        return value.CompareTo(max) > 0 ? max : value;
+                    }
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the specified value is between the minimum and maximum.
+        /// </summary>
+        /// <typeparam name="T">The implicit value type to compare.</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="min">The minimum.</param>
+        /// <param name="max">The maximum.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified value is between the min and max; otherwise, <c>false</c>.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsBetween<T>(this T value, T min, T max)
+            where T : struct, IComparable
+        {
+            switch (value)
+            {
+                case TimeSpan v:
+                    {
+                        var minT = (TimeSpan)(object)min;
+                        var maxT = (TimeSpan)(object)max;
+                        return v.Ticks >= minT.Ticks && v.Ticks <= maxT.Ticks;
+                    }
+
+                default:
+                    return value.CompareTo(min) >= 0 && value.CompareTo(max) <= 0;
+            }
         }
 
         /// <summary>

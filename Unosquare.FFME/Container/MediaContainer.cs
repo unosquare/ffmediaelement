@@ -267,7 +267,7 @@ namespace Unosquare.FFME.Container
         /// <summary>
         /// Gets a value indicating whether the underlying media is seekable.
         /// </summary>
-        public bool IsStreamSeekable => CustomInputStream?.CanSeek ?? (Components?.Main?.Duration.Ticks ?? 0) > 0;
+        public bool IsStreamSeekable => CustomInputStream?.CanSeek ?? (Components?.Seekable?.Duration.Ticks ?? 0) > 0;
 
         /// <summary>
         /// Gets a value indicating whether this container represents live media.
@@ -321,14 +321,14 @@ namespace Unosquare.FFME.Container
             get
             {
                 var canRequireAttachments = Components.HasVideo &&
-                    Components.Video.StreamInfo.IsAttachedPictureDisposition;
+                    Components.Video.IsStillPictures;
 
                 return canRequireAttachments && RequiresPictureAttachments;
             }
             set
             {
                 var canRequireAttachments = Components.HasVideo &&
-                    Components.Video.StreamInfo.IsAttachedPictureDisposition;
+                    Components.Video.IsStillPictures;
 
                 RequiresPictureAttachments = canRequireAttachments && value;
             }
@@ -1049,20 +1049,20 @@ namespace Unosquare.FFME.Container
         {
             #region Setup
 
-            // Select the main component
-            var main = Components.Main;
-            if (main == null) return null;
+            // Select the seeking component
+            var comp = Components.Seekable;
+            if (comp == null) return null;
             MediaFrame frame = null;
 
-            // Stream seeking by main component
+            // Stream seeking by seeking component
             // The backward flag means that we want to seek to at MOST the target position
             var seekFlags = ffmpeg.AVSEEK_FLAG_BACKWARD;
-            var streamIndex = main.StreamIndex;
-            var timeBase = main.Stream->time_base;
+            var streamIndex = comp.StreamIndex;
+            var timeBase = comp.Stream->time_base;
 
             // Compute the absolute maximum 0-based target time which is simply the duration.
-            var maxTargetTimeTicks = main.EndTime.Ticks;
-            var minTargetTimeTicks = main.StartTime.Ticks;
+            var maxTargetTimeTicks = comp.EndTime.Ticks;
+            var minTargetTimeTicks = comp.StartTime.Ticks;
 
             // Adjust 0-based target time and clamp it
             var targetPosition = TimeSpan.FromTicks(desiredTargetTime.Ticks.Clamp(minTargetTimeTicks, maxTargetTimeTicks));
@@ -1096,7 +1096,7 @@ namespace Unosquare.FFME.Container
             var indexTimestamp = ffmpeg.AV_NOPTS_VALUE;
 
             // Help the initial position seek time.
-            if (main is VideoComponent videoComponent && videoComponent.SeekIndex.Count > 0)
+            if (comp is VideoComponent videoComponent && videoComponent.SeekIndex.Count > 0)
             {
                 var entryIndex = videoComponent.SeekIndex.StartIndexOf(targetPosition);
                 if (entryIndex >= 0)
@@ -1137,9 +1137,9 @@ namespace Unosquare.FFME.Container
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow;
 
                     // check if we have seeked before the start of the stream
-                    if (streamSeekRelativeTime.Ticks <= main.StartTime.Ticks)
+                    if (streamSeekRelativeTime.Ticks <= comp.StartTime.Ticks)
                     {
-                        seekTimestamp = main.StartTime.ToLong(main.Stream->time_base);
+                        seekTimestamp = comp.StartTime.ToLong(comp.Stream->time_base);
                         isAtStartOfStream = true;
                     }
 
@@ -1164,7 +1164,7 @@ namespace Unosquare.FFME.Container
                 }
 
                 // Get the main component position
-                frame = StreamPositionDecode(main);
+                frame = StreamPositionDecode(comp);
 
                 // If we could not read a frame from the main component or
                 // if the first decoded frame is past the target time
@@ -1198,7 +1198,7 @@ namespace Unosquare.FFME.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaFrame StreamSeekToStart()
         {
-            var main = Components.Main;
+            var main = Components.Seekable;
             var seekTarget = main.StartTime == TimeSpan.MinValue
                 ? ffmpeg.AV_NOPTS_VALUE
                 : main.StartTime.ToLong(main.Stream->time_base);

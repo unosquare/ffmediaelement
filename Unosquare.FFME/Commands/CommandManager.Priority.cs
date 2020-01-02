@@ -135,7 +135,8 @@
             if (MediaCore.Container == null)
                 return position.Normalize();
 
-            var blocks = MediaCore.Blocks.Main(MediaCore.Container);
+            var t = MediaCore.Container?.Components?.SeekableMediaType ?? MediaType.None;
+            var blocks = MediaCore.Blocks[t];
             if (blocks == null) return position.Normalize();
 
             return blocks.GetSnapPosition(position) ?? position.Normalize();

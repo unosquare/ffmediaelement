@@ -161,9 +161,9 @@
 
             try
             {
-                var main = MediaCore.Container.Components.MainMediaType;
+                var seekableType = MediaCore.Container.Components.SeekableMediaType;
                 var all = MediaCore.Container.Components.MediaTypes;
-                var mainBlocks = MediaCore.Blocks[main];
+                var mainBlocks = MediaCore.Blocks[seekableType];
                 var initialPosition = MediaCore.PlaybackPosition;
 
                 if (targetSeekMode == SeekMode.StepBackward || targetSeekMode == SeekMode.StepForward)

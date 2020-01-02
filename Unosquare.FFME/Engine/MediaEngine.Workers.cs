@@ -160,7 +160,11 @@
             }
 
             Timing.Update(playbackPosition, t);
-            InvalidateRenderers();
+
+            if (t == MediaType.None)
+                InvalidateRenderers();
+            else
+                InvalidateRenderer(t);
 
             if (reportPosition)
                 State.ReportPlaybackPosition();

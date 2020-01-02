@@ -109,7 +109,7 @@
             finally
             {
                 // Provide updates to decoding stats -- don't count attached pictures
-                var hasAttachedPictures = Container.Components.Video?.StreamInfo.IsAttachedPictureDisposition ?? false;
+                var hasAttachedPictures = Container.Components.Video?.IsStillPictures ?? false;
                 State.UpdateDecodingStats(MediaCore.Blocks.Values
                     .Sum(b => b.MediaType == MediaType.Video && hasAttachedPictures ? 0 : b.RangeBitRate));
 
@@ -173,7 +173,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool DetectHasDecodingEnded() =>
             DecodedFrameCount <= 0 &&
-            CanReadMoreFramesOf(Container.Components.MainMediaType) == false;
+            CanReadMoreFramesOf(Container.Components.SeekableMediaType) == false;
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded into blocks of the given type.

@@ -25,8 +25,8 @@
         private IReadOnlyList<MediaType> m_MediaTypes = new List<MediaType>(0);
 
         private int m_Count;
-        private MediaType m_MainMediaType = MediaType.None;
-        private MediaComponent m_Main;
+        private MediaType m_SeekableMediaType = MediaType.None;
+        private MediaComponent m_Seekable;
         private AudioComponent m_Audio;
         private VideoComponent m_Video;
         private SubtitleComponent m_Subtitle;
@@ -91,20 +91,20 @@
         }
 
         /// <summary>
-        /// Gets the type of the main component on which seek and frame stepping is performed.
+        /// Gets the type of the component on which seek and frame stepping is performed.
         /// </summary>
-        public MediaType MainMediaType
+        public MediaType SeekableMediaType
         {
-            get { lock (ComponentSyncLock) return m_MainMediaType; }
+            get { lock (ComponentSyncLock) return m_SeekableMediaType; }
         }
 
         /// <summary>
-        /// Gets the main media component of the stream on which seeking and frame stepping is performed.
+        /// Gets the media component of the stream on which seeking and frame stepping is performed.
         /// By order of priority, first Video (not containing picture attachments), then audio.
         /// </summary>
-        public MediaComponent Main
+        public MediaComponent Seekable
         {
-            get { lock (ComponentSyncLock) return m_Main; }
+            get { lock (ComponentSyncLock) return m_Seekable; }
         }
 
         /// <summary>
@@ -440,40 +440,40 @@
             m_Count = allComponents.Count;
 
             // Try for the main component to be the video (if it's not stuff like audio album art, that is)
-            if (m_Video != null && m_Audio != null && m_Video.StreamInfo.IsAttachedPictureDisposition == false)
+            if (m_Video != null && m_Audio != null && !m_Video.IsStillPictures)
             {
-                m_Main = m_Video;
-                m_MainMediaType = MediaType.Video;
+                m_Seekable = m_Video;
+                m_SeekableMediaType = MediaType.Video;
                 return;
             }
 
             // If it was not video, then it has to be audio (if it has audio)
             if (m_Audio != null)
             {
-                m_Main = m_Audio;
-                m_MainMediaType = MediaType.Audio;
+                m_Seekable = m_Audio;
+                m_SeekableMediaType = MediaType.Audio;
                 return;
             }
 
             // Set it to video even if it's attached pic stuff
             if (m_Video != null)
             {
-                m_Main = m_Video;
-                m_MainMediaType = MediaType.Video;
+                m_Seekable = m_Video;
+                m_SeekableMediaType = MediaType.Video;
                 return;
             }
 
             // As a last resort, set the main component to be the subtitles
             if (m_Subtitle != null)
             {
-                m_Main = m_Subtitle;
-                m_MainMediaType = MediaType.Subtitle;
+                m_Seekable = m_Subtitle;
+                m_SeekableMediaType = MediaType.Subtitle;
                 return;
             }
 
             // We should never really hit this line
-            m_Main = null;
-            m_MainMediaType = MediaType.None;
+            m_Seekable = null;
+            m_SeekableMediaType = MediaType.None;
         }
 
         /// <summary>

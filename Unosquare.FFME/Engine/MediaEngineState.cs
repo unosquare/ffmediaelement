@@ -577,10 +577,10 @@
             VideoAspectRatio = videoAspectWidth != default && videoAspectHeight != default ?
                 $"{videoAspectWidth}:{videoAspectHeight}" : default;
 
-            var mediaType = MediaCore.Container?.Components.MainMediaType ?? MediaType.None;
-            var main = MediaCore.Container?.Components.Main;
+            var seekableType = MediaCore.Container?.Components.SeekableMediaType ?? MediaType.None;
+            var seekable = MediaCore.Container?.Components.Seekable;
 
-            switch (mediaType)
+            switch (seekableType)
             {
                 case MediaType.Audio:
                     PositionStep = TimeSpan.FromTicks(Convert.ToInt64(
@@ -588,7 +588,7 @@
                     break;
 
                 case MediaType.Video:
-                    var baseFrameRate = (main as VideoComponent)?.BaseFrameRate ?? 1d;
+                    var baseFrameRate = (seekable as VideoComponent)?.BaseFrameRate ?? 1d;
                     PositionStep = TimeSpan.FromTicks(Convert.ToInt64(
                         TimeSpan.TicksPerMillisecond * 1000d / baseFrameRate));
                     break;
@@ -609,7 +609,7 @@
             if (block == null) return;
 
             // Update the discrete frame position upon rendering
-            if (block.MediaType == (MediaCore.Container?.Components.MainMediaType ?? MediaType.None))
+            if (block.MediaType == (MediaCore.Container?.Components.SeekableMediaType ?? MediaType.None))
                 FramePosition = block.StartTime;
 
             // Update video block properties
