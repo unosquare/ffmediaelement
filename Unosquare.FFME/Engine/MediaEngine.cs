@@ -72,7 +72,7 @@
         /// <summary>
         /// Gets the real-time playback clock position.
         /// </summary>
-        public TimeSpan PlaybackPosition => Timing.Position();
+        public TimeSpan PlaybackPosition => Timing.Position;
 
         /// <summary>
         /// Represents a real-time time clock controller.

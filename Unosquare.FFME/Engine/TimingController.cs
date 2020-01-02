@@ -87,6 +87,27 @@
         }
 
         /// <summary>
+        /// Gets the playback position of the real-time clock of the timing reference component type.
+        /// </summary>
+        /// <returns>The clock position.</returns>
+        public TimeSpan Position => GetPosition(ReferenceType);
+
+        /// <summary>
+        /// Gets the duration of the reference component type.
+        /// </summary>
+        public TimeSpan? Duration => GetDuration(ReferenceType);
+
+        /// <summary>
+        /// Gets the start time of the reference component type.
+        /// </summary>
+        public TimeSpan StartTime => GetStartTime(ReferenceType);
+
+        /// <summary>
+        /// Gets the end time of the reference component type.
+        /// </summary>
+        public TimeSpan? EndTime => GetEndTime(ReferenceType);
+
+        /// <summary>
         /// Gets the media core.
         /// </summary>
         private MediaEngine MediaCore { get; }
@@ -185,7 +206,6 @@
                     // The default data is what the clock reference contains
                     Clocks[MediaType.None] = Clocks[ReferenceType];
                     Offsets[MediaType.None] = Offsets[ReferenceType];
-
                     IsReady = true;
 
                     MediaCore.State.ReportTimingStatus();
@@ -218,7 +238,7 @@
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns>The clock position.</returns>
-        public TimeSpan Position(MediaType t)
+        public TimeSpan GetPosition(MediaType t)
         {
             lock (SyncLock)
             {
@@ -232,10 +252,40 @@
         }
 
         /// <summary>
-        /// Gets the playback position of the real-time clock of the timing reference component type.
+        /// Gets the playback duration of the given component type.
         /// </summary>
-        /// <returns>The clock position.</returns>
-        public TimeSpan Position() => Position(ReferenceType);
+        /// <param name="t">The t.</param>
+        /// <returns>The duration of the component type.</returns>
+        public TimeSpan? GetDuration(MediaType t)
+        {
+            lock (SyncLock)
+                return IsReady ? GetComponentDuration(t) : default;
+        }
+
+        /// <summary>
+        /// Gets the start time of the given component type.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>The duration of the component type.</returns>
+        public TimeSpan GetStartTime(MediaType t)
+        {
+            lock (SyncLock)
+                return IsReady ? Offsets[t] : default;
+        }
+
+        /// <summary>
+        /// Gets the playback end time of the given component type.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>The duration of the component type.</returns>
+        public TimeSpan? GetEndTime(MediaType t)
+        {
+            lock (SyncLock)
+            {
+                var duration = GetComponentDuration(t);
+                return IsReady ? duration.HasValue ? TimeSpan.FromTicks(duration.Value.Ticks + Offsets[t].Ticks) : default : default;
+            }
+        }
 
         /// <summary>
         /// Updates the position of the component's clock. Pass none to update all clocks to the same postion.
@@ -366,6 +416,20 @@
         {
             if (MediaCore?.Container?.Components is MediaComponentSet components && components[t] is MediaComponent component)
                 return component.StartTime == TimeSpan.MinValue ? TimeSpan.Zero : component.StartTime;
+
+            return TimeSpan.Zero;
+        }
+
+        /// <summary>
+        /// Gets the component duration.
+        /// </summary>
+        /// <param name="t">The component media type.</param>
+        /// <returns>The component duration time.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private TimeSpan? GetComponentDuration(MediaType t)
+        {
+            if (MediaCore?.Container?.Components is MediaComponentSet components && components[t] is MediaComponent component)
+                return component.Duration.Ticks <= 0 ? default(TimeSpan?) : component.Duration;
 
             return TimeSpan.Zero;
         }

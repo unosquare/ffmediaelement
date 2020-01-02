@@ -267,7 +267,7 @@ namespace Unosquare.FFME.Container
         /// <summary>
         /// Gets a value indicating whether the underlying media is seekable.
         /// </summary>
-        public bool IsStreamSeekable => CustomInputStream?.CanSeek ?? (Components?.PlaybackDuration?.Ticks ?? 0) > 0;
+        public bool IsStreamSeekable => CustomInputStream?.CanSeek ?? (Components?.Main?.Duration.Ticks ?? 0) > 0;
 
         /// <summary>
         /// Gets a value indicating whether this container represents live media.
@@ -487,20 +487,13 @@ namespace Unosquare.FFME.Container
 
                 try
                 {
-                    switch (input.MediaType)
+                    return input.MediaType switch
                     {
-                        case MediaType.Video:
-                            return Components.HasVideo && Components.Video.MaterializeFrame(input, ref output, previousBlock);
-
-                        case MediaType.Audio:
-                            return Components.HasAudio && Components.Audio.MaterializeFrame(input, ref output, previousBlock);
-
-                        case MediaType.Subtitle:
-                            return Components.HasSubtitles && Components.Subtitles.MaterializeFrame(input, ref output, previousBlock);
-
-                        default:
-                            throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
-                    }
+                        MediaType.Video => Components.HasVideo && Components.Video.MaterializeFrame(input, ref output, previousBlock),
+                        MediaType.Audio => Components.HasAudio && Components.Audio.MaterializeFrame(input, ref output, previousBlock),
+                        MediaType.Subtitle => Components.HasSubtitles && Components.Subtitles.MaterializeFrame(input, ref output, previousBlock),
+                        _ => throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}"),
+                    };
                 }
                 finally
                 {
@@ -927,12 +920,6 @@ namespace Unosquare.FFME.Container
             // Initially and depending on the video component, require picture attachments.
             // Picture attachments are only required after the first read or after a seek.
             StateRequiresPictureAttachments = true;
-
-            // Output start time offsets.
-            this.LogInfo(Aspects.Container,
-                $"Timing Offsets - Main Component: {Components.MainMediaType}; " +
-                $"Start Time: {Components.PlaybackStartTime?.Format()}; " +
-                $"Duration: {Components.PlaybackDuration?.Format()}; ");
 
             // Return the registered component types
             return Components.MediaTypes.ToArray();

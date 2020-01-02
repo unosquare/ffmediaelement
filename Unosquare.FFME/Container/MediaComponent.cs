@@ -231,14 +231,14 @@
             }
 
             // Compute the start time
-            StartTime = Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
-                TimeSpan.MinValue :
-                Stream->start_time.ToTimeSpan(Stream->time_base);
+            StartTime = Stream->start_time == ffmpeg.AV_NOPTS_VALUE
+                ? Container.MediaInfo.StartTime == TimeSpan.MinValue ? TimeSpan.Zero : Container.MediaInfo.StartTime
+                : Stream->start_time.ToTimeSpan(Stream->time_base);
 
-            // compute the duration
-            Duration = (Stream->duration == ffmpeg.AV_NOPTS_VALUE || Stream->duration <= 0) ?
-                TimeSpan.MinValue :
-                Stream->duration.ToTimeSpan(Stream->time_base);
+            // Compute the duration
+            Duration = (Stream->duration == ffmpeg.AV_NOPTS_VALUE || Stream->duration <= 0)
+                ? Container.MediaInfo.Duration
+                : Stream->duration.ToTimeSpan(Stream->time_base);
 
             CodecId = Stream->codec->codec_id;
             CodecName = Utilities.PtrToStringUTF8(selectedCodec->name);
@@ -456,16 +456,12 @@
         {
             var frame = DecodePacketFunction?.Invoke();
 
-            // Check if we need to update the playback duration.
+            // Check if we need to update the duration of this component.
             // This means we have decoded more frames than what was initially reported by the container.
-            if (frame != null && Container.IsStreamSeekable)
+            if (frame != null && Container.IsStreamSeekable && EndTime != TimeSpan.MinValue &&
+                frame.HasValidStartTime && frame.EndTime.Ticks > EndTime.Ticks)
             {
-                if (EndTime != TimeSpan.MinValue && frame.HasValidStartTime && frame.EndTime.Ticks > EndTime.Ticks)
-                {
-                    Duration = TimeSpan.FromTicks(frame.EndTime.Ticks - StartTime.Ticks);
-                    if (this == Container.Components.Main)
-                        Container.Components.UpdatePlaybackDuration(Duration);
-                }
+                Duration = TimeSpan.FromTicks(frame.EndTime.Ticks - StartTime.Ticks);
             }
 
             return frame;

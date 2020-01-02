@@ -93,7 +93,7 @@ namespace Unosquare.FFME.Engine
 
                 try
                 {
-                    var frameDuration = Container.Components.MainMediaType == MediaType.Video && MediaCore.Blocks[MediaType.Video].Count > 0
+                    var frameDuration = MediaCore.Timing.ReferenceType == MediaType.Video && MediaCore.Blocks[MediaType.Video].Count > 0
                         ? MediaCore.Blocks[MediaType.Video].AverageBlockDuration
                         : Constants.DefaultTimingPeriod;
 
@@ -120,7 +120,7 @@ namespace Unosquare.FFME.Engine
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
             // Update Status Properties
-            var main = Container.Components.MainMediaType;
+            var main = MediaCore.Timing.ReferenceType; // Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
 
             // Ensure we have renderers ready and main blocks available
@@ -192,7 +192,7 @@ namespace Unosquare.FFME.Engine
 
                 var performVersticalSyncWait = MediaCore.Timing.IsRunning &&
                     State.VerticalSyncEnabled &&
-                    Container.Components.MainMediaType == MediaType.Video;
+                    Container.Components.HasVideo;
 
                 if (performVersticalSyncWait)
                 {
@@ -261,7 +261,7 @@ namespace Unosquare.FFME.Engine
                         continue;
 
                     var compBlocks = MediaCore.Blocks[t];
-                    var compPosition = MediaCore.Timing.Position(t);
+                    var compPosition = MediaCore.Timing.GetPosition(t);
 
                     if (compBlocks.Count <= 0)
                     {
@@ -390,7 +390,7 @@ namespace Unosquare.FFME.Engine
                 var deltaPosition = TimeSpan.FromMilliseconds(bufferedDelta / 10);
                 if (needsSlowDown) deltaPosition = deltaPosition.Negate();
 
-                MediaCore.Timing.Update(MediaCore.Timing.Position().Add(deltaPosition), MediaType.None);
+                MediaCore.Timing.Update(MediaCore.Timing.Position.Add(deltaPosition), MediaType.None);
                 LastSpeedRatioTime = DateTime.UtcNow;
 
                 this.LogWarning(nameof(BlockRenderingWorker),
@@ -550,7 +550,7 @@ namespace Unosquare.FFME.Engine
         private bool RenderBlock(MediaType t)
         {
             var result = 0;
-            var playbackClock = MediaCore.Timing.Position(t);
+            var playbackClock = MediaCore.Timing.GetPosition(t);
 
             try
             {
@@ -579,15 +579,14 @@ namespace Unosquare.FFME.Engine
         /// <summary>
         /// Detects whether the playback has ended.
         /// </summary>
-        /// <param name="main">The main component type.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void DetectPlaybackEnded(MediaType main)
         {
             var playbackEndClock = MediaCore.Blocks[main].Count > 0
                 ? MediaCore.Blocks[main].RangeEndTime
-                : Container.Components.PlaybackEndTime ?? TimeSpan.MaxValue;
+                : MediaCore.Timing.GetEndTime(main) ?? TimeSpan.MaxValue;
 
-            var isAtEndOfPlayback = MediaCore.PlaybackPosition.Ticks >= playbackEndClock.Ticks
+            var isAtEndOfPlayback = MediaCore.Timing.GetPosition(main).Ticks >= playbackEndClock.Ticks
                 || MediaCore.Timing.HasDisconnectedClocks;
 
             // Check End of Media Scenarios
@@ -598,6 +597,12 @@ namespace Unosquare.FFME.Engine
                 // Rendered all and nothing else to render
                 if (State.HasMediaEnded == false)
                 {
+#if RENDERER_ADJUST_COMPONENT_DURATION
+                        var componentStartTime = MediaCore.Container.Components[main].StartTime;
+                        var actualComponentDuration = TimeSpan.FromTicks(playbackEndClock.Ticks - componentStartTime.Ticks);
+                        MediaCore.Container.Components[main].Duration = actualComponentDuration;
+#endif
+
                     MediaCore.PausePlayback();
                     MediaCore.ChangePlaybackPosition(playbackEndClock);
                 }

@@ -352,7 +352,7 @@
                 IsStateUpdating = true;
                 while (PropertyUpdates.TryTake(out var p))
                 {
-                    if (p == nameof(Position))
+                    if (p == nameof(Position) || p == nameof(NaturalDuration))
                     {
                         if (!IsSeeking)
                             Position = MediaCore.State.Position;

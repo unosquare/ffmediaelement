@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Container
 {
     using Common;
-    using FFmpeg.AutoGen;
     using Primitives;
     using System;
     using System.Collections.Generic;
@@ -26,8 +25,6 @@
         private IReadOnlyList<MediaType> m_MediaTypes = new List<MediaType>(0);
 
         private int m_Count;
-        private TimeSpan? m_PlaybackStartTime;
-        private TimeSpan? m_PlaybackDuration;
         private MediaType m_MainMediaType = MediaType.None;
         private MediaComponent m_Main;
         private AudioComponent m_Audio;
@@ -94,7 +91,7 @@
         }
 
         /// <summary>
-        /// Gets the type of the main.
+        /// Gets the type of the main component on which seek and frame stepping is performed.
         /// </summary>
         public MediaType MainMediaType
         {
@@ -102,8 +99,8 @@
         }
 
         /// <summary>
-        /// Gets the main media component of the stream to which time is synchronized.
-        /// By order of priority, first Audio, then Video.
+        /// Gets the main media component of the stream on which seeking and frame stepping is performed.
+        /// By order of priority, first Video (not containing picture attachments), then audio.
         /// </summary>
         public MediaComponent Main
         {
@@ -159,38 +156,6 @@
         public bool HasSubtitles
         {
             get { lock (ComponentSyncLock) return m_Subtitle != null; }
-        }
-
-        /// <summary>
-        /// Gets the playback start time.
-        /// </summary>
-        public TimeSpan? PlaybackStartTime
-        {
-            get { lock (ComponentSyncLock) return m_PlaybackStartTime; }
-        }
-
-        /// <summary>
-        /// Gets the playback duration. Could be null.
-        /// </summary>
-        public TimeSpan? PlaybackDuration
-        {
-            get { lock (ComponentSyncLock) return m_PlaybackDuration; }
-        }
-
-        /// <summary>
-        /// Gets the playback end time. Could be null.
-        /// </summary>
-        public TimeSpan? PlaybackEndTime
-        {
-            get
-            {
-                lock (ComponentSyncLock)
-                {
-                    return m_PlaybackStartTime != null && m_PlaybackDuration != null
-                      ? TimeSpan.FromTicks(m_PlaybackStartTime.Value.Ticks + m_PlaybackDuration.Value.Ticks)
-                      : default(TimeSpan?);
-                }
-            }
         }
 
         /// <summary>
@@ -252,13 +217,13 @@
             {
                 lock (ComponentSyncLock)
                 {
-                    switch (mediaType)
+                    return mediaType switch
                     {
-                        case MediaType.Audio: return m_Audio;
-                        case MediaType.Video: return m_Video;
-                        case MediaType.Subtitle: return m_Subtitle;
-                        default: return null;
-                    }
+                        MediaType.Audio => m_Audio,
+                        MediaType.Video => m_Video,
+                        MediaType.Subtitle => m_Subtitle,
+                        _ => null,
+                    };
                 }
             }
         }
@@ -442,97 +407,6 @@
         }
 
         /// <summary>
-        /// Updates the playback duration property.
-        /// This method is intended to be called only when decoding frames.
-        /// </summary>
-        /// <param name="duration">The duration.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdatePlaybackDuration(TimeSpan duration)
-        {
-            lock (ComponentSyncLock)
-                m_PlaybackDuration = duration;
-        }
-
-        /// <summary>
-        /// Updates the playback timing properties.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void UpdatePlaybackTimingProperties()
-        {
-            // Start with unknown or default playback times
-            m_PlaybackDuration = null;
-            m_PlaybackStartTime = null;
-
-            // Compute Playback Times -- priority is established by the order
-            // of components in allComponents: audio, video, subtitle
-            // It would be weird to compute playback duration using subtitles
-            foreach (var component in m_All)
-            {
-                // We don't want this kind of info from subtitles
-                if (component.MediaType == MediaType.Subtitle)
-                    continue;
-
-                var startTime = component.Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
-                    TimeSpan.MinValue :
-                    component.Stream->start_time.ToTimeSpan(component.Stream->time_base);
-
-                // compute the duration
-                var duration = (component.Stream->duration == ffmpeg.AV_NOPTS_VALUE || component.Stream->duration <= 0) ?
-                    TimeSpan.MinValue :
-                    component.Stream->duration.ToTimeSpan(component.Stream->time_base);
-
-                // some audio streams do not have start times. It's assumed as 0
-                if (component.MediaType == MediaType.Audio && startTime == TimeSpan.MinValue)
-                    startTime = TimeSpan.Zero;
-
-                // Skip the component if not known
-                if (startTime == TimeSpan.MinValue)
-                    continue;
-
-                // Set the start time
-                m_PlaybackStartTime = startTime;
-
-                // Set the duration and end times if we find valid data
-                if (duration != TimeSpan.MinValue && duration.Ticks > 0)
-                    m_PlaybackDuration = component.Duration;
-
-                // no more computing playback times after this point
-                break;
-            }
-
-            // Compute the playback start, end and duration off the media info
-            // if we could not compute it via the components
-            if (m_PlaybackDuration == null && m_All.Count > 0)
-            {
-                var mediaInfo = m_All[0].Container?.MediaInfo;
-
-                if (mediaInfo != null && mediaInfo.Duration != TimeSpan.MinValue && mediaInfo.Duration.Ticks > 0)
-                {
-                    m_PlaybackDuration = mediaInfo.Duration;
-
-                    // override the start time if we have valid duration information
-                    if (mediaInfo.StartTime != TimeSpan.MinValue)
-                        m_PlaybackStartTime = mediaInfo.StartTime;
-                }
-            }
-
-            // Update all of the component start and duration times if not set
-            // using the newly computed information if available
-            foreach (var component in m_All)
-            {
-                if (component.StartTime == TimeSpan.MinValue)
-                    component.StartTime = m_PlaybackStartTime ?? TimeSpan.Zero;
-
-                if (component.Duration == TimeSpan.MinValue && m_PlaybackDuration != null)
-                    component.Duration = m_PlaybackDuration.Value;
-            }
-
-            // Don't ever let the start time be null
-            if (m_PlaybackStartTime == null)
-                m_PlaybackStartTime = TimeSpan.Zero;
-        }
-
-        /// <summary>
         /// Computes the main component and backing fields.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -564,9 +438,6 @@
             m_All = allComponents;
             m_MediaTypes = allMediaTypes;
             m_Count = allComponents.Count;
-
-            // Find Start time, duration and end time
-            UpdatePlaybackTimingProperties();
 
             // Try for the main component to be the video (if it's not stuff like audio album art, that is)
             if (m_Video != null && m_Audio != null && m_Video.StreamInfo.IsAttachedPictureDisposition == false)

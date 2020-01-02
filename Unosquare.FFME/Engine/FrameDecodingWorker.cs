@@ -110,7 +110,7 @@
             {
                 // Provide updates to decoding stats -- don't count attached pictures
                 var hasAttachedPictures = Container.Components.Video?.StreamInfo.IsAttachedPictureDisposition ?? false;
-                State.UpdateDecodingBitRate(MediaCore.Blocks.Values
+                State.UpdateDecodingStats(MediaCore.Blocks.Values
                     .Sum(b => b.MediaType == MediaType.Video && hasAttachedPictures ? 0 : b.RangeBitRate));
 
                 // Detect End of Decoding Scenarios
@@ -132,7 +132,7 @@
 
             while (addedBlocks < maxAddedBlocks)
             {
-                var position = MediaCore.Timing.Position(t).Ticks;
+                var position = MediaCore.Timing.GetPosition(t).Ticks;
                 var rangeHalf = decoderBlocks.RangeMidTime.Ticks;
 
                 // We break decoding if we have a full set of blocks and if the

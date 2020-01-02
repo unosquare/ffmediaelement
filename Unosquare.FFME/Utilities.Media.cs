@@ -25,48 +25,46 @@
             if (string.IsNullOrWhiteSpace(mediaSource))
                 throw new ArgumentNullException(nameof(mediaSource));
 
-            using (var tempContainer = new MediaContainer(mediaSource, null, parent))
+            using var tempContainer = new MediaContainer(mediaSource, null, parent);
+            tempContainer.Initialize();
+
+            // Skip reading and decoding unused blocks
+            tempContainer.MediaOptions.IsAudioDisabled = sourceType != MediaType.Audio;
+            tempContainer.MediaOptions.IsVideoDisabled = sourceType != MediaType.Video;
+            tempContainer.MediaOptions.IsSubtitleDisabled = sourceType != MediaType.Subtitle;
+
+            // Open the container
+            tempContainer.Open();
+            if (tempContainer.Components.Main == null || tempContainer.Components.MainMediaType != sourceType)
+                throw new MediaContainerException($"Could not find a stream of type '{sourceType}' to load blocks from");
+
+            // read all the packets and decode them
+            var outputFrames = new List<MediaFrame>(1024 * 8);
+            while (true)
             {
-                tempContainer.Initialize();
-
-                // Skip reading and decoding unused blocks
-                tempContainer.MediaOptions.IsAudioDisabled = sourceType != MediaType.Audio;
-                tempContainer.MediaOptions.IsVideoDisabled = sourceType != MediaType.Video;
-                tempContainer.MediaOptions.IsSubtitleDisabled = sourceType != MediaType.Subtitle;
-
-                // Open the container
-                tempContainer.Open();
-                if (tempContainer.Components.Main == null || tempContainer.Components.MainMediaType != sourceType)
-                    throw new MediaContainerException($"Could not find a stream of type '{sourceType}' to load blocks from");
-
-                // read all the packets and decode them
-                var outputFrames = new List<MediaFrame>(1024 * 8);
-                while (true)
+                tempContainer.Read();
+                var frames = tempContainer.Decode();
+                foreach (var frame in frames)
                 {
-                    tempContainer.Read();
-                    var frames = tempContainer.Decode();
-                    foreach (var frame in frames)
-                    {
-                        if (frame.MediaType != sourceType)
-                            continue;
+                    if (frame.MediaType != sourceType)
+                        continue;
 
-                        outputFrames.Add(frame);
-                    }
-
-                    if (frames.Count <= 0 && tempContainer.IsAtEndOfStream)
-                        break;
+                    outputFrames.Add(frame);
                 }
 
-                // Build the result
-                var result = new MediaBlockBuffer(outputFrames.Count, sourceType);
-                foreach (var frame in outputFrames)
-                {
-                    result.Add(frame, tempContainer);
-                }
-
-                tempContainer.Close();
-                return result;
+                if (frames.Count <= 0 && tempContainer.IsAtEndOfStream)
+                    break;
             }
+
+            // Build the result
+            var result = new MediaBlockBuffer(outputFrames.Count, sourceType);
+            foreach (var frame in outputFrames)
+            {
+                result.Add(frame, tempContainer);
+            }
+
+            tempContainer.Close();
+            return result;
         }
 
         /// <summary>

@@ -564,9 +564,9 @@
             AudioChannels = MediaCore.Container?.Components.Audio?.Channels ?? default;
             AudioSampleRate = MediaCore.Container?.Components.Audio?.SampleRate ?? default;
             AudioBitsPerSample = MediaCore.Container?.Components.Audio?.BitsPerSample ?? default;
-            NaturalDuration = MediaCore.Container?.Components?.PlaybackDuration;
-            PlaybackStartTime = MediaCore.Container?.Components?.PlaybackStartTime;
-            PlaybackEndTime = MediaCore.Container?.Components?.PlaybackEndTime;
+            NaturalDuration = MediaCore.Timing?.Duration;
+            PlaybackStartTime = MediaCore.Timing?.StartTime;
+            PlaybackEndTime = MediaCore.Timing?.EndTime;
             IsLiveStream = MediaCore.Container?.IsLiveStream ?? default;
             IsNetworkStream = MediaCore.Container?.IsNetworkStream ?? default;
             IsSeekable = MediaCore.Container?.IsStreamSeekable ?? default;
@@ -727,21 +727,16 @@
         }
 
         /// <summary>
-        /// Updates the decoding bit rate.
+        /// Updates the decoding bit rate and duration of the reference timing component.
         /// </summary>
         /// <param name="bitRate">The bit rate.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateDecodingBitRate(long bitRate)
+        internal void UpdateDecodingStats(long bitRate)
         {
             DecodingBitRate = bitRate;
-
-            // Update the component duration and end time
-            if (NaturalDuration != MediaCore.Container?.Components?.PlaybackDuration)
-            {
-                NaturalDuration = MediaCore.Container?.Components?.PlaybackDuration;
-                PlaybackEndTime = MediaCore.Container?.Components?.PlaybackEndTime;
-                MediaStreamSize = MediaCore.Container?.MediaStreamSize ?? default;
-            }
+            NaturalDuration = MediaCore.Timing?.Duration;
+            PlaybackStartTime = MediaCore.Timing?.StartTime;
+            PlaybackEndTime = MediaCore.Timing?.EndTime;
         }
 
         /// <summary>
