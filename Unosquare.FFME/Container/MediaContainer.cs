@@ -267,7 +267,7 @@ namespace Unosquare.FFME.Container
         /// <summary>
         /// Gets a value indicating whether the underlying media is seekable.
         /// </summary>
-        public bool IsStreamSeekable => CustomInputStream?.CanSeek ?? (Components?.Seekable?.Duration.Ticks ?? 0) > 0;
+        public bool IsStreamSeekable => CustomInputStream?.CanSeek ?? (Components?.Main?.Duration.Ticks ?? 0) > 0;
 
         /// <summary>
         /// Gets a value indicating whether this container represents live media.
@@ -1050,7 +1050,7 @@ namespace Unosquare.FFME.Container
             #region Setup
 
             // Select the seeking component
-            var comp = Components.Seekable;
+            var comp = Components.Main;
             if (comp == null) return null;
             MediaFrame frame = null;
 
@@ -1198,7 +1198,7 @@ namespace Unosquare.FFME.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaFrame StreamSeekToStart()
         {
-            var main = Components.Seekable;
+            var main = Components.Main;
             var seekTarget = main.StartTime == TimeSpan.MinValue
                 ? ffmpeg.AV_NOPTS_VALUE
                 : main.StartTime.ToLong(main.Stream->time_base);

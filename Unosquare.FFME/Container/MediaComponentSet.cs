@@ -25,8 +25,8 @@
         private IReadOnlyList<MediaType> m_MediaTypes = new List<MediaType>(0);
 
         private int m_Count;
-        private MediaType m_SeekableMediaType = MediaType.None;
-        private MediaComponent m_Seekable;
+        private MediaType m_MainMediaType = MediaType.None;
+        private MediaComponent m_Main;
         private AudioComponent m_Audio;
         private VideoComponent m_Video;
         private SubtitleComponent m_Subtitle;
@@ -91,20 +91,21 @@
         }
 
         /// <summary>
-        /// Gets the type of the component on which seek and frame stepping is performed.
+        /// Gets the type of the <see cref="Main"/> component.
         /// </summary>
-        public MediaType SeekableMediaType
+        public MediaType MainMediaType
         {
-            get { lock (ComponentSyncLock) return m_SeekableMediaType; }
+            get { lock (ComponentSyncLock) return m_MainMediaType; }
         }
 
         /// <summary>
         /// Gets the media component of the stream on which seeking and frame stepping is performed.
         /// By order of priority, first Video (not containing picture attachments), then audio.
+        /// This component also determines the start and end times of media.
         /// </summary>
-        public MediaComponent Seekable
+        public MediaComponent Main
         {
-            get { lock (ComponentSyncLock) return m_Seekable; }
+            get { lock (ComponentSyncLock) return m_Main; }
         }
 
         /// <summary>
@@ -407,6 +408,25 @@
         }
 
         /// <summary>
+        /// Changes the main component to a different component type.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>True if successful. False otherwise.</returns>
+        internal bool ChangeMainComponentTo(MediaType t)
+        {
+            lock (ComponentSyncLock)
+            {
+                var component = this[t];
+                if (component == null)
+                    return false;
+
+                m_Main = component;
+                m_MainMediaType = component.MediaType;
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Computes the main component and backing fields.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -442,38 +462,38 @@
             // Try for the main component to be the video (if it's not stuff like audio album art, that is)
             if (m_Video != null && m_Audio != null && !m_Video.IsStillPictures)
             {
-                m_Seekable = m_Video;
-                m_SeekableMediaType = MediaType.Video;
+                m_Main = m_Video;
+                m_MainMediaType = MediaType.Video;
                 return;
             }
 
             // If it was not video, then it has to be audio (if it has audio)
             if (m_Audio != null)
             {
-                m_Seekable = m_Audio;
-                m_SeekableMediaType = MediaType.Audio;
+                m_Main = m_Audio;
+                m_MainMediaType = MediaType.Audio;
                 return;
             }
 
             // Set it to video even if it's attached pic stuff
             if (m_Video != null)
             {
-                m_Seekable = m_Video;
-                m_SeekableMediaType = MediaType.Video;
+                m_Main = m_Video;
+                m_MainMediaType = MediaType.Video;
                 return;
             }
 
             // As a last resort, set the main component to be the subtitles
             if (m_Subtitle != null)
             {
-                m_Seekable = m_Subtitle;
-                m_SeekableMediaType = MediaType.Subtitle;
+                m_Main = m_Subtitle;
+                m_MainMediaType = MediaType.Subtitle;
                 return;
             }
 
             // We should never really hit this line
-            m_Seekable = null;
-            m_SeekableMediaType = MediaType.None;
+            m_Main = null;
+            m_MainMediaType = MediaType.None;
         }
 
         /// <summary>

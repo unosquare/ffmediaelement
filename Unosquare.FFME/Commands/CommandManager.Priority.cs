@@ -135,7 +135,7 @@
             if (MediaCore.Container == null)
                 return position.Normalize();
 
-            var t = MediaCore.Container?.Components?.SeekableMediaType ?? MediaType.None;
+            var t = MediaCore.Container?.Components?.MainMediaType ?? MediaType.None;
             var blocks = MediaCore.Blocks[t];
             if (blocks == null) return position.Normalize();
 

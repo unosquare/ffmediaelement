@@ -161,14 +161,14 @@
 
             try
             {
-                var seekableType = MediaCore.Container.Components.SeekableMediaType;
+                var seekableType = MediaCore.Container.Components.MainMediaType;
                 var all = MediaCore.Container.Components.MediaTypes;
-                var mainBlocks = MediaCore.Blocks[seekableType];
+                var seekBlocks = MediaCore.Blocks[seekableType];
                 var initialPosition = MediaCore.PlaybackPosition;
 
                 if (targetSeekMode == SeekMode.StepBackward || targetSeekMode == SeekMode.StepForward)
                 {
-                    targetPosition = ComputeStepTargetPosition(targetSeekMode, mainBlocks, initialPosition);
+                    targetPosition = ComputeStepTargetPosition(targetSeekMode, seekBlocks, initialPosition);
                 }
                 else if (targetSeekMode == SeekMode.Stop)
                 {
@@ -178,7 +178,7 @@
                 // Check if we already have the block. If we do, simply set the clock position to the target position
                 // we don't need anything else. This implements frame-by frame seeking and we need to snap to a discrete
                 // position of the main component so it sticks on it.
-                if (mainBlocks.IsInRange(targetPosition))
+                if (seekBlocks.IsInRange(targetPosition))
                 {
                     MediaCore.ChangePlaybackPosition(targetPosition);
                     return true;
@@ -200,10 +200,10 @@
 
                 // Capture seek target adjustment
                 var adjustedSeekTarget = targetPosition;
-                if (targetPosition != TimeSpan.MinValue && mainBlocks.IsMonotonic)
+                if (targetPosition != TimeSpan.MinValue && seekBlocks.IsMonotonic)
                 {
                     var targetSkewTicks = Convert.ToInt64(
-                        mainBlocks.MonotonicDuration.Ticks * (mainBlocks.Capacity / 2d));
+                        seekBlocks.MonotonicDuration.Ticks * (seekBlocks.Capacity / 2d));
 
                     if (adjustedSeekTarget.Ticks >= targetSkewTicks)
                         adjustedSeekTarget = TimeSpan.FromTicks(adjustedSeekTarget.Ticks - targetSkewTicks);
@@ -229,7 +229,7 @@
 
                     // Create the blocks from the obtained seek frames
                     MediaCore.Blocks[firstFrame.MediaType]?.Add(firstFrame, MediaCore.Container);
-                    hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
+                    hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, seekBlocks, targetPosition, hasSeekBlocks);
 
                     // Decode all available queued packets into the media component blocks
                     foreach (var mt in all)
@@ -239,7 +239,7 @@
                             var frame = MediaCore.Container.Components[mt].ReceiveNextFrame();
                             if (frame == null) break;
                             MediaCore.Blocks[mt].Add(frame, MediaCore.Container);
-                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
+                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, seekBlocks, targetPosition, hasSeekBlocks);
                         }
                     }
 
@@ -247,7 +247,7 @@
                     while (MediaCore.ShouldReadMorePackets && ct.IsCancellationRequested == false && hasSeekBlocks == false)
                     {
                         // Check if we are already in range
-                        hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
+                        hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, seekBlocks, targetPosition, hasSeekBlocks);
 
                         // Read the next packet
                         var packetType = MediaCore.Container.Read();
@@ -258,28 +258,28 @@
                         if (blocks.RangeEndTime.Ticks < targetPosition.Ticks || blocks.IsFull == false)
                         {
                             blocks.Add(MediaCore.Container.Components[packetType].ReceiveNextFrame(), MediaCore.Container);
-                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
+                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, seekBlocks, targetPosition, hasSeekBlocks);
                         }
                     }
                 }
 
                 // Find out what the final, best-effort position was
                 TimeSpan resultPosition;
-                if (mainBlocks.IsInRange(targetPosition) == false)
+                if (seekBlocks.IsInRange(targetPosition) == false)
                 {
                     // We don't have a a valid main range
-                    var minStartTimeTicks = mainBlocks.RangeStartTime.Ticks;
-                    var maxStartTimeTicks = mainBlocks.RangeEndTime.Ticks;
+                    var minStartTimeTicks = seekBlocks.RangeStartTime.Ticks;
+                    var maxStartTimeTicks = seekBlocks.RangeEndTime.Ticks;
 
                     this.LogWarning(Aspects.EngineCommand,
-                        $"SEEK TP: Target Pos {targetPosition.Format()} not between {mainBlocks.RangeStartTime.TotalSeconds:0.000} " +
-                        $"and {mainBlocks.RangeEndTime.TotalSeconds:0.000}");
+                        $"SEEK TP: Target Pos {targetPosition.Format()} not between {seekBlocks.RangeStartTime.TotalSeconds:0.000} " +
+                        $"and {seekBlocks.RangeEndTime.TotalSeconds:0.000}");
 
                     resultPosition = TimeSpan.FromTicks(targetPosition.Ticks.Clamp(minStartTimeTicks, maxStartTimeTicks));
                 }
                 else
                 {
-                    resultPosition = mainBlocks.Count == 0 && targetPosition != TimeSpan.Zero ?
+                    resultPosition = seekBlocks.Count == 0 && targetPosition != TimeSpan.Zero ?
                         initialPosition : // Unsuccessful. This initial position is simply what the clock was :(
                         targetPosition; // Successful seek with main blocks in range
                 }

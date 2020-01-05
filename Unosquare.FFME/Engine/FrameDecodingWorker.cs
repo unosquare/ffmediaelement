@@ -173,7 +173,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool DetectHasDecodingEnded() =>
             DecodedFrameCount <= 0 &&
-            CanReadMoreFramesOf(Container.Components.SeekableMediaType) == false;
+            CanReadMoreFramesOf(Container.Components.MainMediaType) == false;
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded into blocks of the given type.

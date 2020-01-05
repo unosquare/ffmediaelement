@@ -112,8 +112,9 @@
             if (mediaCore == null)
                 return;
 
-            var t = mediaCore.Timing.ReferenceType;
-            var component = mediaCore.Container.Components[t];
+            var component = mediaCore.Container.Components.Main;
+            var t = component.MediaType;
+
             if (component == null)
                 return;
 

@@ -19,6 +19,7 @@
         private bool IsReady;
         private MediaType m_ReferenceType;
         private bool m_HasDisconnectedClocks;
+        private bool IsAdjustingVideoSpeed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TimingController"/> class.
@@ -46,7 +47,7 @@
             {
                 lock (SyncLock)
                 {
-                    if (!IsReady) return;
+                    if (!IsReady || IsAdjustingVideoSpeed) return;
                     Clocks[MediaType.Audio].SpeedRatio = value;
                     Clocks[MediaType.Video].SpeedRatio = value;
                 }
@@ -187,11 +188,12 @@
                     // By default the continuous type is the audio component if it's a live stream
                     var continuousType = components.HasAudio && !MediaCore.Container.IsStreamSeekable
                         ? MediaType.Audio
-                        : components.SeekableMediaType;
+                        : components.MainMediaType;
 
-                    var discreteType = components.SeekableMediaType;
+                    var discreteType = components.MainMediaType;
                     HasDisconnectedClocks = options.IsTimeSyncDisabled && Clocks[MediaType.Audio] != Clocks[MediaType.Video];
                     ReferenceType = HasDisconnectedClocks ? continuousType : discreteType;
+                    components.ChangeMainComponentTo(ReferenceType);
 
                     // The default data is what the clock reference contains
                     Clocks[MediaType.None] = Clocks[ReferenceType];
@@ -220,6 +222,43 @@
             finally
             {
                 MediaCore.State.ReportTimingStatus();
+            }
+        }
+
+        /// <summary>
+        /// Gets the offset to reference.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>Positive values for leading. Negative values for lagging.</returns>
+        public TimeSpan GetOffsetToReference(MediaType t)
+        {
+            lock (SyncLock)
+            {
+                if (t == ReferenceType || t == MediaType.None)
+                    return TimeSpan.Zero;
+
+                var result = TimeSpan.FromTicks(GetPosition(t).Ticks - GetPosition(ReferenceType).Ticks);
+
+                if (t == MediaType.Audio && ReferenceType == MediaType.Video)
+                {
+                    if (result.TotalMilliseconds > 10)
+                    {
+                        IsAdjustingVideoSpeed = true;
+                        Clocks[MediaType.Video].SpeedRatio = 1.1;
+                    }
+                    else if (result.TotalMilliseconds < -10)
+                    {
+                        IsAdjustingVideoSpeed = true;
+                        Clocks[MediaType.Video].SpeedRatio = 0.9;
+                    }
+                    else
+                    {
+                        IsAdjustingVideoSpeed = false;
+                        Clocks[MediaType.Video].SpeedRatio = 1;
+                    }
+                }
+
+                return result;
             }
         }
 
