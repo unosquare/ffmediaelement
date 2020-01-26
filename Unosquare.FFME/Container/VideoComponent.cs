@@ -346,7 +346,10 @@
             }
 
             // Init the filter graph for the frame
-            InitializeFilterGraph(frame);
+            if ((Library.FFmpegLoadModeFlags & FFLibrary.LibAVFilter.FlagId) == FFLibrary.LibAVFilter.FlagId)
+            {
+                InitializeFilterGraph(frame);
+            }
 
             AVFrame* outputFrame;
 
