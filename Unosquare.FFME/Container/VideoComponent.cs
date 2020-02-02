@@ -346,10 +346,7 @@
             }
 
             // Init the filter graph for the frame
-            if ((Library.FFmpegLoadModeFlags & FFLibrary.LibAVFilter.FlagId) == FFLibrary.LibAVFilter.FlagId)
-            {
-                InitializeFilterGraph(frame);
-            }
+            InitializeFilterGraph(frame);
 
             AVFrame* outputFrame;
 
@@ -525,6 +522,12 @@
              * https://www.ffmpeg.org/doxygen/trunk/filtering_8c-source.html
              * https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
              */
+
+            if ((Library.FFmpegLoadModeFlags & FFLibrary.LibAVFilter.FlagId) != FFLibrary.LibAVFilter.FlagId)
+            {
+                // Skip FilterGraph initalization if the AVFilter library is not available
+                return;
+            }
 
             const string SourceFilterName = "buffer";
             const string SourceFilterInstance = "video_buffer";

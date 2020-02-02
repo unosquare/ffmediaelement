@@ -309,7 +309,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InitializeFilterGraph(AVFrame* frame)
         {
-            // References: https://www.ffmpeg.org/doxygen/2.0/doc_2examples_2filtering_audio_8c-example.html
+            /* References: https://www.ffmpeg.org/doxygen/2.0/doc_2examples_2filtering_audio_8c-example.html */
+
+            if ((Library.FFmpegLoadModeFlags & FFLibrary.LibAVFilter.FlagId) != FFLibrary.LibAVFilter.FlagId)
+            {
+                // Skip FilterGraph initalization if the AVFilter library is not available
+                return;
+            }
+
             const string SourceFilterName = "abuffer";
             const string SourceFilterInstance = "audio_buffer";
             const string SinkFilterName = "abuffersink";
