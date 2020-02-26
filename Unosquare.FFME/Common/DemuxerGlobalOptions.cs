@@ -102,6 +102,11 @@
         public bool FlagStopAtShortest { get; set; }
 
         /// <summary>
+        /// Use wallclock as timestamps if set to 1. Default is 0.
+        /// </summary>
+        public bool UseWallClockAsTimestamps { get; set; }
+
+        /// <summary>
         /// Allow seeking to non-keyframes on demuxer level when supported if set to 1. Default is 0.
         /// </summary>
         public bool SeekToAny { get; set; }
