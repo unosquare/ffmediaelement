@@ -816,7 +816,7 @@ namespace Unosquare.FFME.Container
             InputContext->flags |= opts.FlagNoBuffer ? ffmpeg.AVFMT_FLAG_NOBUFFER : InputContext->flags;
             InputContext->flags |= opts.FlagSortDts ? ffmpeg.AVFMT_FLAG_SORT_DTS : InputContext->flags;
             InputContext->flags |= opts.FlagStopAtShortest ? ffmpeg.AVFMT_FLAG_SHORTEST : InputContext->flags;
-            
+
             InputContext->use_wallclock_as_timestamps = opts.UseWallClockAsTimestamps ? 1 : 0;
 
             InputContext->seek2any = opts.SeekToAny ? 1 : 0;
