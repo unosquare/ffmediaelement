@@ -122,8 +122,8 @@
                 codecContext->codec = s->codec->codec;
                 codecContext->qmin = s->codec->qmin;
                 codecContext->qmax = s->codec->qmax;
-                codecContext->coded_width = s->codec->coded_height;
-                codecContext->coded_height = s->codec->coded_width;
+                codecContext->coded_height = s->codec->coded_height;
+                codecContext->coded_width = s->codec->coded_width;
 
                 var bitsPerSample = codecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO ?
                     ffmpeg.av_get_bits_per_sample(codecContext->codec_id) : 0;
