@@ -44,13 +44,13 @@
         /// Contains global options for the demuxer. For additional info
         /// please see: https://ffmpeg.org/ffmpeg-formats.html#Format-Options.
         /// </summary>
-        public DemuxerGlobalOptions GlobalOptions { get; } = new DemuxerGlobalOptions();
+        public DemuxerGlobalOptions GlobalOptions { get; } = new();
 
         /// <summary>
         /// Contains private demuxer options. For additional info
         /// please see: https://ffmpeg.org/ffmpeg-all.html#Demuxers.
         /// </summary>
         public Dictionary<string, string> PrivateOptions { get; } =
-            new Dictionary<string, string>(512, StringComparer.InvariantCultureIgnoreCase);
+            new(512, StringComparer.InvariantCultureIgnoreCase);
     }
 }

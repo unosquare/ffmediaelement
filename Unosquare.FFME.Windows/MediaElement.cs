@@ -45,8 +45,8 @@
         /// </summary>
         private readonly bool AllowContentChange;
 
-        private readonly ConcurrentBag<string> PropertyUpdates = new ConcurrentBag<string>();
-        private readonly AtomicBoolean m_IsStateUpdating = new AtomicBoolean(false);
+        private readonly ConcurrentBag<string> PropertyUpdates = new();
+        private readonly AtomicBoolean m_IsStateUpdating = new(false);
         private readonly DispatcherTimer UpdatesTimer;
 
         private bool m_IsDisposed;
@@ -202,7 +202,7 @@
                 encoder.Save(stream);
                 stream.Position = 0;
                 retrievedBitmap = new Bitmap(stream);
-            });
+            }).ConfigureAwait(true);
 
             return retrievedBitmap;
         }).ConfigureAwait(true);
@@ -346,7 +346,7 @@
             // which is below the Input priority.
             try
             {
-                if (PropertyUpdates.Count <= 0)
+                if (PropertyUpdates.IsEmpty)
                     return;
 
                 IsStateUpdating = true;
@@ -390,8 +390,7 @@
             }
             finally
             {
-                if (PropertyUpdates.Count <= 0)
-                    IsStateUpdating = false;
+                IsStateUpdating = !PropertyUpdates.IsEmpty;
             }
         }
 

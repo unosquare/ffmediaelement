@@ -17,9 +17,9 @@
     {
         #region State Backing
 
-        private readonly AtomicBoolean HasDirectCommandCompleted = new AtomicBoolean(true);
-        private readonly AtomicInteger m_PendingDirectCommand = new AtomicInteger((int)DirectCommandType.None);
-        private readonly AtomicBoolean m_IsCloseInterruptPending = new AtomicBoolean(false);
+        private readonly AtomicBoolean HasDirectCommandCompleted = new(true);
+        private readonly AtomicInteger m_PendingDirectCommand = new((int)DirectCommandType.None);
+        private readonly AtomicBoolean m_IsCloseInterruptPending = new(false);
 
         #endregion
 

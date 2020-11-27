@@ -47,16 +47,16 @@
 
                 if (behavior == MediaPlaybackState.Close)
                 {
-                    await sender.Close();
+                    await sender.Close().ConfigureAwait(true);
                 }
                 else if (behavior == MediaPlaybackState.Play)
                 {
-                    await sender.Stop();
-                    await sender.Play();
+                    await sender.Stop().ConfigureAwait(true);
+                    await sender.Play().ConfigureAwait(true);
                 }
                 else if (behavior == MediaPlaybackState.Stop)
                 {
-                    await sender.Stop();
+                    await sender.Stop().ConfigureAwait(true);
                 }
             });
         }
@@ -88,14 +88,14 @@
                     // Start playback if we don't support pausing
                     if (sender.State.CanPause == false)
                     {
-                        await sender.Play();
+                        await sender.Play().ConfigureAwait(true);
                         return;
                     }
 
                     if (Parent.LoadedBehavior == MediaPlaybackState.Play)
-                        await sender.Play();
+                        await sender.Play().ConfigureAwait(true);
                     else if (Parent.LoadedBehavior == MediaPlaybackState.Pause)
-                        await sender.Pause();
+                        await sender.Pause().ConfigureAwait(true);
                 }
                 finally
                 {

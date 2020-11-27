@@ -6,12 +6,12 @@
     internal enum PlaybackState
     {
         /// <summary>
-        /// Stopped
+        /// Stopped.
         /// </summary>
         Stopped,
 
         /// <summary>
-        /// Playing
+        /// Playing.
         /// </summary>
         Playing
     }

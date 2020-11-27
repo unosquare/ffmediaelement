@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
-#pragma warning disable SA1202 // Elements must be ordered by access
-#pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
+    // #pragma warning disable SA1202 // Elements must be ordered by access
+    // #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
+    // #pragma warning disable IDE0032 // Use auto property
 #pragma warning disable IDE0044 // Add readonly modifier
-#pragma warning disable IDE0032 // Use auto property
 
     using System;
     using System.Runtime.InteropServices;
@@ -139,7 +139,7 @@
 
         /// <inheritdoc />
         public override bool Equals(object obj) =>
-            obj is LegacyAudioDeviceData && Equals((LegacyAudioDeviceData)obj);
+            obj is LegacyAudioDeviceData data && Equals(data);
 
         /// <inheritdoc />
         public override int GetHashCode() =>
@@ -155,8 +155,9 @@
         #endregion
     }
 
-#pragma warning restore IDE0032 // Use auto property
 #pragma warning restore IDE0044 // Add readonly modifier
-#pragma warning restore SA1307 // Accessible fields must begin with upper-case letter
-#pragma warning restore SA1202 // Elements must be ordered by access
+
+    // #pragma warning restore IDE0032 // Use auto property
+    // #pragma warning restore SA1307 // Accessible fields must begin with upper-case letter
+    // #pragma warning restore SA1202 // Elements must be ordered by access
 }

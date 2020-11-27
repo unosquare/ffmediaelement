@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -17,7 +18,7 @@
         private static readonly string NotInitializedErrorMessage =
             $"{nameof(FFmpeg)} library not initialized. Set the {nameof(FFmpegDirectory)} and call {nameof(LoadFFmpeg)}";
 
-        private static readonly object SyncLock = new object();
+        private static readonly object SyncLock = new();
         private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
         private static IReadOnlyList<string> m_InputFormatNames;
@@ -110,7 +111,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_InputFormatNames ?? (m_InputFormatNames = FFInterop.RetrieveInputFormatNames());
+                    return m_InputFormatNames ??= FFInterop.RetrieveInputFormatNames();
                 }
             }
         }
@@ -128,7 +129,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_GlobalInputFormatOptions ?? (m_GlobalInputFormatOptions = FFInterop.RetrieveGlobalFormatOptions());
+                    return m_GlobalInputFormatOptions ??= FFInterop.RetrieveGlobalFormatOptions();
                 }
             }
         }
@@ -176,7 +177,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_DecoderNames ?? (m_DecoderNames = FFInterop.RetrieveDecoderNames(AllCodecs));
+                    return m_DecoderNames ??= FFInterop.RetrieveDecoderNames(AllCodecs);
                 }
             }
         }
@@ -194,7 +195,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_EncoderNames ?? (m_EncoderNames = FFInterop.RetrieveEncoderNames(AllCodecs));
+                    return m_EncoderNames ??= FFInterop.RetrieveEncoderNames(AllCodecs);
                 }
             }
         }
@@ -212,8 +213,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_GlobalDecoderOptions ??
-                        (m_GlobalDecoderOptions = FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray());
+                    return m_GlobalDecoderOptions ??= FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray();
                 }
             }
         }
@@ -263,7 +263,7 @@
                     if (!FFInterop.IsInitialized)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    return m_AllCodecs ?? (m_AllCodecs = FFInterop.RetrieveCodecs());
+                    return m_AllCodecs ??= FFInterop.RetrieveCodecs();
                 }
             }
         }
@@ -291,8 +291,8 @@
         /// Provides an asynchronous version of the <see cref="LoadFFmpeg"/> call.
         /// </summary>
         /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
-        public static async Task<bool> LoadFFmpegAsync() =>
-            await Task.Run(() => LoadFFmpeg()).ConfigureAwait(true);
+        public static ConfiguredTaskAwaitable<bool> LoadFFmpegAsync() =>
+            Task.Run(() => LoadFFmpeg()).ConfigureAwait(true);
 
         /// <summary>
         /// Unloads FFmpeg libraries from memory.

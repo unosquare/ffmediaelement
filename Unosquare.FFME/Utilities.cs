@@ -56,9 +56,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReplaceOrdinal(this string source, string find, string replace) =>
 #if NETCOREAPP
-            source.Replace(find, replace, StringComparison.Ordinal);
+            source?.Replace(find, replace, StringComparison.Ordinal);
 #else
-            source.Replace(find, replace);
+            source?.Replace(find, replace);
 #endif
 
         /// <summary>
@@ -69,6 +69,6 @@
         /// <returns>Thether the search term is contained in the string.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsOrdinal(this string source, string find) =>
-            source.IndexOf(find, StringComparison.Ordinal) > -1;
+            source != null && source.IndexOf(find, StringComparison.Ordinal) > -1;
     }
 }

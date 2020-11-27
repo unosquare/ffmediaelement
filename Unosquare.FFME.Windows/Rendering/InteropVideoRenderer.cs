@@ -25,11 +25,13 @@
             var block = BeginRenderingCycle(mediaBlock);
             if (block == null) return;
 
-            if (!block.TryAcquireReaderLock(out var blockLock))
-                return;
+            IDisposable blockLock = null;
 
             try
             {
+                if (!block.TryAcquireReaderLock(out blockLock))
+                    return;
+
                 var bitmap = Graphics.Write(block);
                 if (bitmap == null)
                     return;
@@ -43,7 +45,7 @@
             }
             finally
             {
-                blockLock.Dispose();
+                blockLock?.Dispose();
                 FinishRenderingCycle(block, clockPosition);
             }
         }
@@ -65,7 +67,7 @@
 
         private sealed class InteropBuffer : IDisposable
         {
-            private readonly object SyncLock = new object();
+            private readonly object SyncLock = new();
             private readonly InteropVideoRenderer Parent;
 
             private MemoryMappedFile BackBufferFile;

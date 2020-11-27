@@ -265,7 +265,8 @@
             {
                 AudioControlVisibility = m.HasAudio ? Visibility.Visible : Visibility.Hidden;
                 IsAudioControlEnabled = m.HasAudio;
-            }, nameof(m.HasAudio));
+            },
+            nameof(m.HasAudio));
 
             m.WhenChanged(() => PauseButtonVisibility = m.CanPause && m.IsPlaying ? Visibility.Visible : Visibility.Collapsed,
                 nameof(m.CanPause),

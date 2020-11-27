@@ -27,18 +27,18 @@
         /// <summary>
         /// The WPF lock timeout equivalent to hald of the duration of a 60FPS cycle -- approximately 8ms).
         /// </summary>
-        protected static readonly Duration WpfLockTimeout = new Duration(TimeSpan.FromMilliseconds(1000d / 60d / 2d));
+        protected static readonly Duration WpfLockTimeout = new(TimeSpan.FromMilliseconds(1000d / 60d / 2d));
 
         /// <summary>
         /// Set when a bitmap is being written to the target bitmap.
         /// </summary>
-        private readonly AtomicBoolean m_IsRenderingInProgress = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsRenderingInProgress = new(false);
 
         /// <summary>
         /// Keeps track of the elapsed time since the last frame was displayed.
         /// for frame limiting purposes.
         /// </summary>
-        private readonly Stopwatch RenderStopwatch = new Stopwatch();
+        private readonly Stopwatch RenderStopwatch = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoRendererBase"/> class.
@@ -166,7 +166,8 @@
                 var videoView = MediaElement.VideoView;
                 if (videoView != null)
                     videoView.Source = null;
-            }, DispatcherPriority.Background);
+            },
+            DispatcherPriority.Background);
         }
 
         /// <summary>
@@ -224,7 +225,8 @@
 
             // Update the layout including pixel ratio and video rotation
             ControlDispatcher?.InvokeAsync(() =>
-                UpdateLayout(block, clockPosition), DispatcherPriority.Loaded);
+                UpdateLayout(block, clockPosition),
+                DispatcherPriority.Loaded);
         }
 
         /// <summary>

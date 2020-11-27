@@ -25,8 +25,8 @@
 
         private const int SyncLockTimeout = 100;
 
-        private readonly AtomicBoolean IsClosing = new AtomicBoolean(false);
-        private readonly object SyncLock = new object();
+        private readonly AtomicBoolean IsClosing = new(false);
+        private readonly object SyncLock = new();
 
         private IWavePlayer AudioDevice;
         private SoundTouch AudioProcessor;
@@ -415,7 +415,7 @@
 
             // Initialize the Audio Device
             AudioDevice = MediaElement.RendererOptions.UseLegacyAudioOut ?
-                new LegacyAudioPlayer(this, MediaElement.RendererOptions.LegacyAudioDevice?.DeviceId ?? -1) as IWavePlayer :
+                new LegacyAudioPlayer(this, MediaElement.RendererOptions.LegacyAudioDevice?.DeviceId ?? -1) :
                 new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDevice?.DeviceId ?? DirectSoundPlayer.DefaultPlaybackDeviceId);
 
             // Create the Audio Buffer

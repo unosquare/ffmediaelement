@@ -20,8 +20,7 @@
         public App()
         {
             // Change the default location of the ffmpeg binaries (same directory as application)
-            // You can get the 32-bit binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2.1-win32-shared.zip
-            // You can get the 64-bit binaries here: https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2.1-win64-shared.zip
+            // You can get the 64-bit binaries here: https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z
             Library.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
@@ -34,7 +33,7 @@
             // dispatcher threads to render video frames. This is an experimental feature
             // and might become deprecated in the future as no real performance enhancements
             // have been detected.
-            Library.EnableWpfMultiThreadedVideo = !Debugger.IsAttached; // test with true and false
+            Library.EnableWpfMultiThreadedVideo = false; // !Debugger.IsAttached; // test with true and false
         }
 
         /// <summary>
@@ -101,7 +100,7 @@
                                 $"Unable to Load FFmpeg Libraries from path:\r\n    {Library.FFmpegDirectory}" +
                                 $"\r\nMake sure the above folder contains FFmpeg shared binaries (dll files) for the " +
                                 $"applicantion's architecture ({(Environment.Is64BitProcess ? "64-bit" : "32-bit")})" +
-                                $"\r\nTIP: You can download builds from https://ffmpeg.zeranoe.com/builds/" +
+                                $"\r\nTIP: You can download builds from https://ffmpeg.org/download.html" +
                                 $"\r\n{ex.GetType().Name}: {ex.Message}\r\n\r\nApplication will exit.",
                                 "FFmpeg Error",
                                 MessageBoxButton.OK,

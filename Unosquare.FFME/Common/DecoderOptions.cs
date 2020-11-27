@@ -9,8 +9,8 @@
     /// </summary>
     public sealed class DecoderOptions
     {
-        private readonly Dictionary<string, string> GlobalOptions = new Dictionary<string, string>(64);
-        private readonly Dictionary<int, Dictionary<string, string>> PrivateOptions = new Dictionary<int, Dictionary<string, string>>();
+        private readonly Dictionary<string, string> GlobalOptions = new(64);
+        private readonly Dictionary<int, Dictionary<string, string>> PrivateOptions = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DecoderOptions"/> class.
@@ -98,7 +98,7 @@
             set
             {
                 if (PrivateOptions.ContainsKey(streamIndex) == false)
-                    PrivateOptions[streamIndex] = new Dictionary<string, string>();
+                    PrivateOptions[streamIndex] = new();
 
                 PrivateOptions[streamIndex][privateOptionName] = value;
             }

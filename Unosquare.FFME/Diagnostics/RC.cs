@@ -15,7 +15,7 @@
         /// <summary>
         /// The synchronization lock.
         /// </summary>
-        private static readonly object SyncLock = new object();
+        private static readonly object SyncLock = new();
 
         /// <summary>
         /// The current reference counter instance.
@@ -25,7 +25,7 @@
         /// <summary>
         /// The instances.
         /// </summary>
-        private readonly Dictionary<IntPtr, ReferenceEntry> Instances = new Dictionary<IntPtr, ReferenceEntry>();
+        private readonly Dictionary<IntPtr, ReferenceEntry> Instances = new();
 
         /// <summary>
         /// The types of tracked unmanaged types.
@@ -77,7 +77,7 @@
             {
                 lock (SyncLock)
                 {
-                    return m_Current ?? (m_Current = new RC());
+                    return m_Current ??= new RC();
                 }
             }
         }
@@ -217,8 +217,11 @@
         {
             if (!Debugger.IsAttached) return;
 
-            lock (SyncLock) Instances[pointer] =
-                new ReferenceEntry(unmanagedType, pointer, memberName, filePath, lineNumber);
+            lock (SyncLock)
+            {
+                Instances[pointer] = new ReferenceEntry(
+                    unmanagedType, pointer, memberName, filePath, lineNumber);
+            }
         }
 
         /// <summary>

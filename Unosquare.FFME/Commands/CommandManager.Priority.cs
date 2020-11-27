@@ -11,8 +11,8 @@
     {
         #region State Backing Fields
 
-        private readonly AtomicInteger m_PendingPriorityCommand = new AtomicInteger(0);
-        private readonly ManualResetEventSlim PriorityCommandCompleted = new ManualResetEventSlim(true);
+        private readonly AtomicInteger m_PendingPriorityCommand = new(0);
+        private readonly ManualResetEventSlim PriorityCommandCompleted = new(true);
 
         #endregion
 

@@ -118,12 +118,14 @@
 
                 // Fields which are missing from AVCodecParameters need to be taken
                 // from the stream's AVCodecContext
+#pragma warning disable CS0618 // Type or member is obsolete
                 codecContext->properties = s->codec->properties;
                 codecContext->codec = s->codec->codec;
                 codecContext->qmin = s->codec->qmin;
                 codecContext->qmax = s->codec->qmax;
                 codecContext->coded_height = s->codec->coded_height;
                 codecContext->coded_width = s->codec->coded_width;
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 var bitsPerSample = codecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO ?
                     ffmpeg.av_get_bits_per_sample(codecContext->codec_id) : 0;
@@ -179,7 +181,9 @@
                     FPS = s->avg_frame_rate.ToDouble(),
                     TBR = s->r_frame_rate.ToDouble(),
                     TBN = 1d / s->time_base.ToDouble(),
+#pragma warning disable CS0618 // Type or member is obsolete
                     TBC = 1d / s->codec->time_base.ToDouble()
+#pragma warning restore CS0618 // Type or member is obsolete
                 };
 
                 // Extract valid hardware configurations

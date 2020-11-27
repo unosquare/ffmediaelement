@@ -6,27 +6,27 @@
     public enum MediaPlaybackState
     {
         /// <summary>
-        /// The manual status
+        /// The manual status.
         /// </summary>
         Manual = 0,
 
         /// <summary>
-        /// The play status
+        /// The play status.
         /// </summary>
         Play = 1,
 
         /// <summary>
-        /// The close status
+        /// The close status.
         /// </summary>
         Close = 2,
 
         /// <summary>
-        /// The pause status
+        /// The pause status.
         /// </summary>
         Pause = 3,
 
         /// <summary>
-        /// The stop status
+        /// The stop status.
         /// </summary>
         Stop = 4
     }

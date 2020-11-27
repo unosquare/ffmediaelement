@@ -38,33 +38,33 @@ namespace Unosquare.FFME.Container
         /// <summary>
         /// The read synchronize root.
         /// </summary>
-        private readonly object ReadSyncRoot = new object();
+        private readonly object ReadSyncRoot = new();
 
         /// <summary>
         /// The decode synchronize root.
         /// </summary>
-        private readonly object DecodeSyncRoot = new object();
+        private readonly object DecodeSyncRoot = new();
 
         /// <summary>
         /// The convert synchronize root.
         /// </summary>
-        private readonly object ConvertSyncRoot = new object();
+        private readonly object ConvertSyncRoot = new();
 
         /// <summary>
         /// The stream read interrupt start time.
         /// When a read operation is started, this is set to the ticks of UTC now.
         /// </summary>
-        private readonly AtomicDateTime StreamReadInterruptStartTime = new AtomicDateTime(default);
+        private readonly AtomicDateTime StreamReadInterruptStartTime = new(default);
 
         /// <summary>
         /// The signal to request the abortion of the following read operation.
         /// </summary>
-        private readonly AtomicBoolean SignalAbortReadsRequested = new AtomicBoolean(false);
+        private readonly AtomicBoolean SignalAbortReadsRequested = new(false);
 
         /// <summary>
         /// If set to true, it will reset the abort requested flag to false.
         /// </summary>
-        private readonly AtomicBoolean SignalAbortReadsAutoReset = new AtomicBoolean(false);
+        private readonly AtomicBoolean SignalAbortReadsAutoReset = new(false);
 
         /// <summary>
         /// The stream read interrupt callback.

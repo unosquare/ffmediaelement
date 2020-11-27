@@ -14,7 +14,7 @@
     {
         private const int LockTimeout = 100;
         private const string TimeoutErrorMessage = "Failed to acquire lock on MME interop call on a timely manner.";
-        private static readonly object SyncLock = new object();
+        private static readonly object SyncLock = new();
 
         // use the user data as a reference
         // WaveOutProc http://msdn.microsoft.com/en-us/library/dd743869%28VS.85%29.aspx
@@ -26,31 +26,31 @@
         {
             /// <summary>
             /// CALLBACK_NULL
-            /// No callback
+            /// No callback.
             /// </summary>
             CallbackNull = 0,
 
             /// <summary>
             /// CALLBACK_FUNCTION
-            /// dwCallback is a FAR PROC
+            /// dwCallback is a FAR PROC.
             /// </summary>
             CallbackFunction = 0x30000,
 
             /// <summary>
             /// CALLBACK_EVENT
-            /// dwCallback is an EVENT handle
+            /// dwCallback is an EVENT handle.
             /// </summary>
             CallbackEvent = 0x50000,
 
             /// <summary>
             /// CALLBACK_WINDOW
-            /// dwCallback is a HWND
+            /// dwCallback is a HWND.
             /// </summary>
             CallbackWindow = 0x10000,
 
             /// <summary>
             /// CALLBACK_THREAD
-            /// callback is a thread ID
+            /// callback is a thread ID.
             /// </summary>
             CallbackThread = 0x20000
 
@@ -64,32 +64,32 @@
         public enum WaveMessage
         {
             /// <summary>
-            /// WIM_OPEN
+            /// WIM_OPEN.
             /// </summary>
             WaveInOpen = 0x3BE,
 
             /// <summary>
-            /// WIM_CLOSE
+            /// WIM_CLOSE.
             /// </summary>
             WaveInClose = 0x3BF,
 
             /// <summary>
-            /// WIM_DATA
+            /// WIM_DATA.
             /// </summary>
             WaveInData = 0x3C0,
 
             /// <summary>
-            /// WOM_CLOSE
+            /// WOM_CLOSE.
             /// </summary>
             WaveOutClose = 0x3BC,
 
             /// <summary>
-            /// WOM_DONE
+            /// WOM_DONE.
             /// </summary>
             WaveOutDone = 0x3BD,
 
             /// <summary>
-            /// WOM_OPEN
+            /// WOM_OPEN.
             /// </summary>
             WaveOutOpen = 0x3BB
         }

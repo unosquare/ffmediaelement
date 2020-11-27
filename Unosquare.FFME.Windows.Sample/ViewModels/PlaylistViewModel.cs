@@ -39,6 +39,8 @@
         public PlaylistViewModel(RootViewModel root)
             : base(root)
         {
+            if (root == null) throw new ArgumentNullException(nameof(root));
+
             // Set and create a thumbnails directory
             ThumbsDirectory = Path.Combine(root.AppDataDirectory, "Thumbnails");
             if (Directory.Exists(ThumbsDirectory) == false)
@@ -65,8 +67,8 @@
                     var title = entry.Title ?? string.Empty;
                     var source = entry.MediaSource ?? string.Empty;
 
-                    return title.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0 ||
-                        source.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
+                    return title.Contains(searchString, StringComparison.InvariantCultureIgnoreCase) ||
+                        source.Contains(searchString, StringComparison.InvariantCultureIgnoreCase);
                 }
 
                 return false;

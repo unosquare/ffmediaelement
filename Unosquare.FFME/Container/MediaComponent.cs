@@ -21,7 +21,7 @@
         /// <summary>
         /// Related to issue 94, looks like FFmpeg requires exclusive access when calling avcodec_open2().
         /// </summary>
-        private static readonly object CodecLock = new object();
+        private static readonly object CodecLock = new();
 
         /// <summary>
         /// The logging handler.
@@ -31,7 +31,7 @@
         /// <summary>
         /// Contains the packets pending to be sent to the decoder.
         /// </summary>
-        private readonly PacketQueue Packets = new PacketQueue();
+        private readonly PacketQueue Packets = new();
 
         /// <summary>
         /// The decode packet function.
@@ -41,12 +41,12 @@
         /// <summary>
         /// Detects redundant, unmanaged calls to the Dispose method.
         /// </summary>
-        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsDisposed = new(false);
 
         /// <summary>
         /// Determines if packets have been fed into the codec and frames can be decoded.
         /// </summary>
-        private readonly AtomicBoolean m_HasCodecPackets = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_HasCodecPackets = new(false);
 
         /// <summary>
         /// Holds a reference to the associated input context stream.
@@ -102,7 +102,7 @@
             }
 
             // Find the default decoder codec from the stream and set it.
-            var defaultCodec = ffmpeg.avcodec_find_decoder(Stream->codec->codec_id);
+            var defaultCodec = ffmpeg.avcodec_find_decoder(Stream->codecpar->codec_id);
             AVCodec* forcedCodec = null;
 
             // If set, change the codec to the forced codec.
@@ -122,7 +122,7 @@
             // Check we have a valid codec to open and process the stream.
             if (defaultCodec == null && forcedCodec == null)
             {
-                var errorMessage = $"Fatal error. Unable to find suitable decoder for {Stream->codec->codec_id.ToString()}";
+                var errorMessage = $"Fatal error. Unable to find suitable decoder for {Stream->codecpar->codec_id}";
                 CloseComponent();
                 throw new MediaContainerException(errorMessage);
             }
@@ -246,9 +246,11 @@
                 ? Container.MediaInfo.Duration
                 : Stream->duration.ToTimeSpan(Stream->time_base);
 
-            CodecId = Stream->codec->codec_id;
             CodecName = Utilities.PtrToStringUTF8(selectedCodec->name);
+#pragma warning disable CS0618 // Type or member is obsolete
+            CodecId = Stream->codec->codec_id;
             BitRate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
+#pragma warning restore CS0618 // Type or member is obsolete
             this.LogDebug(Aspects.Component,
                 $"{MediaType.ToString().ToUpperInvariant()} - Start Time: {StartTime.Format()}; Duration: {Duration.Format()}");
 

@@ -24,7 +24,7 @@
         /// <summary>
         /// Contains an equivalence lookup of FFmpeg pixel format and WPF pixel formats.
         /// </summary>
-        private static readonly Dictionary<AVPixelFormat, PixelFormat> MediaPixelFormats = new Dictionary<AVPixelFormat, PixelFormat>
+        private static readonly Dictionary<AVPixelFormat, PixelFormat> MediaPixelFormats = new()
         {
             { AVPixelFormat.AV_PIX_FMT_BGR0, PixelFormats.Bgr32 },
             { AVPixelFormat.AV_PIX_FMT_BGRA, PixelFormats.Bgra32 }
@@ -106,7 +106,8 @@
                 {
                     FinishRenderingCycle(block, clockPosition);
                 }
-            }, DispatcherPriority.Normal);
+            },
+            DispatcherPriority.Normal);
         }
 
         #endregion

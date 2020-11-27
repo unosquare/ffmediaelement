@@ -22,7 +22,7 @@ namespace Unosquare.FFME.Commands
     /// <seealso cref="ILoggingSource" />
     internal sealed partial class CommandManager : IntervalWorkerBase, IMediaWorker, ILoggingSource
     {
-        private readonly object SyncLock = new object();
+        private readonly object SyncLock = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandManager"/> class.

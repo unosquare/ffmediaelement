@@ -18,11 +18,11 @@ namespace Unosquare.FFME.Engine
     /// <seealso cref="IMediaWorker" />
     internal sealed class BlockRenderingWorker : WorkerBase, IMediaWorker, ILoggingSource
     {
-        private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
+        private readonly AtomicBoolean HasInitialized = new(false);
         private readonly Action<MediaType[]> SerialRenderBlocks;
         private readonly Action<MediaType[]> ParallelRenderBlocks;
         private readonly Thread QuantumThread;
-        private readonly ManualResetEventSlim QuantumWaiter = new ManualResetEventSlim(false);
+        private readonly ManualResetEventSlim QuantumWaiter = new(false);
         private DateTime LastSpeedRatioTime;
 
         /// <summary>

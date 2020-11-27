@@ -13,10 +13,10 @@
     {
         #region State Backing Fields
 
-        private readonly ManualResetEventSlim SeekBlocksAvailable = new ManualResetEventSlim(true);
-        private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
-        private readonly AtomicBoolean m_PlayAfterSeek = new AtomicBoolean(false);
-        private readonly AtomicInteger m_ActiveSeekMode = new AtomicInteger((int)SeekMode.Normal);
+        private readonly ManualResetEventSlim SeekBlocksAvailable = new(true);
+        private readonly AtomicBoolean m_IsSeeking = new(false);
+        private readonly AtomicBoolean m_PlayAfterSeek = new(false);
+        private readonly AtomicInteger m_ActiveSeekMode = new((int)SeekMode.Normal);
 
         private SeekOperation QueuedSeekOperation;
         private Task<bool> QueuedSeekTask;
@@ -365,7 +365,7 @@
             /// <summary>
             /// Gets the seek completed event.
             /// </summary>
-            private ManualResetEventSlim SeekCompleted { get; } = new ManualResetEventSlim(false);
+            private ManualResetEventSlim SeekCompleted { get; } = new(false);
 
             /// <summary>
             /// Waits for the <see cref="SeekCompleted"/> event to be set.

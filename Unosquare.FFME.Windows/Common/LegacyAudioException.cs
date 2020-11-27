@@ -2,7 +2,6 @@
 {
     using System;
     using System.Runtime.Serialization;
-    using System.Security.Permissions;
 
     /// <inheritdoc />
     /// <summary>
@@ -75,7 +74,9 @@
         public LegacyAudioResult Result { get; }
 
         /// <inheritdoc/>
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+#if !NET5_0
+        [System.Security.Permissions.SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+#endif
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null) throw new ArgumentNullException(nameof(info));

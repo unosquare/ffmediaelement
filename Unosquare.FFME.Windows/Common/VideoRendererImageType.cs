@@ -11,7 +11,7 @@
         WriteableBitmap,
 
         /// <summary>
-        /// Useas the faster, non tear-free InteropBitmap;
+        /// Uses the faster, non tear-free InteropBitmap.
         /// </summary>
         InteropBitmap
     }

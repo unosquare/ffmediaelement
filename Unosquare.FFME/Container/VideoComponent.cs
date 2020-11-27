@@ -62,8 +62,10 @@
             else
                 AverageFrameRate = BaseFrameRate;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             FrameWidth = Stream->codec->width;
             FrameHeight = Stream->codec->height;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // Retrieve Matrix Rotation
             var displayMatrixRef = ffmpeg.av_stream_get_side_data(Stream, AVPacketSideDataType.AV_PKT_DATA_DISPLAYMATRIX, null);
@@ -411,15 +413,15 @@
         private static AVPixelFormat NormalizePixelFormat(AVFrame* frame)
         {
             var currentFormat = (AVPixelFormat)frame->format;
-            switch (currentFormat)
+            return currentFormat switch
             {
-                case AVPixelFormat.AV_PIX_FMT_YUVJ411P: return AVPixelFormat.AV_PIX_FMT_YUV411P;
-                case AVPixelFormat.AV_PIX_FMT_YUVJ420P: return AVPixelFormat.AV_PIX_FMT_YUV420P;
-                case AVPixelFormat.AV_PIX_FMT_YUVJ422P: return AVPixelFormat.AV_PIX_FMT_YUV422P;
-                case AVPixelFormat.AV_PIX_FMT_YUVJ440P: return AVPixelFormat.AV_PIX_FMT_YUV440P;
-                case AVPixelFormat.AV_PIX_FMT_YUVJ444P: return AVPixelFormat.AV_PIX_FMT_YUV444P;
-                default: return currentFormat;
-            }
+                AVPixelFormat.AV_PIX_FMT_YUVJ411P => AVPixelFormat.AV_PIX_FMT_YUV411P,
+                AVPixelFormat.AV_PIX_FMT_YUVJ420P => AVPixelFormat.AV_PIX_FMT_YUV420P,
+                AVPixelFormat.AV_PIX_FMT_YUVJ422P => AVPixelFormat.AV_PIX_FMT_YUV422P,
+                AVPixelFormat.AV_PIX_FMT_YUVJ440P => AVPixelFormat.AV_PIX_FMT_YUV440P,
+                AVPixelFormat.AV_PIX_FMT_YUVJ444P => AVPixelFormat.AV_PIX_FMT_YUV444P,
+                _ => currentFormat,
+            };
         }
 
         /// <summary>
@@ -446,7 +448,8 @@
                     matrixArrayRef[i + 1],
                     matrixArrayRef[i + 2],
                     matrixArrayRef[i + 3]
-                }, 0));
+                },
+                0));
             }
 
             // port of av_display_rotation_get

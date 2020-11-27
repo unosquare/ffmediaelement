@@ -13,7 +13,7 @@
     {
         #region Dictionaries
 
-        private static readonly Dictionary<byte, string> SpecialNorthAmerican = new Dictionary<byte, string>
+        private static readonly Dictionary<byte, string> SpecialNorthAmerican = new()
         {
             { 0x30, "®" },
             { 0x31, "°" },
@@ -33,7 +33,7 @@
             { 0x3F, "û" }
         };
 
-        private static readonly Dictionary<byte, string> Spanish = new Dictionary<byte, string>
+        private static readonly Dictionary<byte, string> Spanish = new()
         {
             { 0x20, "Á" },
             { 0x21, "É" },
@@ -53,7 +53,7 @@
             { 0x2F, "\"" }
         };
 
-        private static readonly Dictionary<byte, string> Portuguese = new Dictionary<byte, string>
+        private static readonly Dictionary<byte, string> Portuguese = new()
         {
             { 0x20, "Á" },
             { 0x21, "ã" },
@@ -73,7 +73,7 @@
             { 0x2F, "~" }
         };
 
-        private static readonly Dictionary<byte, string> French = new Dictionary<byte, string>
+        private static readonly Dictionary<byte, string> French = new()
         {
             { 0x30, "À" },
             { 0x31, "Â" },
@@ -93,7 +93,7 @@
             { 0x3F, "»" }
         };
 
-        private static readonly Dictionary<byte, string> German = new Dictionary<byte, string>
+        private static readonly Dictionary<byte, string> German = new()
         {
             { 0x30, "Ä" },
             { 0x31, "ä" },
@@ -113,7 +113,7 @@
             { 0x3F, "+" }
         };
 
-        private static readonly Dictionary<byte, int> Base40PreambleRows = new Dictionary<byte, int>
+        private static readonly Dictionary<byte, int> Base40PreambleRows = new()
         {
             { 0x11, 1 },
             { 0x19, 1 },
@@ -133,7 +133,7 @@
             { 0x1C, 14 }
         };
 
-        private static readonly Dictionary<byte, int> Base60PreambleRows = new Dictionary<byte, int>
+        private static readonly Dictionary<byte, int> Base60PreambleRows = new()
         {
             { 0x11, 2 },
             { 0x19, 2 },
@@ -151,7 +151,7 @@
             { 0x1C, 15 }
         };
 
-        private static readonly Dictionary<CaptionsStyle, int> PreambleStyleIndents = new Dictionary<CaptionsStyle, int>
+        private static readonly Dictionary<CaptionsStyle, int> PreambleStyleIndents = new()
         {
             { CaptionsStyle.WhiteIndent0, 0 },
             { CaptionsStyle.WhiteIndent4, 4 },
@@ -673,7 +673,7 @@
         /// </returns>
         public bool IsRepeatedControlCode(ClosedCaptionPacket previousPacket)
         {
-            return IsControlPacket && previousPacket.D0 == D0 && previousPacket.D1 == D1;
+            return IsControlPacket && previousPacket != null && previousPacket.D0 == D0 && previousPacket.D1 == D1;
         }
 
         /// <summary>
@@ -684,36 +684,23 @@
         /// </returns>
         public override string ToString()
         {
-            string output;
             var ts = $"{Timestamp.TotalSeconds:0.0000}";
             var channel = Channel == Constants.DefaultClosedCaptionsChannel ?
                 ComputeChannel(FieldParity, FieldChannel) + "*" : Channel + " ";
             var prefixData = $"{ts} | {channel} | P: {FieldParity} D: {FieldChannel} | {D0:x2}h {D1:x2}h |";
-
-            switch (PacketType)
+            string output = PacketType switch
             {
-                case CaptionsPacketType.PrivateCharset:
-                    output = $"{prefixData} CHARSET   | SELECT 0x{D1:x2}"; break;
-                case CaptionsPacketType.Color:
-                    output = $"{prefixData} COLOR SET | {nameof(Color)}: {Color}"; break;
-                case CaptionsPacketType.Command:
-                    output = $"{prefixData} MISC CTRL | {nameof(Command)}: {Command}"; break;
-                case CaptionsPacketType.MidRow:
-                    output = $"{prefixData} MID-ROW S | {nameof(MidRowStyle)}: {MidRowStyle}"; break;
-                case CaptionsPacketType.NullPad:
-                    output = $"{prefixData} NULL  PAD | (NULL)"; break;
-                case CaptionsPacketType.Preamble:
-                    output = $"{prefixData} PREAMBLE  | Row: {PreambleRow}, Style: {PreambleStyle}"; break;
-                case CaptionsPacketType.Tabs:
-                    output = $"{prefixData} TAB SPACE | {nameof(Tabs)}: {Tabs}"; break;
-                case CaptionsPacketType.Text:
-                    output = $"{prefixData} TEXT DATA | '{Text}'"; break;
-                case CaptionsPacketType.XdsClass:
-                    output = $"{prefixData} XDS DATA  | {nameof(XdsClass)}: {XdsClass}"; break;
-                default:
-                    output = $"{prefixData} INVALID   | N/A"; break;
-            }
-
+                CaptionsPacketType.PrivateCharset => $"{prefixData} CHARSET   | SELECT 0x{D1:x2}",
+                CaptionsPacketType.Color => $"{prefixData} COLOR SET | {nameof(Color)}: {Color}",
+                CaptionsPacketType.Command => $"{prefixData} MISC CTRL | {nameof(Command)}: {Command}",
+                CaptionsPacketType.MidRow => $"{prefixData} MID-ROW S | {nameof(MidRowStyle)}: {MidRowStyle}",
+                CaptionsPacketType.NullPad => $"{prefixData} NULL  PAD | (NULL)",
+                CaptionsPacketType.Preamble => $"{prefixData} PREAMBLE  | Row: {PreambleRow}, Style: {PreambleStyle}",
+                CaptionsPacketType.Tabs => $"{prefixData} TAB SPACE | {nameof(Tabs)}: {Tabs}",
+                CaptionsPacketType.Text => $"{prefixData} TEXT DATA | '{Text}'",
+                CaptionsPacketType.XdsClass => $"{prefixData} XDS DATA  | {nameof(XdsClass)}: {XdsClass}",
+                _ => $"{prefixData} INVALID   | N/A",
+            };
             return output;
         }
 

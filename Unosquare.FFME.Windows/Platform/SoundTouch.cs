@@ -26,7 +26,7 @@
         #region Private Members
 
         private const string SoundTouchLibrary = "SoundTouch.dll";
-        private readonly object SyncRoot = new object();
+        private readonly object SyncRoot = new();
         private bool IsDisposed;
         private IntPtr handle;
 
@@ -82,19 +82,19 @@
         public enum Setting
         {
             /// <summary>
-            /// Enable/disable anti-alias filter in pitch transposer (0 = disable)
+            /// Enable/disable anti-alias filter in pitch transposer (0 = disable).
             /// </summary>
             UseAntiAliasFilter = 0,
 
             /// <summary>
-            /// Pitch transposer anti-alias filter length (8 .. 128 taps, default = 32)
+            /// Pitch transposer anti-alias filter length (8 .. 128 taps, default = 32).
             /// </summary>
             AntiAliasFilterLength = 1,
 
             /// <summary>
             /// Enable/disable quick seeking algorithm in tempo changer routine
             /// (enabling quick seeking lowers CPU utilization but causes a minor sound
-            ///  quality compromising)
+            ///  quality compromising).
             /// </summary>
             UseQuickSeek = 2,
 

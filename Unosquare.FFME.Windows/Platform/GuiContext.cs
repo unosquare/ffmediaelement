@@ -117,17 +117,17 @@
 
                     case GuiContextType.WinForms:
                         {
-                            var doneEvent = new ManualResetEventSlim(false);
+                            using var doneEvent = new ManualResetEventSlim(false);
                             ThreadContext.Post(a =>
                             {
                                 try { callback.DynamicInvoke(arguments); }
                                 finally { doneEvent.Set(); }
-                            }, null);
+                            },
+                            null);
 
                             var waitingTask = new Task(() =>
                             {
                                 doneEvent.Wait();
-                                doneEvent.Dispose();
                             });
 
                             waitingTask.Start();

@@ -13,6 +13,45 @@
 
     public partial class MainWindow
     {
+        #region Seek indexing example
+
+        /// <summary>
+        /// Loads or creates a seek index for short media files.
+        /// </summary>
+        /// <param name="mediaFilePath">The URL.</param>
+        /// <param name="streamIndex">The associated stream index.</param>
+        /// <param name="durationSeconds">The duration in seconds.</param>
+        /// <returns>
+        /// The seek index.
+        /// </returns>
+        private static VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
+        {
+            var seekFileName = $"{Path.GetFileNameWithoutExtension(mediaFilePath)}.six";
+            var seekFilePath = Path.Combine(App.ViewModel.Playlist.IndexDirectory, seekFileName);
+            if (string.IsNullOrWhiteSpace(seekFilePath)) return null;
+
+            if (File.Exists(seekFilePath))
+            {
+                using var stream = File.OpenRead(seekFilePath);
+                return VideoSeekIndex.Load(stream);
+            }
+            else
+            {
+                if (!Debugger.IsAttached || durationSeconds <= 0 || durationSeconds >= 60)
+                    return null;
+
+                var seekIndex = Library.CreateVideoSeekIndex(mediaFilePath, streamIndex);
+                if (seekIndex.Entries.Count <= 0) return null;
+
+                using (var stream = File.OpenWrite(seekFilePath))
+                    seekIndex.Save(stream);
+
+                return seekIndex;
+            }
+        }
+
+        #endregion
+
         #region Logging Event Handlers
 
         /// <summary>
@@ -478,41 +517,6 @@
                 default:
                     ViewModel.PlaybackProgressState = TaskbarItemProgressState.None;
                     break;
-            }
-        }
-
-        /// <summary>
-        /// Loads or creates a seek index for short media files.
-        /// </summary>
-        /// <param name="mediaFilePath">The URL.</param>
-        /// <param name="streamIndex">The associated stream index.</param>
-        /// <param name="durationSeconds">The duration in seconds.</param>
-        /// <returns>
-        /// The seek index.
-        /// </returns>
-        private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
-        {
-            var seekFileName = $"{Path.GetFileNameWithoutExtension(mediaFilePath)}.six";
-            var seekFilePath = Path.Combine(App.ViewModel.Playlist.IndexDirectory, seekFileName);
-            if (string.IsNullOrWhiteSpace(seekFilePath)) return null;
-
-            if (File.Exists(seekFilePath))
-            {
-                using var stream = File.OpenRead(seekFilePath);
-                return VideoSeekIndex.Load(stream);
-            }
-            else
-            {
-                if (!Debugger.IsAttached || durationSeconds <= 0 || durationSeconds >= 60)
-                    return null;
-
-                var seekIndex = Library.CreateVideoSeekIndex(mediaFilePath, streamIndex);
-                if (seekIndex.Entries.Count <= 0) return null;
-
-                using (var stream = File.OpenWrite(seekFilePath))
-                    seekIndex.Save(stream);
-
-                return seekIndex;
             }
         }
 

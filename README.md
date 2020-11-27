@@ -15,7 +15,7 @@
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
 - Current Status: (2019-12-28) - Release 4.2.330 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: 4.2.1 <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2.1-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2.1-win64-shared.zip">64-bit</a>
+- FFmpeg Version: <a href="https://ffmpeg.org/download.html">4.3.1</a> -- Make sure you download one built as a SHARED library and for your right architecture (typically x64)
 - BREAKING CHANGE: Starting realease 4.1.320 the `Source` dependency property has been downgraded to a notification property. Please use the asynchronous `Open` and `Close` methods instead.
 
 *Please note the current NuGet realease might require a different version of the FFmpeg binaries than the ones of the current state of the source code.*
@@ -25,7 +25,7 @@
 Here is a quick guide on how to get started.
 1. Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above, or .Net Core 3.0 or above.
 2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
-3. You need FFmpeg **shared** binaries (64 or 32 bit, depending on your app's target architecture). Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](https://ffmpeg.zeranoe.com/builds/).
+3. You need FFmpeg **shared** binaries (64 or 32 bit, depending on your app's target architecture). Build your own or download a compatible build from [FFmpeg Windows Downloads](https://ffmpeg.org/download.html).
 4. Your FFmpeg build should have a `bin` folder with 3 exe files and some dll files. Copy all those files to a folder such as `c:\ffmpeg`
 5. Within you application's startup code (`Main` method), set `Unosquare.FFME.Library.FFmpegDirectory = @"c:\ffmpeg";`.
 6. Use the FFME `MediaElement` control as any other WPF control.
@@ -96,7 +96,7 @@ A high-level diagram is provided as additional reference below.
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.*
 
 1. Clone this repository and make sure you have <a href="https://dotnet.microsoft.com/download/dotnet-core/3.1">.Net Core 3.1 or above</a> installed.
-2. Download the FFmpeg **shared** binaries for your target architecture: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.2.1-win32-shared.zip">32-bit</a> or <a href="https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2.1-win64-shared.zip">64-bit</a>.
+2. Download the FFmpeg **shared** binaries for your target architecture: <a href="https://ffmpeg.org/download.html">FFmpeg Windows Downloads</a>.
 3. Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and multiple <code>dll</code> files. Select and copy all of them.
 4. Now paste all files from the prior step onto a well-known folder. Take note of the full path. (I used `c:\ffmpeg\`)
 5. Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>. Please note that you will need Visual Studio 2019 with dotnet Core 3.0 SDK for your target architecture installed.
@@ -139,7 +139,6 @@ The source code for this project contains a very capable media player (`FFME.Win
 *In no particular order*
 
 - To the <a href="http://ffmpeg.org/">FFmpeg team</a> for making the Swiss Army Knife of media. I encourage you to donate to them.
-- To Kyle Schwarz for creating and making <a href="http://ffmpeg.zeranoe.com/builds/">Zeranoe FFmpeg builds available to everyone</a>.
 - To the <a href="https://github.com/naudio/NAudio">NAudio</a> team for making the best audio library out there for .NET -- one day I will contribute some improvements I have noticed they need.
 - To Ruslan Balanukhin for his FFmpeg interop bindings generator tool: <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>.
 - To Martin Bohme for his <a href="http://dranger.com/ffmpeg/">tutorial</a> on creating a video player with FFmpeg.

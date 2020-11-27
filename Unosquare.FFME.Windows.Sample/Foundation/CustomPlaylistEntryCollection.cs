@@ -12,7 +12,7 @@
     /// </summary>
     public class CustomPlaylistEntryCollection : PlaylistEntryCollection<CustomPlaylistEntry>
     {
-        private readonly object SyncRoot = new object();
+        private readonly object SyncRoot = new();
         private readonly PlaylistViewModel ViewModel;
 
         /// <summary>
@@ -66,6 +66,8 @@
         /// <param name="info">The media information.</param>
         public void AddOrUpdateEntry(Uri mediaSource, MediaInfo info)
         {
+            if (info == null) throw new ArgumentNullException(nameof(info));
+
             lock (SyncRoot)
             {
                 var entry = FindEntryByMediaSource(mediaSource);
@@ -115,7 +117,7 @@
                     foreach (var c in metaKey)
                     {
                         if (char.IsWhiteSpace(c))
-                            sb.Append("-");
+                            sb.Append('-');
                         else
                             sb.Append(c);
                     }
@@ -134,6 +136,8 @@
         /// <param name="bitmap">The bitmap.</param>
         public void AddOrUpdateEntryThumbnail(Uri mediaSource, BitmapDataBuffer bitmap)
         {
+            if (bitmap == null) throw new ArgumentNullException(nameof(bitmap));
+
             lock (SyncRoot)
             {
                 var entry = FindEntryByMediaSource(mediaSource);

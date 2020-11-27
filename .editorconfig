@@ -1,0 +1,8 @@
+﻿root = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# CA2000: Dispose objects before losing scope
+dotnet_diagnostic.CA2000.severity = suggestion

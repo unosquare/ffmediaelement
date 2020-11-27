@@ -7,16 +7,16 @@
         /// </summary>
         public enum SeekMode
         {
-            /// <summary>Normal seek mode</summary>
+            /// <summary>Normal seek mode.</summary>
             Normal,
 
-            /// <summary>Stop seek mode</summary>
+            /// <summary>Stop seek mode.</summary>
             Stop,
 
-            /// <summary>Frame step forward</summary>
+            /// <summary>Frame step forward.</summary>
             StepForward,
 
-            /// <summary>Frame step backward</summary>
+            /// <summary>Frame step backward.</summary>
             StepBackward
         }
 

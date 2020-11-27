@@ -37,8 +37,8 @@
             {
                 return Task.Run(async () =>
                 {
-                    await Commands.CloseMediaAsync();
-                    return await Commands.OpenMediaAsync(uri);
+                    await Commands.CloseMediaAsync().ConfigureAwait(true);
+                    return await Commands.OpenMediaAsync(uri).ConfigureAwait(true);
                 });
             }
             else
@@ -59,8 +59,8 @@
             {
                 return Task.Run(async () =>
                 {
-                    await Commands.CloseMediaAsync();
-                    return await Commands.OpenMediaAsync(stream);
+                    await Commands.CloseMediaAsync().ConfigureAwait(true);
+                    return await Commands.OpenMediaAsync(stream).ConfigureAwait(true);
                 });
             }
             else

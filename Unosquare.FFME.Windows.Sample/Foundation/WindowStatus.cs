@@ -76,11 +76,13 @@
         }
 
         /// <summary>
-        /// Captures the specified window state.
+        /// Captures the specified window object.
         /// </summary>
-        /// <param name="w">The w.</param>
+        /// <param name="w">The window state object.</param>
         public void Capture(Window w)
         {
+            if (w == null) throw new ArgumentNullException(nameof(w));
+
             WindowState = w.WindowState;
             Top = w.Top;
             Left = w.Left;
@@ -95,6 +97,8 @@
         /// <param name="w">The w.</param>
         public void Apply(Window w)
         {
+            if (w == null) throw new ArgumentNullException(nameof(w));
+
             w.WindowState = WindowState;
             w.Top = Top;
             w.Left = Left;

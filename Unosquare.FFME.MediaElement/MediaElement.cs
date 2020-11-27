@@ -29,7 +29,7 @@
         /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> ChangeMedia() => Task.Run(async () =>
         {
-            try { return await MediaCore.ChangeMedia(); }
+            try { return await MediaCore.ChangeMedia().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }).ConfigureAwait(true);
@@ -40,7 +40,7 @@
         /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Play() => Task.Run(async () =>
         {
-            try { return await MediaCore.Play(); }
+            try { return await MediaCore.Play().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }).ConfigureAwait(true);
@@ -51,7 +51,7 @@
         /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Pause() => Task.Run(async () =>
         {
-            try { return await MediaCore.Pause(); }
+            try { return await MediaCore.Pause().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }).ConfigureAwait(true);
@@ -62,7 +62,7 @@
         /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Stop() => Task.Run(async () =>
         {
-            try { return await MediaCore.Stop(); }
+            try { return await MediaCore.Stop().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }).ConfigureAwait(true);
@@ -75,7 +75,7 @@
         /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Seek(TimeSpan target) => Task.Run(async () =>
         {
-            try { return await MediaCore.Seek(target); }
+            try { return await MediaCore.Seek(target).ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }).ConfigureAwait(true);
@@ -86,7 +86,7 @@
         /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> StepForward() => Task.Run(async () =>
         {
-            try { return await MediaCore.StepForward(); }
+            try { return await MediaCore.StepForward().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }).ConfigureAwait(true);
@@ -97,7 +97,7 @@
         /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> StepBackward() => Task.Run(async () =>
         {
-            try { return await MediaCore.StepBackward(); }
+            try { return await MediaCore.StepBackward().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }).ConfigureAwait(true);
@@ -111,7 +111,7 @@
         /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable<bool> Open(Uri uri) => Task.Run(async () =>
         {
-            try { return await MediaCore.Open(uri); }
+            try { return await MediaCore.Open(uri).ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
 
             return false;
@@ -124,7 +124,7 @@
         /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable<bool> Open(IMediaInputStream stream) => Task.Run(async () =>
         {
-            try { return await MediaCore.Open(stream); }
+            try { return await MediaCore.Open(stream).ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
 
             return false;
@@ -136,7 +136,7 @@
         /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Close() => Task.Run(async () =>
         {
-            try { return await MediaCore.Close(); }
+            try { return await MediaCore.Close().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
 
             return false;
