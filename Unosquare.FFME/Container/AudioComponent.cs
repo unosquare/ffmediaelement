@@ -47,11 +47,9 @@
         internal AudioComponent(MediaContainer container, int streamIndex)
             : base(container, streamIndex)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            Channels = Stream->codec->channels;
-            SampleRate = Stream->codec->sample_rate;
-            BitsPerSample = ffmpeg.av_samples_get_buffer_size(null, 1, 1, Stream->codec->sample_fmt, 1) * 8;
-#pragma warning restore CS0618 // Type or member is obsolete
+            Channels = CodecContext->channels;
+            SampleRate = CodecContext->sample_rate;
+            BitsPerSample = ffmpeg.av_samples_get_buffer_size(null, 1, 1, CodecContext->sample_fmt, 1) * 8;
         }
 
         #endregion

@@ -62,10 +62,9 @@
             else
                 AverageFrameRate = BaseFrameRate;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            FrameWidth = Stream->codec->width;
-            FrameHeight = Stream->codec->height;
-#pragma warning restore CS0618 // Type or member is obsolete
+            // Specify frame width and height
+            FrameWidth = CodecContext->width;
+            FrameHeight = CodecContext->height;
 
             // Retrieve Matrix Rotation
             var displayMatrixRef = ffmpeg.av_stream_get_side_data(Stream, AVPacketSideDataType.AV_PKT_DATA_DISPLAYMATRIX, null);

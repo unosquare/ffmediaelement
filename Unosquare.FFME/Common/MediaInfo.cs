@@ -114,35 +114,15 @@
                 var s = inputContext->streams[i];
 
                 var codecContext = ffmpeg.avcodec_alloc_context3(null);
-                ffmpeg.avcodec_parameters_to_context(codecContext, s->codecpar);
 
-                // Fields which are missing from AVCodecParameters need to be taken
-                // from the stream's AVCodecContext
 #pragma warning disable CS0618 // Type or member is obsolete
-                codecContext->properties = s->codec->properties;
-                codecContext->codec = s->codec->codec;
-                codecContext->qmin = s->codec->qmin;
-                codecContext->qmax = s->codec->qmax;
-                codecContext->coded_height = s->codec->coded_height;
-                codecContext->coded_width = s->codec->coded_width;
+
+                // ffmpeg.avcodec_parameters_to_context(codecContext, s->codecpar);
+                ffmpeg.avcodec_copy_context(codecContext, s->codec);
 #pragma warning restore CS0618 // Type or member is obsolete
 
                 var bitsPerSample = codecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO ?
                     ffmpeg.av_get_bits_per_sample(codecContext->codec_id) : 0;
-
-                var dar = s->display_aspect_ratio;
-                var sar = s->sample_aspect_ratio;
-                var codecSar = s->codecpar->sample_aspect_ratio;
-
-                if (sar.num != 0 && (sar.num != codecSar.num || sar.den != codecSar.den))
-                {
-                    ffmpeg.av_reduce(
-                        &dar.num,
-                        &dar.den,
-                        s->codecpar->width * sar.num,
-                        s->codecpar->height * sar.den,
-                        1024 * 1024);
-                }
 
                 var stream = new StreamInfo
                 {
@@ -165,6 +145,7 @@
                     PixelHeight = codecContext->height,
                     HasClosedCaptions = (codecContext->properties & ffmpeg.FF_CODEC_PROPERTY_CLOSED_CAPTIONS) != 0,
                     IsLossless = (codecContext->properties & ffmpeg.FF_CODEC_PROPERTY_LOSSLESS) != 0,
+                    Channels = codecContext->channels,
                     BitRate = bitsPerSample > 0 ?
                         bitsPerSample * codecContext->channels * codecContext->sample_rate :
                         codecContext->bit_rate,
@@ -173,17 +154,17 @@
                     TimeBase = s->time_base,
                     SampleFormat = codecContext->sample_fmt,
                     SampleRate = codecContext->sample_rate,
-                    DisplayAspectRatio = dar,
-                    SampleAspectRatio = sar,
+                    DisplayAspectRatio = codecContext->height > 0 ?
+                        ffmpeg.av_d2q((double)codecContext->width / codecContext->height, int.MaxValue) :
+                        default,
+                    SampleAspectRatio = codecContext->sample_aspect_ratio,
                     Disposition = s->disposition,
                     StartTime = s->start_time.ToTimeSpan(s->time_base),
                     Duration = s->duration.ToTimeSpan(s->time_base),
                     FPS = s->avg_frame_rate.ToDouble(),
                     TBR = s->r_frame_rate.ToDouble(),
                     TBN = 1d / s->time_base.ToDouble(),
-#pragma warning disable CS0618 // Type or member is obsolete
-                    TBC = 1d / s->codec->time_base.ToDouble()
-#pragma warning restore CS0618 // Type or member is obsolete
+                    TBC = 1d / codecContext->time_base.ToDouble()
                 };
 
                 // Extract valid hardware configurations
@@ -444,6 +425,11 @@
         /// Gets the video color range.
         /// </summary>
         public AVColorRange ColorRange { get; internal set; }
+
+        /// <summary>
+        /// Gets the number of audio channels.
+        /// </summary>
+        public int Channels { get; internal set; }
 
         /// <summary>
         /// Gets the audio sample rate.

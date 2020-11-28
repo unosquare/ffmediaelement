@@ -80,8 +80,12 @@
             m_Stream = new IntPtr(container.InputContext->streams[streamIndex]);
             StreamInfo = container.MediaInfo.Streams[streamIndex];
 
+#pragma warning disable CS0618 // Type or member is obsolete
+
             // Set default codec context options from probed stream
-            var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
+            // var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
+            var setCodecParamsResult = ffmpeg.avcodec_copy_context(CodecContext, Stream->codec);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             if (setCodecParamsResult < 0)
             {
@@ -247,10 +251,9 @@
                 : Stream->duration.ToTimeSpan(Stream->time_base);
 
             CodecName = Utilities.PtrToStringUTF8(selectedCodec->name);
-#pragma warning disable CS0618 // Type or member is obsolete
-            CodecId = Stream->codec->codec_id;
-            BitRate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
-#pragma warning restore CS0618 // Type or member is obsolete
+            CodecId = CodecContext->codec_id;
+            BitRate = CodecContext->bit_rate < 0 ? 0 : CodecContext->bit_rate;
+
             this.LogDebug(Aspects.Component,
                 $"{MediaType.ToString().ToUpperInvariant()} - Start Time: {StartTime.Format()}; Duration: {Duration.Format()}");
 
