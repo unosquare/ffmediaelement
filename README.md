@@ -23,7 +23,7 @@
 ## Quick Usage Guide for WPF Apps
 
 Here is a quick guide on how to get started.
-1. Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above, or .Net Core 3.0 or above.
+1. Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 5.0 or above.
 2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
 3. You need FFmpeg **shared** binaries (64 or 32 bit, depending on your app's target architecture). Build your own or download a compatible build from [FFmpeg Windows Downloads](https://ffmpeg.org/download.html).
 4. Your FFmpeg build should have a `bin` folder with 3 exe files and some dll files. Copy all those files to a folder such as `c:\ffmpeg`
@@ -99,7 +99,7 @@ A high-level diagram is provided as additional reference below.
 2. Download the FFmpeg **shared** binaries for your target architecture: <a href="https://ffmpeg.org/download.html">FFmpeg Windows Downloads</a>.
 3. Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and multiple <code>dll</code> files. Select and copy all of them.
 4. Now paste all files from the prior step onto a well-known folder. Take note of the full path. (I used `c:\ffmpeg\`)
-5. Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>. Please note that you will need Visual Studio 2019 with dotnet Core 3.0 SDK for your target architecture installed.
+5. Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>. Please note that you will need Visual Studio 2019 with dotnet 5.0 SDK for your target architecture installed.
 6. Under the <code>Unosquare.FFME.Windows.Sample</code> project, find the file `App.xaml.cs` and under the constructor, locate the line <code>Library.FFmpegDirectory = @"c:\ffmpeg";</code> and replace the path so that it points to the folder where you extracted your FFmpeg binaries (dll files).
 7. Click on <code>Start</code> to run the project.
 8. You should see a sample media player. Click on the <code>Open</code> icon located at the bottom right and enter a URL or path to a media file.
