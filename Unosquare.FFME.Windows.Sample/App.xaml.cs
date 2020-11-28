@@ -3,7 +3,6 @@
     using FFmpeg.AutoGen;
     using System;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.IO;
     using System.Threading.Tasks;
     using System.Windows;
@@ -33,7 +32,7 @@
             // dispatcher threads to render video frames. This is an experimental feature
             // and might become deprecated in the future as no real performance enhancements
             // have been detected.
-            Library.EnableWpfMultiThreadedVideo = false; // !Debugger.IsAttached; // test with true and false
+            Library.EnableWpfMultiThreadedVideo = false; // !System.Diagnostics.Debugger.IsAttached; // test with true and false
         }
 
         /// <summary>
