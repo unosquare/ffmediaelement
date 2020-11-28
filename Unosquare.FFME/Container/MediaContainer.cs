@@ -1234,11 +1234,18 @@ namespace Unosquare.FFME.Container
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaFrame StreamPositionDecode(MediaComponent component)
         {
-            while (SignalAbortReadsRequested.Value == false && IsAtEndOfStream == false)
+            while (SignalAbortReadsRequested.Value == false)
             {
-                var frame = component.ReceiveNextFrame();
-                if (frame != null) return frame;
-                Read();
+                // We may have hit the end of our stream, but
+                // we'll continue decoding (and therefore returning)
+                // frames until the buffer is cleared.
+                if (component.ReceiveNextFrame() is { } frame)
+                    return frame;
+
+                if (!IsAtEndOfStream)
+                    Read();
+                else
+                    return null;
             }
 
             return null;
