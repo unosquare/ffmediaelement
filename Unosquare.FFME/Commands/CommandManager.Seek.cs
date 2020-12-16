@@ -249,7 +249,7 @@
                     while (MediaCore.Container.IsReadAborted == false && MediaCore.HasDecodingEnded == false && ct.IsCancellationRequested == false)
                     {
                         // Check if we are already in range
-                        hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, targetPacketPosition, hasSeekBlocks);
+                        hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
                         if (hasSeekBlocks) break;
 
                         // Read the next packet
