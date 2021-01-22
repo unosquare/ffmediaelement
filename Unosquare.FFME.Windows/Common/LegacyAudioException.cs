@@ -2,6 +2,9 @@
 {
     using System;
     using System.Runtime.Serialization;
+#if !NET5_0
+    using System.Security.Permissions;
+#endif
 
     /// <inheritdoc />
     /// <summary>

@@ -399,7 +399,7 @@
 
                     // Get a block reference from the pool and convert it!
                     var targetBlock = PoolBlocks.Dequeue();
-                    var lastBlock = PlaybackBlocks.Count > 0 ? PlaybackBlocks[^1] : null;
+                    var lastBlock = PlaybackBlocks.Count > 0 ? PlaybackBlocks.Last() : null;
 
                     if (container.Convert(source, ref targetBlock, true, lastBlock) == false)
                     {
@@ -526,7 +526,7 @@
 
             m_Count = PlaybackBlocks.Count;
             m_RangeStartTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[0].StartTime;
-            m_RangeEndTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[^1].EndTime;
+            m_RangeEndTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks.Last().EndTime;
             m_RangeDuration = TimeSpan.FromTicks(RangeEndTime.Ticks - RangeStartTime.Ticks);
             m_RangeMidTime = TimeSpan.FromTicks(m_RangeStartTime.Ticks + (m_RangeDuration.Ticks / 2));
             m_CapacityPercent = Convert.ToDouble(m_Count) / Capacity;

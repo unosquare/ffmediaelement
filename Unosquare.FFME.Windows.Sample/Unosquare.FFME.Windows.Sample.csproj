@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop" ToolsVersion="Current">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0-windows</TargetFrameworks>
+    <TargetFrameworks>net461;net472;net48;net5.0-windows</TargetFrameworks>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
