@@ -5,6 +5,8 @@
     using Diagnostics;
     using Primitives;
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -244,21 +246,20 @@
                     }
 
                     // Align to the exact requested position on the main component
-                    while (MediaCore.ShouldReadMorePackets && ct.IsCancellationRequested == false && hasSeekBlocks == false)
+                    while (MediaCore.Container.IsReadAborted == false && MediaCore.HasDecodingEnded == false && ct.IsCancellationRequested == false)
                     {
                         // Check if we are already in range
                         hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
+                        if (hasSeekBlocks) break;
 
                         // Read the next packet
-                        var packetType = MediaCore.Container.Read();
-                        var blocks = MediaCore.Blocks[packetType];
-                        if (blocks == null) continue;
+                        _ = MediaCore.Container.Read();
+                        IList<MediaFrame> frames = MediaCore.Container.Decode();
 
-                        // Get the next frame
-                        if (blocks.RangeEndTime.Ticks < targetPosition.Ticks || blocks.IsFull == false)
+                        foreach (var frame in frames)
                         {
-                            blocks.Add(MediaCore.Container.Components[packetType].ReceiveNextFrame(), MediaCore.Container);
-                            hasSeekBlocks = TrySignalBlocksAvailable(targetSeekMode, mainBlocks, targetPosition, hasSeekBlocks);
+                            MediaBlockBuffer blocks = MediaCore.Blocks[frame.MediaType];
+                            blocks?.Add(frame, MediaCore.Container);
                         }
                     }
                 }
