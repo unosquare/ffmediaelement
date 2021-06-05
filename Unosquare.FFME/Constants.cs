@@ -30,7 +30,7 @@
                 // see issue #311
             }
 
-            FFmpegSearchPath = Path.GetFullPath(".");
+            FFmpegSearchPath = ffmpeg.RootPath;
         }
 
         /// <summary>

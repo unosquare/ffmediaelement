@@ -19,8 +19,8 @@
     {
         #region Private Declarations
 
-        private static readonly object FFmpegLogBufferSyncLock = new object();
-        private static readonly List<string> FFmpegLogBuffer = new List<string>(1024);
+        private static readonly object FFmpegLogBufferSyncLock = new();
+        private static readonly List<string> FFmpegLogBuffer = new(1024);
         private static readonly IReadOnlyDictionary<int, MediaLogMessageType> FFmpegLogLevels =
             new Dictionary<int, MediaLogMessageType>
             {
@@ -33,12 +33,11 @@
                 { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning }
             };
 
-        private static readonly object SyncLock = new object();
-        private static readonly List<OptionMetadata> EmptyOptionMetaList = new List<OptionMetadata>(0);
+        private static readonly object SyncLock = new();
+        private static readonly List<OptionMetadata> EmptyOptionMetaList = new(0);
         private static readonly av_log_set_callback_callback FFmpegLogCallback = OnFFmpegMessageLogged;
         private static readonly ILoggingHandler LoggingHandler = new FFLoggingHandler();
         private static bool m_IsInitialized;
-        private static string m_LibrariesPath = string.Empty;
         private static int m_LibraryIdentifiers;
 
         #endregion
@@ -58,7 +57,7 @@
         /// </summary>
         public static string LibrariesPath
         {
-            get { lock (SyncLock) { return m_LibrariesPath; } }
+            get { lock (SyncLock) { return ffmpeg.RootPath; } }
         }
 
         /// <summary>
@@ -76,17 +75,16 @@
         /// <summary>
         /// Registers FFmpeg library and initializes its components.
         /// It only needs to be called once but calling it more than once
-        /// has no effect. Returns the path that FFmpeg was registered from.
+        /// has no effect. Returns a boolean to indicate if the load operation was successful.
         /// This method is thread-safe.
         /// </summary>
-        /// <param name="overridePath">The override path.</param>
         /// <param name="libIdentifiers">The bit-wise flag identifiers corresponding to the libraries.</param>
         /// <returns>
         /// Returns true if it was a new initialization and it succeeded. False if there was no need to initialize
         /// as there is already a valid initialization.
         /// </returns>
         /// <exception cref="FileNotFoundException">When ffmpeg libraries are not found.</exception>
-        public static bool Initialize(string overridePath, int libIdentifiers)
+        public static bool Initialize(int libIdentifiers)
         {
             lock (SyncLock)
             {
@@ -95,26 +93,25 @@
 
                 try
                 {
-                    // Get the temporary path where FFmpeg binaries are located
-                    var ffmpegPath = string.IsNullOrWhiteSpace(overridePath) == false ?
-                        Path.GetFullPath(overridePath) : Constants.FFmpegSearchPath;
-
                     var registrationIds = 0;
 
                     // Load FFmpeg binaries by Library ID
                     foreach (var lib in FFLibrary.All)
                     {
-                        if ((lib.FlagId & libIdentifiers) != 0 && lib.Load(ffmpegPath))
+                        if ((lib.FlagId & libIdentifiers) != 0 && lib.Load())
                             registrationIds |= lib.FlagId;
                     }
 
                     // Check if libraries were loaded correctly
                     if (FFLibrary.All.All(lib => lib.IsLoaded == false))
-                        throw new FileNotFoundException($"Unable to load FFmpeg binaries from folder '{ffmpegPath}'.");
+                        throw new FileNotFoundException($"Unable to load FFmpeg binaries from folder '{ffmpeg.RootPath}'.");
 
                     // Additional library initialization
                     if (FFLibrary.LibAVDevice.IsLoaded)
                         ffmpeg.avdevice_register_all();
+
+                    if (FFLibrary.LibAVFormat.IsLoaded)
+                        ffmpeg.avformat_network_init();
 
                     // Set logging levels and callbacks
                     ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
@@ -122,13 +119,12 @@
                     ffmpeg.av_log_set_callback(FFmpegLogCallback);
 
                     // set the static environment properties
-                    m_LibrariesPath = ffmpegPath;
                     m_LibraryIdentifiers = registrationIds;
                     m_IsInitialized = true;
                 }
-                catch
+                catch(Exception ex)
                 {
-                    m_LibrariesPath = string.Empty;
+                    Console.WriteLine(ex.Message);
                     m_LibraryIdentifiers = 0;
                     m_IsInitialized = false;
 

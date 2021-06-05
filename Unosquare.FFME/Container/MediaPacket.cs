@@ -17,7 +17,7 @@
         /// </summary>
         private static readonly IntPtr FlushPacketData = (IntPtr)ffmpeg.av_malloc(0);
 
-        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsDisposed = new(false);
         private readonly IntPtr m_Pointer;
 
         /// <summary>
@@ -96,7 +96,6 @@
         {
             var packet = new MediaPacket(ffmpeg.av_packet_alloc());
             RC.Current.Add(packet.Pointer);
-            ffmpeg.av_init_packet(packet.Pointer);
             packet.Pointer->data = null;
             packet.Pointer->size = 0;
             packet.Pointer->stream_index = streamIndex;
@@ -113,7 +112,6 @@
         {
             var packet = new MediaPacket(ffmpeg.av_packet_alloc());
             RC.Current.Add(packet.Pointer);
-            ffmpeg.av_init_packet(packet.Pointer);
             packet.Pointer->data = (byte*)FlushPacketData;
             packet.Pointer->size = 0;
             packet.Pointer->stream_index = streamIndex;

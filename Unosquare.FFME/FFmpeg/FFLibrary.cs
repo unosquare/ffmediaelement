@@ -149,23 +149,22 @@
         /// <summary>
         /// Loads the library from the specified path.
         /// </summary>
-        /// <param name="basePath">The base path.</param>
         /// <returns>True if the registration was successful.</returns>
         /// <exception cref="InvalidOperationException">When library has already been loaded.</exception>
-        public bool Load(string basePath)
+        public bool Load()
         {
             lock (LoadLock)
             {
                 if (Reference != IntPtr.Zero)
                     return true;
 
-                var result = LibraryLoader.LoadNativeLibrary(basePath, Name, Version);
+                var result = LibraryLoader.LoadNativeLibrary(ffmpeg.RootPath, Name, Version);
 
                 if (result == IntPtr.Zero)
                     return false;
 
                 Reference = result;
-                BasePath = basePath;
+                BasePath = ffmpeg.RootPath;
                 LoadErrorCode = 0;
                 return true;
             }

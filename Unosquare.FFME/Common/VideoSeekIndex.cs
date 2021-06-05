@@ -15,10 +15,10 @@
     public sealed class VideoSeekIndex
     {
         private const string VersionPrefix = "FILE-SECTION-V01";
-        private static readonly string SectionHeaderText = $"{VersionPrefix}:{nameof(VideoSeekIndex)}.{nameof(Entries)}";
-        private static readonly string SectionHeaderFields = $"{nameof(StreamIndex)},{nameof(MediaSource)}";
-        private static readonly string SectionDataText = $"{VersionPrefix}:{nameof(VideoSeekIndex)}.{nameof(Entries)}";
-        private static readonly string SectionDataFields =
+        private const string SectionHeaderText = $"{VersionPrefix}:{nameof(VideoSeekIndex)}.{nameof(Entries)}";
+        private const string SectionHeaderFields = $"{nameof(StreamIndex)},{nameof(MediaSource)}";
+        private const string SectionDataText = $"{VersionPrefix}:{nameof(VideoSeekIndex)}.{nameof(Entries)}";
+        private const string SectionDataFields =
             $"{nameof(VideoSeekIndexEntry.StreamIndex)}" +
             $",{nameof(VideoSeekIndexEntry.StreamTimeBase)}Num" +
             $",{nameof(VideoSeekIndexEntry.StreamTimeBase)}Den" +
@@ -26,7 +26,7 @@
             $",{nameof(VideoSeekIndexEntry.PresentationTime)}" +
             $",{nameof(VideoSeekIndexEntry.DecodingTime)}";
 
-        private readonly VideoSeekIndexEntryComparer LookupComparer = new VideoSeekIndexEntryComparer();
+        private readonly VideoSeekIndexEntryComparer LookupComparer = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoSeekIndex"/> class.
@@ -129,16 +129,14 @@
         /// <param name="stream">The stream to write data to.</param>
         public void Save(Stream stream)
         {
-            using (var writer = new StreamWriter(stream, Encoding.UTF8, 4096, true))
-            {
-                writer.WriteLine(SectionHeaderText);
-                writer.WriteLine(SectionHeaderFields);
-                writer.WriteLine($"{StreamIndex},\"{MediaSource?.ReplaceOrdinal("\"", "\"\"")}\"");
+            using var writer = new StreamWriter(stream, Encoding.UTF8, 4096, true);
+            writer.WriteLine(SectionHeaderText);
+            writer.WriteLine(SectionHeaderFields);
+            writer.WriteLine($"{StreamIndex},\"{MediaSource?.ReplaceOrdinal("\"", "\"\"")}\"");
 
-                writer.WriteLine(SectionDataText);
-                writer.WriteLine(SectionDataFields);
-                foreach (var entry in Entries) writer.WriteLine(entry.ToCsvString());
-            }
+            writer.WriteLine(SectionDataText);
+            writer.WriteLine(SectionDataFields);
+            foreach (var entry in Entries) writer.WriteLine(entry.ToCsvString());
         }
 
         /// <summary>
@@ -190,8 +188,8 @@
 
             while (true)
             {
-                var lastEntry = Entries[Entries.Count - 1];
-                var prevEntry = Entries[Entries.Count - 2];
+                var lastEntry = Entries[^1];
+                var prevEntry = Entries[^2];
 
                 var presentationTime = lastEntry.PresentationTime == ffmpeg.AV_NOPTS_VALUE ?
                     ffmpeg.AV_NOPTS_VALUE :

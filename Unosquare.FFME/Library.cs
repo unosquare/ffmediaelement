@@ -19,7 +19,6 @@
             $"{nameof(FFmpeg)} library not initialized. Set the {nameof(FFmpegDirectory)} and call {nameof(LoadFFmpeg)}";
 
         private static readonly object SyncLock = new();
-        private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
         private static IReadOnlyList<string> m_InputFormatNames;
         private static IReadOnlyList<OptionMetadata> m_GlobalInputFormatOptions;
@@ -38,13 +37,13 @@
         /// </summary>
         public static string FFmpegDirectory
         {
-            get => m_FFmpegDirectory;
+            get => ffmpeg.RootPath;
             set
             {
                 if (FFInterop.IsInitialized)
                     return;
 
-                m_FFmpegDirectory = value;
+                ffmpeg.RootPath = value;
             }
         }
 
@@ -277,7 +276,7 @@
         /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
         public static bool LoadFFmpeg()
         {
-            if (!FFInterop.Initialize(FFmpegDirectory, FFmpegLoadModeFlags))
+            if (!FFInterop.Initialize(FFmpegLoadModeFlags))
                 return false;
 
             // Set the folders and lib identifiers

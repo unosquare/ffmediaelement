@@ -62,7 +62,5 @@
                 </StackPanel>
             </Border>
         </Grid>
-
     </Grid>
-
 </Window>

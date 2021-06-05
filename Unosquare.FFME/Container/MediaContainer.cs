@@ -118,7 +118,7 @@ namespace Unosquare.FFME.Container
                 throw new ArgumentNullException($"{nameof(mediaSource)}");
 
             // Initialize the library (if not already done)
-            FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
+            FFInterop.Initialize(FFmpegLoadMode.FullFeatures);
 
             // Create the options object and setup some initial properties
             m_LoggingHandler = loggingHandler;
@@ -150,16 +150,16 @@ namespace Unosquare.FFME.Container
                 throw new ArgumentNullException($"{nameof(inputStream)}");
 
             // Validate the stream pseudo Url
-            var mediaSpurceUrl = inputStream.StreamUri?.ToString();
-            if (string.IsNullOrWhiteSpace(mediaSpurceUrl))
-                throw new ArgumentNullException($"{nameof(inputStream)}.{nameof(inputStream.StreamUri)}");
+            var mediaSourceUrl = inputStream.StreamUri?.ToString();
+            if (string.IsNullOrWhiteSpace(mediaSourceUrl))
+                throw new ArgumentNullException(nameof(inputStream), $"{nameof(inputStream)}.{nameof(inputStream.StreamUri)} cannot be null.");
 
             // Initialize the library (if not already done)
-            FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
+            FFInterop.Initialize(FFmpegLoadMode.FullFeatures);
 
             // Create the options object
             m_LoggingHandler = loggingHandler;
-            MediaSource = mediaSpurceUrl;
+            MediaSource = mediaSourceUrl;
             CustomInputStream = inputStream;
             Configuration = config ?? new ContainerConfiguration();
         }
@@ -477,7 +477,7 @@ namespace Unosquare.FFME.Container
 
                 // Check the input parameters
                 if (input == null)
-                    throw new ArgumentNullException($"{nameof(input)} cannot be null.");
+                    throw new ArgumentNullException(nameof(input));
 
                 if (input.IsStale)
                 {

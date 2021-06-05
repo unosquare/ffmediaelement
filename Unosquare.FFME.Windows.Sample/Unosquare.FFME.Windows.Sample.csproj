@@ -22,7 +22,7 @@
     <Version>4.3.350</Version>
     <AssemblyVersion>4.3.350.0</AssemblyVersion>
     <FileVersion>4.3.350.0</FileVersion>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
 
     <Authors>Mario Di Vece, and Contributors to the FFME project</Authors>
     <Company>Unosquare SA de CV</Company>
@@ -60,11 +60,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FFmpeg.AutoGen" Version="4.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.1">
+    <PackageReference Include="FFmpeg.AutoGen" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
       <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.261">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

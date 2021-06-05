@@ -17,9 +17,9 @@
         #region Private Declarations
 
         // Synchronization locks
-        private readonly object ComponentSyncLock = new object();
-        private readonly object BufferSyncLock = new object();
-        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+        private readonly object ComponentSyncLock = new();
+        private readonly object BufferSyncLock = new();
+        private readonly AtomicBoolean m_IsDisposed = new(false);
 
         private IReadOnlyList<MediaComponent> m_All = new List<MediaComponent>(0);
         private IReadOnlyList<MediaType> m_MediaTypes = new List<MediaType>(0);
