@@ -66,7 +66,7 @@
         /// <summary>
         /// The maximum speed ratio.
         /// </summary>
-        public static double MaxSpeedRatio => 8.0d;
+        public static double MaxSpeedRatio => 100.0d;
 
         /// <summary>
         /// The minimum balance.

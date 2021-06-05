@@ -504,25 +504,15 @@
         {
             var media = sender as MediaElement;
 
-            switch (e.MediaState)
+            ViewModel.PlaybackProgressState = e.MediaState switch
             {
-                case MediaPlaybackState.Close:
-                case MediaPlaybackState.Stop:
-                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.None;
-                    break;
-                case MediaPlaybackState.Manual:
-                case MediaPlaybackState.Pause:
-                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.Paused;
-                    break;
-                case MediaPlaybackState.Play:
-                    ViewModel.PlaybackProgressState = media.IsSeekable
-                        ? TaskbarItemProgressState.Normal
-                        : TaskbarItemProgressState.Indeterminate;
-                    break;
-                default:
-                    ViewModel.PlaybackProgressState = TaskbarItemProgressState.None;
-                    break;
-            }
+                MediaPlaybackState.Close or MediaPlaybackState.Stop => TaskbarItemProgressState.None,
+                MediaPlaybackState.Manual or MediaPlaybackState.Pause => TaskbarItemProgressState.Paused,
+                MediaPlaybackState.Play => media.IsSeekable
+                    ? TaskbarItemProgressState.Normal
+                    : TaskbarItemProgressState.Indeterminate,
+                _ => TaskbarItemProgressState.None,
+            };
         }
 
         #endregion
