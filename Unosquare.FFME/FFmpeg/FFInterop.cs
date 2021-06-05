@@ -122,9 +122,8 @@
                     m_LibraryIdentifiers = registrationIds;
                     m_IsInitialized = true;
                 }
-                catch(Exception ex)
+                catch
                 {
-                    Console.WriteLine(ex.Message);
                     m_LibraryIdentifiers = 0;
                     m_IsInitialized = false;
 
