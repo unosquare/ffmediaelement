@@ -188,8 +188,9 @@
 
             while (true)
             {
-                var lastEntry = Entries[^1];
-                var prevEntry = Entries[^2];
+                var entryCount = Entries.Count;
+                var lastEntry = Entries[entryCount - 1];
+                var prevEntry = Entries[entryCount - 2];
 
                 var presentationTime = lastEntry.PresentationTime == ffmpeg.AV_NOPTS_VALUE ?
                     ffmpeg.AV_NOPTS_VALUE :

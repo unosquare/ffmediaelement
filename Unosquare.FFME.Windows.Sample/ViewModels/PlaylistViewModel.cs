@@ -67,8 +67,8 @@
                     var title = entry.Title ?? string.Empty;
                     var source = entry.MediaSource ?? string.Empty;
 
-                    return title.Contains(searchString, StringComparison.InvariantCultureIgnoreCase) ||
-                        source.Contains(searchString, StringComparison.InvariantCultureIgnoreCase);
+                    return title.ToUpperInvariant().Contains(searchString.ToUpperInvariant()) ||
+                        source.ToUpperInvariant().Contains(searchString.ToUpperInvariant());
                 }
 
                 return false;
