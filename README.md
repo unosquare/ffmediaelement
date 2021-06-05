@@ -13,9 +13,9 @@
 
 ## Current NuGet Release Status
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2020-11-27) - Release 4.3.340 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2021-06-05) - Release 4.4.350 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: <a href="https://ffmpeg.org/download.html">4.3.1</a> -- Make sure you download one built as a SHARED library and for your right architecture (typically x64)
+- FFmpeg Version: <a href="https://ffmpeg.org/download.html">4.4</a> -- Make sure you download one built as a SHARED library and for your right architecture (typically x64)
 - BREAKING CHANGE: Starting realease 4.1.320 the `Source` dependency property has been downgraded to a notification property. Please use the asynchronous `Open` and `Close` methods instead.
 
 *Please note the current NuGet realease might require a different version of the FFmpeg binaries than the ones of the current state of the source code.*
