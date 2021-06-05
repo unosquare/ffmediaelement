@@ -52,5 +52,10 @@
         /// </summary>
         public Dictionary<string, string> PrivateOptions { get; } =
             new(512, StringComparer.InvariantCultureIgnoreCase);
+
+        /// <summary>
+        /// Gets or sets a method to be called when reading the input stream has timed out.
+        /// </summary>
+        internal Action<TimeSpan> ReadTimeoutCallback { get; set; }
     }
 }

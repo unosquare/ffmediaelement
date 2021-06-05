@@ -337,6 +337,9 @@
                     }
                 }
 
+                // Wire up the interrupt callback
+                containerConfig.ReadTimeoutCallback = (t) => MediaCore?.SendOnMediaFailed(new TimeoutException($"Stream read operation timed out: {t.Format()}"));
+
                 // Allow the stream input options to be changed
                 MediaCore.SendOnMediaInitializing(containerConfig, mediaSource);
 

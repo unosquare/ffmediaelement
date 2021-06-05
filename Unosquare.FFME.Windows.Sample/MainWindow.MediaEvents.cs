@@ -90,9 +90,13 @@
         /// <param name="e">The <see cref="MediaFailedEventArgs"/> instance containing the event data.</param>
         private void OnMediaFailed(object sender, MediaFailedEventArgs e)
         {
+            var errorCategory = e.ErrorException is TimeoutException
+                ? "Timeout"
+                : "General";
+
             MessageBox.Show(
                 Application.Current.MainWindow,
-                $"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
+                $"Media Failed ({errorCategory}): {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
                 $"{nameof(MediaElement)} Error",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error,
@@ -131,7 +135,8 @@
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
 
                 // You can change the open/read timeout before the packet reading
-                // operation fails.
+                // operation fails. Reaching a tiemout limit will fire the MediaFailed event
+                // with a TiemoutException
                 e.Configuration.ReadTimeout = TimeSpan.FromSeconds(10);
             }
 

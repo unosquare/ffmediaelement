@@ -1034,6 +1034,7 @@ namespace Unosquare.FFME.Container
                 return OkResult;
 
             this.LogError(Aspects.Container, $"{nameof(OnStreamReadInterrupt)} timed out with  {timeDifference.Format()}");
+            Configuration.ReadTimeoutCallback?.Invoke(timeDifference);
             return ErrorResult;
         }
 
