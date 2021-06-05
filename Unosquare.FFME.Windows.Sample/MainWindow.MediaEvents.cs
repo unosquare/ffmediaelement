@@ -164,7 +164,7 @@
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpening(object sender, MediaOpeningEventArgs e)
+        private async void OnMediaOpening(object sender, MediaOpeningEventArgs e)
         {
             // Capture a reference to the MediaOptions object for real-time change
             // This usage of MediaOptions is unsupported.
@@ -319,7 +319,7 @@
                 // Since the MediaElement control belongs to the GUI thread
                 // and the closed captions channel property is a dependency
                 // property, we need to set it on the GUI thread.
-                media.Dispatcher?.InvokeAsync(() =>
+                await media.Dispatcher?.InvokeAsync(() =>
                 {
                     media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
                         CaptionsChannel.CC1 : CaptionsChannel.CCP;

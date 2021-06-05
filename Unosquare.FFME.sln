@@ -17,10 +17,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 		docfx.json = docfx.json
 		Support\ffme.png = Support\ffme.png
 		Support\ffmeplay.png = Support\ffmeplay.png
+		.github\ISSUE_TEMPLATE.md = .github\ISSUE_TEMPLATE.md
 		LICENSE = LICENSE
 		Support\nugetdoc.md = Support\nugetdoc.md
 		README.md = README.md
 		Support\readme.txt = Support\readme.txt
+		.github\stale.yml = .github\stale.yml
 		toc.yml = toc.yml
 	EndProjectSection
 EndProject
