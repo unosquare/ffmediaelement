@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Playlists
 {
     using System.Collections.Generic;
+    using System.Net;
     using System.Web;
 
     /// <summary>
@@ -32,7 +33,7 @@
                     continue;
 
                 var value = string.IsNullOrWhiteSpace(kvp.Value) ? string.Empty : kvp.Value;
-                attribs.Add($"{HttpUtility.UrlEncode(kvp.Key)}=\"{HttpUtility.UrlEncode(kvp.Value)}\"");
+                attribs.Add($"{WebUtility.UrlEncode(kvp.Key)}=\"{WebUtility.UrlEncode(kvp.Value)}\"");
             }
 
             return string.Join(" ", attribs);

@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Web;
+    using System.Net;
+
+    //using System.Web;
 
     /// <summary>
     /// Heklper methods for parsing m3u8 playlists
@@ -124,8 +126,8 @@
 
             return new ParsedAttribute
             {
-                Key = HttpUtility.UrlDecode(headerData.Substring(attributeStartIndex, attributePivotIndex - attributeStartIndex)),
-                Value = HttpUtility.UrlDecode(headerData.Substring(attributePivotIndex + 2, attributeEndIndex - attributePivotIndex - 2)),
+                Key = WebUtility.UrlDecode(headerData.Substring(attributeStartIndex, attributePivotIndex - attributeStartIndex)),
+                Value = WebUtility.UrlDecode(headerData.Substring(attributePivotIndex + 2, attributeEndIndex - attributePivotIndex - 2)),
                 EndIndex = attributeEndIndex,
                 StartIndex = attributeStartIndex,
                 Substring = headerData.Substring(attributeStartIndex, attributeEndIndex - attributeStartIndex + 1)

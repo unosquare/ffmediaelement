@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;net46</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <Version>3.4.1.210</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
@@ -22,6 +22,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <AssemblyVersion>3.4.1.210</AssemblyVersion>
     <FileVersion>3.4.1.210</FileVersion>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
