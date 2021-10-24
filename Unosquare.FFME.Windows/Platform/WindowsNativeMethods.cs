@@ -84,6 +84,16 @@
         }
 
         /// <summary>
+        /// Copies count bytes of src to dest. If the source and destination overlap, the behavior of memcpy is undefined.
+        /// </summary>
+        /// <param name="dest">New buffer.</param>
+        /// <param name="src">Buffer to copy from.</param>
+        /// <param name="count">Number of characters to copy.</param>
+        /// <returns>The value of dest.</returns>
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        private static extern IntPtr memcpy(IntPtr dest, IntPtr src, UIntPtr count);
+
+        /// <summary>
         /// Fast pointer memory block copy function
         /// </summary>
         /// <param name="targetAddress">The target address.</param>
@@ -107,7 +117,7 @@
 
                 case MemoryCopyStartegy.Buffer:
                     {
-                        Buffer.MemoryCopy(sourceAddress.ToPointer(), targetAddress.ToPointer(), copyLength, copyLength);
+                        memcpy(targetAddress, sourceAddress,new UIntPtr(copyLength));
                         break;
                     }
             }
