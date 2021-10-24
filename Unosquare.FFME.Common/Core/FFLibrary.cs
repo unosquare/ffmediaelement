@@ -74,7 +74,7 @@
         /// <summary>
         /// Gets the AVUtil library.
         /// </summary>
-        public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 55, 4);
+        public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 57, 4);
 
         /// <summary>
         /// Gets the SWResample library.
