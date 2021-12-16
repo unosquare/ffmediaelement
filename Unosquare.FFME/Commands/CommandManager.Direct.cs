@@ -81,15 +81,16 @@
         /// <returns>The awaitable task.</returns>
         private Task<bool> ExecuteDirectCommand(DirectCommandType command, Func<bool> commandDeleagte)
         {
+            // 2021-12-16 Moved this out of the lock, to avoid deadlock (#576)
+            if (IsDisposed || IsDisposing)
+            {
+                this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Commanding is disposed or a command is pending completion.");
+                return Task.FromResult(false);
+            }
+
             lock (SyncLock)
             {
                 // Check the basic conditions for a direct command to execute
-                if (IsDisposed || IsDisposing)
-                {
-                    this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Commanding is disposed or a command is pending completion.");
-                    return Task.FromResult(false);
-                }
-
                 if (IsDirectCommandPending || command == DirectCommandType.None)
                 {
                     this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. {PendingDirectCommand} command is pending completion.");
