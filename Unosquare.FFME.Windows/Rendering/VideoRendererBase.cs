@@ -49,7 +49,7 @@
             MediaCore = mediaCore;
 
             // Set the DPI
-            Library.GuiContext.EnqueueInvoke(() =>
+            MediaElement.GuiContext.EnqueueInvoke(() =>
             {
                 var media = MediaElement;
                 if (media != null)

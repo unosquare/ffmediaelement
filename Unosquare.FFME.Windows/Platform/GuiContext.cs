@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Platform
+namespace Unosquare.FFME.Platform
 {
     using System;
     using System.Diagnostics;
@@ -16,29 +16,21 @@
     internal sealed class GuiContext : IGuiContext
     {
         /// <summary>
-        /// Initializes static members of the <see cref="GuiContext"/> class.
+        /// Initializes a new instance of the <see cref="GuiContext"/> class.
         /// </summary>
-        static GuiContext()
-        {
-            Current = new GuiContext();
-        }
-
-        /// <summary>
-        /// Prevents a default instance of the <see cref="GuiContext"/> class from being created.
-        /// </summary>
-        private GuiContext()
+        public GuiContext()
         {
             Thread = Thread.CurrentThread;
             ThreadContext = SynchronizationContext.Current;
 
-            // Try to extract the dispatcher for the application
-            try { GuiDispatcher = Application.Current.Dispatcher; }
+            // Try to extract the dispatcher from the current thread
+            try { GuiDispatcher = Dispatcher.CurrentDispatcher; }
             catch { /* Ignore error as app might not be available or context is not WPF */ }
 
-            // If the above was unsuccessful, try to extract the dispatcher from the current thread.
+            // If the above was unsuccessful, try to extract the dispatcher for the application
             if (GuiDispatcher == null)
             {
-                try { GuiDispatcher = Dispatcher.CurrentDispatcher; }
+                try { GuiDispatcher = Application.Current.Dispatcher; }
                 catch { /* Ignore error as app might not be available or context is not WPF */ }
             }
 
@@ -49,14 +41,7 @@
             IsValid = Type != GuiContextType.None;
         }
 
-        /// <summary>
-        /// Gets the current instance.
-        /// </summary>
-        public static GuiContext Current { get; }
-
-        /// <summary>
-        /// Gets the type of the context.
-        /// </summary>
+        /// <inheritdoc />
         public GuiContextType Type { get; }
 
         /// <summary>

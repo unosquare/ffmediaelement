@@ -161,7 +161,7 @@
             }
 
             // We fire-and-forget the update of the text
-            Library.GuiContext.EnqueueInvoke(() =>
+            MediaElement.GuiContext.EnqueueInvoke(() =>
             {
                 lock (SyncLock)
                 {

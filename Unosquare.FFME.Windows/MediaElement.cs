@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME
+namespace Unosquare.FFME
 {
     using Common;
     using Engine;
@@ -63,9 +63,6 @@
             MediaEngine.FFmpegMessageLogged += (s, message) =>
                 FFmpegMessageLogged?.Invoke(typeof(MediaElement), new MediaLogMessageEventArgs(message));
 
-            // A GUI context must be registered
-            Library.RegisterGuiContext(GuiContext.Current);
-
             // Content property cannot be changed.
             ContentProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(null, OnCoerceContentValue));
 
@@ -86,6 +83,11 @@
 
                 if (!Library.IsInDesignMode)
                 {
+                    GuiContext = new GuiContext();
+
+                    VideoView = new ImageHost(GuiContext.Type == GuiContextType.WPF && Library.EnableWpfMultiThreadedVideo)
+                    { Name = nameof(VideoView) };
+
                     // Setup the media engine and property updates timer
                     MediaCore = new MediaEngine(this, new MediaConnector(this));
                     MediaCore.State.PropertyChanged += (s, e) => PropertyUpdates.Add(e.PropertyName);
@@ -140,11 +142,15 @@
         public RendererOptions RendererOptions { get; } = new RendererOptions();
 
         /// <summary>
+        /// The GUI context used to create this media element.
+        /// </summary>
+        internal IGuiContext GuiContext { get; private set; }
+
+        /// <summary>
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
         /// GUI context, it runs on its own dispatcher (multi-threaded UI).
         /// </summary>
-        internal ImageHost VideoView { get; } = new ImageHost(GuiContext.Current.Type == GuiContextType.WPF && Library.EnableWpfMultiThreadedVideo)
-        { Name = nameof(VideoView) };
+        internal ImageHost VideoView { get; }
 
         /// <summary>
         /// Gets the closed captions view control.

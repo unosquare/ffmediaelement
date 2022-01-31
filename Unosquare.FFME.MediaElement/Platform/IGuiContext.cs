@@ -9,6 +9,11 @@
     internal interface IGuiContext
     {
         /// <summary>
+        /// Gets the type of the context.
+        /// </summary>
+        GuiContextType Type { get; }
+
+        /// <summary>
         /// Invokes a task on the GUI thread with the possibility of awaiting it.
         /// </summary>
         /// <param name="callback">The callback.</param>
