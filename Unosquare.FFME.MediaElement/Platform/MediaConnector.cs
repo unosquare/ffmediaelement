@@ -40,7 +40,7 @@
         {
             if (Parent == null || sender == null) return;
 
-            Library.GuiContext.EnqueueInvoke(async () =>
+            Parent.GuiContext.EnqueueInvoke(async () =>
             {
                 Parent.PostMediaEndedEvent();
                 var behavior = Parent.LoopingBehavior;
@@ -70,7 +70,7 @@
         {
             if (Parent == null || sender == null) return;
 
-            Library.GuiContext.EnqueueInvoke(async () =>
+            Parent.GuiContext.EnqueueInvoke(async () =>
             {
                 // Set initial controller properties
                 // Has to be on the GUI thread as we are reading dependency properties

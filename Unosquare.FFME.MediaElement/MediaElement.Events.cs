@@ -252,7 +252,7 @@
         internal void PostMediaFailedEvent(Exception ex)
         {
             LogEventStart(nameof(MediaFailed));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 MediaFailed?.Invoke(this, new MediaFailedEventArgs(ex));
                 LogEventDone(nameof(MediaFailed));
@@ -267,7 +267,7 @@
         internal void PostMediaOpenedEvent(MediaInfo mediaInfo)
         {
             LogEventStart(nameof(MediaOpened));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 MediaOpened?.Invoke(this, new MediaOpenedEventArgs(mediaInfo));
                 LogEventDone(nameof(MediaOpened));
@@ -281,7 +281,7 @@
         internal void PostMediaReadyEvent()
         {
             LogEventStart(nameof(MediaReady));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 MediaReady?.Invoke(this, EventArgs.Empty);
                 LogEventDone(nameof(MediaReady));
@@ -295,7 +295,7 @@
         internal void PostMediaClosedEvent()
         {
             LogEventStart(nameof(MediaClosed));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 MediaClosed?.Invoke(this, EventArgs.Empty);
                 LogEventDone(nameof(MediaClosed));
@@ -310,7 +310,7 @@
         internal void PostMediaChangedEvent(MediaInfo mediaInfo)
         {
             LogEventStart(nameof(MediaChanged));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 MediaChanged?.Invoke(this, new MediaOpenedEventArgs(mediaInfo));
                 LogEventDone(nameof(MediaChanged));
@@ -326,7 +326,7 @@
         internal void PostPositionChangedEvent(TimeSpan oldValue, TimeSpan newValue)
         {
             // Event logging disabled because this happens too often.
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 PositionChanged?.Invoke(
                     this, new PositionChangedEventArgs(MediaCore.State, oldValue, newValue));
@@ -342,7 +342,7 @@
         internal void PostMediaStateChangedEvent(MediaPlaybackState oldValue, MediaPlaybackState newValue)
         {
             LogEventStart(nameof(MediaStateChanged));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 MediaStateChanged?.Invoke(this, new MediaStateChangedEventArgs(oldValue, newValue));
                 LogEventDone(nameof(MediaStateChanged));
@@ -356,7 +356,7 @@
         internal void PostBufferingStartedEvent()
         {
             LogEventStart(nameof(BufferingStarted));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 BufferingStarted?.Invoke(this, EventArgs.Empty);
                 LogEventDone(nameof(BufferingStarted));
@@ -370,7 +370,7 @@
         internal void PostBufferingEndedEvent()
         {
             LogEventStart(nameof(BufferingEnded));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 BufferingEnded?.Invoke(this, EventArgs.Empty);
                 LogEventDone(nameof(BufferingEnded));
@@ -384,7 +384,7 @@
         internal void PostSeekingStartedEvent()
         {
             LogEventStart(nameof(SeekingStarted));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 SeekingStarted?.Invoke(this, EventArgs.Empty);
                 LogEventDone(nameof(SeekingStarted));
@@ -398,7 +398,7 @@
         internal void PostSeekingEndedEvent()
         {
             LogEventStart(nameof(SeekingEnded));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 SeekingEnded?.Invoke(this, EventArgs.Empty);
                 LogEventDone(nameof(SeekingEnded));
@@ -412,7 +412,7 @@
         internal void PostMediaEndedEvent()
         {
             LogEventStart(nameof(MediaEnded));
-            Library.GuiContext.EnqueueInvoke(() =>
+            GuiContext.EnqueueInvoke(() =>
             {
                 MediaEnded?.Invoke(this, EventArgs.Empty);
                 LogEventDone(nameof(MediaEnded));
