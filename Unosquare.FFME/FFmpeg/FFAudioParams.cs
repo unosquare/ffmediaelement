@@ -30,7 +30,9 @@
         /// </summary>
         static FFAudioParams()
         {
-            Output.ChannelLayout = ffmpeg.av_get_default_channel_layout(Output.ChannelCount);
+            AVChannelLayout channelLayout = default;
+            ffmpeg.av_channel_layout_default(&channelLayout, Output.ChannelCount);
+            Output.ChannelLayout = channelLayout;
             Output.SamplesPerChannel = Output.SampleRate;
             Output.BufferLength = ffmpeg.av_samples_get_buffer_size(
                 null, Output.ChannelCount, Output.SamplesPerChannel + Constants.AudioBufferPadding, Output.Format, 1);
@@ -50,8 +52,8 @@
         /// <param name="frame">The frame.</param>
         private FFAudioParams(AVFrame* frame)
         {
-            ChannelCount = frame->channels;
-            ChannelLayout = unchecked((long)frame->channel_layout);
+            ChannelCount = frame->ch_layout.nb_channels;
+            ChannelLayout = frame->ch_layout;
             Format = (AVSampleFormat)frame->format;
             SamplesPerChannel = frame->nb_samples;
             BufferLength = ffmpeg.av_samples_get_buffer_size(null, ChannelCount, SamplesPerChannel, Format, 1);
@@ -70,7 +72,7 @@
         /// <summary>
         /// Gets the channel layout.
         /// </summary>
-        public long ChannelLayout { get; private set; }
+        public AVChannelLayout ChannelLayout { get; private set; }
 
         /// <summary>
         /// Gets the samples per channel.
@@ -105,8 +107,12 @@
         internal static FFAudioParams CreateSource(AVFrame* frame)
         {
             var spec = new FFAudioParams(frame);
-            if (spec.ChannelLayout == 0)
-                spec.ChannelLayout = ffmpeg.av_get_default_channel_layout(spec.ChannelCount);
+            if (spec.ChannelLayout.u.mask == 0)
+            {
+                AVChannelLayout channelLayout = default;
+                ffmpeg.av_channel_layout_default(&channelLayout, spec.ChannelCount);
+                spec.ChannelLayout = channelLayout;
+            }
 
             return spec;
         }
@@ -145,7 +151,7 @@
         {
             if (a.Format != b.Format) return false;
             if (a.ChannelCount != b.ChannelCount) return false;
-            if (a.ChannelLayout != b.ChannelLayout) return false;
+            if (a.ChannelLayout.u.mask != b.ChannelLayout.u.mask) return false;
             return a.SampleRate == b.SampleRate;
         }
 

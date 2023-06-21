@@ -1,8 +1,9 @@
 ﻿namespace FFmpeg.AutoGen
 {
-    using FFmpeg.AutoGen.Native;
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Defines FFmpeg library metadata and access.
@@ -65,42 +66,42 @@
         /// <summary>
         /// Gets the AVCodec library.
         /// </summary>
-        public static FFLibrary LibAVCodec { get; } = new FFLibrary(Names.AVCodec, 58, 1);
+        public static FFLibrary LibAVCodec { get; } = new FFLibrary(Names.AVCodec, 59, 1);
 
         /// <summary>
         /// Gets the AVFormat library.
         /// </summary>
-        public static FFLibrary LibAVFormat { get; } = new FFLibrary(Names.AVFormat, 58, 2);
+        public static FFLibrary LibAVFormat { get; } = new FFLibrary(Names.AVFormat, 59, 2);
 
         /// <summary>
         /// Gets the AVUtil library.
         /// </summary>
-        public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 56, 4);
+        public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 57, 4);
 
         /// <summary>
         /// Gets the SW Resample library.
         /// </summary>
-        public static FFLibrary LibSWResample { get; } = new FFLibrary(Names.SWResample, 3, 8);
+        public static FFLibrary LibSWResample { get; } = new FFLibrary(Names.SWResample, 4, 8);
 
         /// <summary>
         /// Gets the SWScale library.
         /// </summary>
-        public static FFLibrary LibSWScale { get; } = new FFLibrary(Names.SWScale, 5, 16);
+        public static FFLibrary LibSWScale { get; } = new FFLibrary(Names.SWScale, 6, 16);
 
         /// <summary>
         /// Gets the AVDevice library.
         /// </summary>
-        public static FFLibrary LibAVDevice { get; } = new FFLibrary(Names.AVDevice, 58, 32);
+        public static FFLibrary LibAVDevice { get; } = new FFLibrary(Names.AVDevice, 59, 32);
 
         /// <summary>
         /// Gets the Post-processing library.
         /// </summary>
-        public static FFLibrary LibPostProc { get; } = new FFLibrary(Names.PostProc, 55, 64);
+        public static FFLibrary LibPostProc { get; } = new FFLibrary(Names.PostProc, 56, 64);
 
         /// <summary>
         /// Gets the AVFilter library.
         /// </summary>
-        public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 7, 128);
+        public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 8, 128);
 
         #endregion
 
@@ -158,9 +159,7 @@
                 if (Reference != IntPtr.Zero)
                     return true;
 
-                var result = LibraryLoader.LoadNativeLibrary(ffmpeg.RootPath, Name, Version);
-
-                if (result == IntPtr.Zero)
+                if (!NativeLibrary.TryLoad(Path.Combine(ffmpeg.RootPath, $"{Name}-{Version}.dll"), out var result))
                     return false;
 
                 Reference = result;

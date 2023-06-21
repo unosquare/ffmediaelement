@@ -47,7 +47,7 @@
         internal AudioComponent(MediaContainer container, int streamIndex)
             : base(container, streamIndex)
         {
-            Channels = CodecContext->channels;
+            Channels = CodecContext->ch_layout.nb_channels;
             SampleRate = CodecContext->sample_rate;
             BitsPerSample = ffmpeg.av_samples_get_buffer_size(null, 1, 1, CodecContext->sample_fmt, 1) * 8;
         }
@@ -98,16 +98,21 @@
             // Initialize or update the audio scaler if required
             if (Scaler == null || LastSourceSpec == null || FFAudioParams.AreCompatible(LastSourceSpec, sourceSpec) == false)
             {
-                Scaler = ffmpeg.swr_alloc_set_opts(
-                    Scaler,
-                    targetSpec.ChannelLayout,
+                SwrContext* scaler;
+                var outChannelLayout = targetSpec.ChannelLayout;
+                var inChannelLayout = sourceSpec.ChannelLayout;
+
+                ffmpeg.swr_alloc_set_opts2(
+                    &scaler,
+                    &outChannelLayout,
                     targetSpec.Format,
                     targetSpec.SampleRate,
-                    sourceSpec.ChannelLayout,
+                    &inChannelLayout,
                     sourceSpec.Format,
                     sourceSpec.SampleRate,
                     0,
                     null);
+                Scaler = scaler;
 
                 RC.Current.Add(Scaler);
                 ffmpeg.swr_init(Scaler);
@@ -177,7 +182,7 @@
         {
             // Validate the audio frame
             var frame = (AVFrame*)framePointer;
-            if (framePointer == IntPtr.Zero || frame->channels <= 0 || frame->nb_samples <= 0 || frame->sample_rate <= 0)
+            if (framePointer == IntPtr.Zero || frame->ch_layout.nb_channels <= 0 || frame->nb_samples <= 0 || frame->sample_rate <= 0)
                 return null;
 
             // Init the filter graph for the frame
@@ -278,7 +283,7 @@
         private string ComputeFilterArguments(AVFrame* frame)
         {
             var hexChannelLayout = BitConverter.ToString(
-                BitConverter.GetBytes(frame->channel_layout).Reverse().ToArray()).ReplaceOrdinal("-", string.Empty);
+                BitConverter.GetBytes(frame->ch_layout.nb_channels).Reverse().ToArray()).ReplaceOrdinal("-", string.Empty);
 
             var channelLayout = $"0x{hexChannelLayout}";
 
