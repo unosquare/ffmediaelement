@@ -12,8 +12,8 @@ namespace Unosquare.FFME.Commands
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Provides the MediEngine with an API to execute media control commands.
-    /// Direct Commands execute immediately (Open, CLose, Change)
+    /// Provides the MediaEngine with an API to execute media control commands.
+    /// Direct Commands execute immediately (Open, Close, Change)
     /// Priority Commands execute in the queue but before anything else and are exclusive (Play, Pause, Stop)
     /// Seek commands are queued and replaced. These are processed in a deferred manner by this worker.
     /// </summary>

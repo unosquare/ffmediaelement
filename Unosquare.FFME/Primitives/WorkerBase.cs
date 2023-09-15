@@ -101,11 +101,11 @@
         /// <inheritdoc />
         public Task<WorkerState> PauseAsync()
         {
+            // 2021-12-16 Moved this outside of the sync block, to avoid deadlock (#576)
+            if (IsDisposed || IsDisposing)
+                return Task.FromResult(WorkerState);
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing)
-                    return Task.FromResult(WorkerState);
-
                 if (WorkerState != WorkerState.Running)
                     return Task.FromResult(WorkerState);
 
