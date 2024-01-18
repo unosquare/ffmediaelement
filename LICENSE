@@ -118,7 +118,7 @@ and non-infringement.
 SoundTouch audio processing library (SoundTouch.cs)
 =================================================================================================
 File SoundTouch.cs was modified to include comments, remove notices and set a more 
-concise namespace. The file was supplied to the auther as an enhancement and now are part of the
+concise namespace. The file was supplied to the author as an enhancement and now are part of the
 wrapper offered in the SoundTouch website.
 
 Copyright (c) Olli Parviainen
