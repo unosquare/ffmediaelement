@@ -23,19 +23,69 @@
 
 ## Quick Usage Guide for WPF Apps
 
-Here is a quick guide on how to get started.
-1. Open Visual Studio (v2019 preview recommended), and create a new WPF Application. Target Framework must be 5.0 or above.
-2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
-3. You need FFmpeg **shared** binaries (64 or 32 bit, depending on your app's target architecture). Build your own or download a compatible build from [FFmpeg Windows Downloads](https://ffmpeg.org/download.html).
-4. Your FFmpeg build should have a `bin` folder with 3 exe files and some dll files. Copy all those files to a folder such as `c:\ffmpeg`
-5. Within you application's startup code (`Main` method), set `Unosquare.FFME.Library.FFmpegDirectory = @"c:\ffmpeg";`.
-6. Use the FFME `MediaElement` control as any other WPF control.
-For example: In your `MainForm.xaml`, add the namespace: `xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"` and then add the FFME control your window's XAML: `<ffme:MediaElement x:Name="Media" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />` 
-7. To play files or streams, simply call the asynchronous method `Open`: `await Media.Open(new Uri(@"c:\your-file-here"));`. Conversely you close the media by calling `await Media.Close();`
+### Get Started
 
-Note: To build your own FFmpeg binaries, I recommend the [Media Autobuild Suite](https://github.com/jb-alvarado/media-autobuild_suite) but please don't ask for help on it here.
+1. Open Visual Studio and create a new WPF Application.
+   
+   **Target Framework must be set to .net 5.0 or above**
+   
+2. Install the NuGet Package from your Package Manager Console: 
+   ```bash
+   PM> Install-Package FFME.Windows
+3. Acquire the FFmpeg shared binaries (either 64 or 32 bit, depending on your app's target architecture)
+   
+   *by either*
+   
+* Building your own
+  
+    I recommend the [Media Autobuild Suite](https://github.com/jb-alvarado/media-autobuild_suite)  _please don't ask for help on it here._
 
-### Additional Usage Notes
+  *or*
+* Downloading a compatible build 
+
+  For a x64 build 
+  * the **dlls** are located here, [4.4 x64](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n4.4-latest-win64-gpl-shared-4.4.zip),
+  * and the **exes** and **dlls** here, [5.1 x64](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n5.1-latest-win64-gpl-shared-5.1.zip)
+
+   combine the contents of the bin folder of both downloaded folders into a separate folder e.g `c:\ffmpeg`.
+ 
+   *The resulting contents of the folder e.g `c:\ffmpeg` should be so*
+     - avcodec-59.dll
+     - avdevice-59.dll
+     - avfilter-8.dll
+     - avformat-59.dll
+     - avutil-58.dll
+     - ffmpeg.exe
+     - ffplay.exe
+     - ffprobe.exe
+     - swresample-4.dll
+     - swscale-6.dll
+     
+4. Within your application's startup code (Main method)
+   
+   set the _Unosquare.FFME.Library.FFmpegDirectory_ variable to the path of the folder where the DLLs and EXEs are located, e.g.
+
+  ```Unosquare.FFME.Library.FFmpegDirectory = @"c:\ffmpeg";```
+  
+  And use the FFME MediaElement control as you would any other WPF control.
+
+### Example 
+in your main window (e.g MainWindow.xaml)
+
+* Add the namespace:
+```xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"```
+
+* Add the FFME control:
+```<ffme:MediaElement x:Name="Media" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />```
+
+* Play files or streams, by calling the asynchronous method, Open:
+```await Media.Open(new Uri(@"c:\your-file-here"));```
+
+* Close the media, by calling:
+```await Media.Close();```
+
+
+#### Additional Usage Notes
 - Remember: The `Unosquare.FFME.Windows.Sample` provides usage examples for plenty of features. Use it as your main reference.
 - The generated API documentation is available [here](http://unosquare.github.io/ffmediaelement/api/Unosquare.FFME.html)
 
