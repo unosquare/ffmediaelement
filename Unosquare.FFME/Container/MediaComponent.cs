@@ -158,12 +158,6 @@
                             .ToString(CultureInfo.InvariantCulture);
                         decoderOptions.LowResIndexOption = lowResOption;
                     }
-
-                    // Ensure ref counted frames for audio and video decoding (obsolete)
-                    // if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
-                    //    decoderOptions.RefCountedFrames = "1";
-
-                    // av_dict_set(&opts, "flags", "+copy_opaque", AV_DICT_MULTIKEY);
                 }
 
                 // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
@@ -178,8 +172,7 @@
                 // Open the CodecContext. This requires exclusive FFmpeg access
                 lock (CodecLock)
                 {
-                    var emptyDictionary = new FFDictionary();
-                    var codecOptionsRef = emptyDictionary.Pointer; // codecOptions.Pointer;
+                    var codecOptionsRef = codecOptions.Pointer;
                     codecOpenResult = ffmpeg.avcodec_open2((AVCodecContext*)m_CodecContext, codec, &codecOptionsRef);
                     codecOptions.UpdateReference(codecOptionsRef);
                 }

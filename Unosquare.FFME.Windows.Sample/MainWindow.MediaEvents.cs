@@ -291,9 +291,9 @@
                         var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
                         if (accelerator == null) continue;
 
-                        // TODO: Does not seem to be working with FFMpeg 7x
-                        // if (Debugger.IsAttached)
-                        //    e.Options.VideoHardwareDevice = accelerator;
+                        if (Debugger.IsAttached)
+                            e.Options.VideoHardwareDevice = accelerator;
+
                         break;
                     }
                 }

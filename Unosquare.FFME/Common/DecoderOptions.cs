@@ -17,7 +17,7 @@
         /// </summary>
         internal DecoderOptions()
         {
-            Threads = "auto";
+            // Threads = "auto";
         }
 
         /// <summary>
@@ -112,13 +112,16 @@
         internal FFDictionary GetStreamCodecOptions(int streamIndex)
         {
             var result = new Dictionary<string, string>(GlobalOptions);
-            if (!PrivateOptions.ContainsKey(streamIndex))
-                return new FFDictionary(result);
 
-            foreach (var kvp in PrivateOptions[streamIndex])
-                result[kvp.Key] = kvp.Value;
+            if (PrivateOptions.ContainsKey(streamIndex))
+            {
+                foreach (var kvp in PrivateOptions[streamIndex])
+                    result[kvp.Key] = kvp.Value;
+            }
 
-            return new FFDictionary(result);
+            var dict = new FFDictionary(result);
+            dict.SetCopyOpaque();
+            return dict;
         }
 
         /// <summary>
