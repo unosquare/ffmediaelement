@@ -125,7 +125,9 @@
         /// <inheritdoc />
         public int CompareTo(MediaFrame other)
         {
-            ArgumentNullException.ThrowIfNull(other);
+            if (other is null)
+                throw new ArgumentNullException(nameof(other));
+
             return StartTime.Ticks.CompareTo(other.StartTime.Ticks);
         }
 

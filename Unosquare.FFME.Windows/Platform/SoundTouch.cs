@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 /// Settings getters and setters as indexers
 /// Implemented Dispose pattern correctly.
 /// </summary>
-internal sealed partial class SoundTouch : IDisposable
+internal sealed class SoundTouch : IDisposable
 {
     #region Private Members
 
@@ -41,9 +41,9 @@ internal sealed partial class SoundTouch : IDisposable
         try
         {
             // Include the ffmpeg directory in the search path
-            var searchPath = Path.Combine(Library.FFmpegDirectory, SoundTouchLibrary);
+            var loadResult = NativeMethods.LoadLibrary(
+                Path.Combine(Library.FFmpegDirectory, SoundTouchLibrary));
 
-            NativeLibrary.TryLoad(searchPath, out var loadResult);
             if (loadResult == IntPtr.Zero)
             {
                 IsAvailable = false;
@@ -464,79 +464,82 @@ internal sealed partial class SoundTouch : IDisposable
     /// <summary>
     /// Provides direct access to mapped DLL methods.
     /// </summary>
-    private static partial class NativeMethods
+    private static class NativeMethods
     {
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_getVersionId")]
-        public static partial int GetVersionId();
+        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
+        public static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPWStr)] string lpFileName);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_createInstance")]
-        public static partial IntPtr CreateInstance();
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_getVersionId")]
+        public static extern int GetVersionId();
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_destroyInstance")]
-        public static partial void DestroyInstance(IntPtr h);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_createInstance")]
+        public static extern IntPtr CreateInstance();
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_getVersionString")]
-        public static partial IntPtr GetVersionString();
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_destroyInstance")]
+        public static extern void DestroyInstance(IntPtr h);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setRate")]
-        public static partial void SetRate(IntPtr h, float newRate);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_getVersionString")]
+        public static extern IntPtr GetVersionString();
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setTempo")]
-        public static partial void SetTempo(IntPtr h, float newTempo);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setRate")]
+        public static extern void SetRate(IntPtr h, float newRate);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setRateChange")]
-        public static partial void SetRateChange(IntPtr h, float newRate);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setTempo")]
+        public static extern void SetTempo(IntPtr h, float newTempo);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setTempoChange")]
-        public static partial void SetTempoChange(IntPtr h, float newTempo);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setRateChange")]
+        public static extern void SetRateChange(IntPtr h, float newRate);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setPitch")]
-        public static partial void SetPitch(IntPtr h, float newPitch);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setTempoChange")]
+        public static extern void SetTempoChange(IntPtr h, float newTempo);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setPitchOctaves")]
-        public static partial void SetPitchOctaves(IntPtr h, float newPitch);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setPitch")]
+        public static extern void SetPitch(IntPtr h, float newPitch);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setPitchSemiTones")]
-        public static partial void SetPitchSemiTones(IntPtr h, float newPitch);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setPitchOctaves")]
+        public static extern void SetPitchOctaves(IntPtr h, float newPitch);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setChannels")]
-        public static partial void SetChannels(IntPtr h, uint numChannels);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setPitchSemiTones")]
+        public static extern void SetPitchSemiTones(IntPtr h, float newPitch);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setSampleRate")]
-        public static partial void SetSampleRate(IntPtr h, uint sampleRate);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setChannels")]
+        public static extern void SetChannels(IntPtr h, uint numChannels);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_flush")]
-        public static partial void Flush(IntPtr h);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setSampleRate")]
+        public static extern void SetSampleRate(IntPtr h, uint sampleRate);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_putSamples")]
-        public static partial void PutSamples(IntPtr h, [In] float[] samples, uint numSamples);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_flush")]
+        public static extern void Flush(IntPtr h);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_putSamples_i16")]
-        public static partial void PutSamples_i16(IntPtr h, [In] short[] samples, uint numSamples);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_putSamples")]
+        public static extern void PutSamples(IntPtr h, float[] samples, uint numSamples);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_clear")]
-        public static partial void Clear(IntPtr h);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_putSamples_i16")]
+        public static extern void PutSamples_i16(IntPtr h, short[] samples, uint numSamples);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_setSetting")]
-        public static partial int SetSetting(IntPtr h, int settingId, int value);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_clear")]
+        public static extern void Clear(IntPtr h);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_getSetting")]
-        public static partial int GetSetting(IntPtr h, int settingId);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setSetting")]
+        public static extern int SetSetting(IntPtr h, int settingId, int value);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_numUnprocessedSamples")]
-        public static partial uint NumUnprocessedSamples(IntPtr h);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_getSetting")]
+        public static extern int GetSetting(IntPtr h, int settingId);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_receiveSamples")]
-        public static partial uint ReceiveSamples(IntPtr h, [Out] float[] outBuffer, uint maxSamples);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_numUnprocessedSamples")]
+        public static extern uint NumUnprocessedSamples(IntPtr h);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_receiveSamples_i16")]
-        public static partial uint ReceiveSamples_i16(IntPtr h, [Out] short[] outBuffer, uint maxSamples);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_receiveSamples")]
+        public static extern uint ReceiveSamples(IntPtr h, float[] outBuffer, uint maxSamples);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_numSamples")]
-        public static partial uint NumSamples(IntPtr h);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_receiveSamples_i16")]
+        public static extern uint ReceiveSamples_i16(IntPtr h, short[] outBuffer, uint maxSamples);
 
-        [LibraryImport(SoundTouchLibrary, EntryPoint = "soundtouch_isEmpty")]
-        public static partial int IsEmpty(IntPtr h);
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_numSamples")]
+        public static extern uint NumSamples(IntPtr h);
+
+        [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_isEmpty")]
+        public static extern int IsEmpty(IntPtr h);
     }
 
     #endregion

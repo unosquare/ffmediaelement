@@ -228,7 +228,7 @@ internal static unsafe class FFInterop
             if (FFmpegLogLevels.ContainsKey(level))
                 messageType = FFmpegLogLevels[level];
 
-            if (!line.EndsWith('\n')) return;
+            if (!line.EndsWith("\n")) return;
             line = string.Join(string.Empty, FFmpegLogBuffer);
             line = line.TrimEnd();
             FFmpegLogBuffer.Clear();
