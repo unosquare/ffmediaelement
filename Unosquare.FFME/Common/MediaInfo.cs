@@ -140,9 +140,9 @@
                     PixelHeight = codecContext->height,
                     HasClosedCaptions = (codecContext->properties & ffmpeg.FF_CODEC_PROPERTY_CLOSED_CAPTIONS) != 0,
                     IsLossless = (codecContext->properties & ffmpeg.FF_CODEC_PROPERTY_LOSSLESS) != 0,
-                    Channels = codecContext->channels,
+                    Channels = codecContext->ch_layout.nb_channels,
                     BitRate = bitsPerSample > 0 ?
-                        bitsPerSample * codecContext->channels * codecContext->sample_rate :
+                        bitsPerSample * codecContext->ch_layout.nb_channels * codecContext->sample_rate :
                         codecContext->bit_rate,
                     MaxBitRate = codecContext->rc_max_rate,
                     InfoFrameCount = (int)s->nb_frames,

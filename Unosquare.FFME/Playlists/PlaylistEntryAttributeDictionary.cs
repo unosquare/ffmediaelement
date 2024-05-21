@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Serialization;
     using System.Web;
 
     /// <summary>
@@ -16,17 +15,6 @@
         /// </summary>
         public PlaylistEntryAttributeDictionary()
             : base(16)
-        {
-            // placeholder
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PlaylistEntryAttributeDictionary"/> class.
-        /// </summary>
-        /// <param name="info">The serialization info.</param>
-        /// <param name="context">The streaming context.</param>
-        protected PlaylistEntryAttributeDictionary(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
             // placeholder
         }

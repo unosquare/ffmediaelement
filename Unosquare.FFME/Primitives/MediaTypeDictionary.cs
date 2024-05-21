@@ -3,7 +3,6 @@
     using Common;
     using System;
     using System.Collections.Generic;
-    using System.Runtime.Serialization;
 
     /// <summary>
     /// Represents a very simple dictionary for MediaType keys.
@@ -18,12 +17,6 @@
         /// </summary>
         public MediaTypeDictionary()
             : base(Enum.GetValues(typeof(MediaType)).Length)
-        {
-            // placeholder
-        }
-
-        private MediaTypeDictionary(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
             // placeholder
         }

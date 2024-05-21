@@ -4,7 +4,6 @@
     using Container;
     using Diagnostics;
     using Engine;
-    using FFmpeg.AutoGen;
     using Primitives;
     using System;
     using System.Collections.Generic;
@@ -291,16 +290,18 @@
                 {
                     // Log an init message
                     this.LogInfo(Aspects.EngineCommand,
-                        $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{Library.FFmpegVersionInfo}");
+                        $"{nameof(Library)}.{nameof(Library.LoadFFmpeg)}: FFmpeg v{Library.FFmpegVersionInfo}");
                 }
 
                 // Create a default stream container configuration object
                 var containerConfig = new ContainerConfiguration();
 
                 // Convert the URI object to something the Media Container understands (Uri to String)
+#pragma warning disable SYSLIB0013 // Type or member is obsolete
                 var mediaSource = source.IsWellFormedOriginalString()
                     ? source.OriginalString
                     : Uri.EscapeUriString(source.OriginalString);
+#pragma warning restore SYSLIB0013 // Type or member is obsolete
 
                 // When opening via URL (and not via custom input stream), fix up the protocols and stuff
                 if (inputStream == null)
@@ -513,8 +514,8 @@
         private MediaType[] GetCurrentRenderingTypes()
         {
             var currentMediaTypes = new List<MediaType>(8);
-            currentMediaTypes.AddRange(MediaCore?.Renderers?.Keys?.ToArray() ?? Array.Empty<MediaType>());
-            currentMediaTypes.AddRange(MediaCore?.Blocks?.Keys?.ToArray() ?? Array.Empty<MediaType>());
+            currentMediaTypes.AddRange(MediaCore?.Renderers?.Keys?.ToArray() ?? []);
+            currentMediaTypes.AddRange(MediaCore?.Blocks?.Keys?.ToArray() ?? []);
 
             return currentMediaTypes.Distinct().ToArray();
         }
@@ -525,9 +526,9 @@
             var oldMediaTypes = GetCurrentRenderingTypes();
 
             // We always remove the audio renderer in case there is a change in audio device.
-            if (MediaCore.Renderers.ContainsKey(MediaType.Audio))
+            if (MediaCore.Renderers.TryGetValue(MediaType.Audio, out Platform.IMediaRenderer renderer))
             {
-                MediaCore.Renderers[MediaType.Audio].OnClose();
+                renderer.OnClose();
                 MediaCore.Renderers.Remove(MediaType.Audio);
             }
 

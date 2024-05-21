@@ -217,6 +217,17 @@
         }
 
         /// <summary>
+        /// Sets copy opaque.
+        /// av_dict_set(&amp;opts, "flags", "+copy_opaque", AV_DICT_MULTIKEY).
+        /// </summary>
+        public void SetCopyOpaque()
+        {
+            var reference = Pointer;
+            ffmpeg.av_dict_set(&reference, "flags", "+copy_opaque", ffmpeg.AV_DICT_MULTIKEY);
+            m_Pointer = new IntPtr(reference);
+        }
+
+        /// <summary>
         /// Removes the entry with the specified key.
         /// </summary>
         /// <param name="key">The key.</param>

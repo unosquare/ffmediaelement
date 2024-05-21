@@ -10,7 +10,7 @@
     /// <seealso cref="MediaComponent" />
     internal sealed unsafe class SubtitleComponent : MediaComponent
     {
-        private static readonly char[] SeparatorChars = { ',' };
+        private static readonly char[] SeparatorChars = [','];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleComponent"/> class.
@@ -83,10 +83,6 @@
                 }
             }
 
-            // TODO: CompressedSize is just an estimate.
-            // It would be better if we counted chars in all text lines.
-            target.CompressedSize = source.CompressedSize;
-
             return true;
         }
 
@@ -140,7 +136,7 @@
             if (inputParts.Length != 10)
                 return string.Empty;
 
-            var normalizedInput = inputParts[inputParts.Length - 1]
+            var normalizedInput = inputParts[^1]
                 .ReplaceOrdinal("\\n", " ")
                 .ReplaceOrdinal("\\N", "\r\n");
 

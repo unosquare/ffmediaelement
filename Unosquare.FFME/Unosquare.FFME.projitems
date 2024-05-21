@@ -25,10 +25,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\CommandManager.Priority.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\CommandManager.Seek.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFAudioParams.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ffmpeg\FFBPrint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFDictionaryEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFInterop.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFLibrary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\RC.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Library.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntry.cs" />
@@ -61,7 +61,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\VerticalSyncContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFmpegLoadMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\HardwareDeviceInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\ILoggingHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\ILoggingSource.cs" />

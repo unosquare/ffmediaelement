@@ -14,7 +14,7 @@
     {
         #region Private Members
 
-        private readonly object DisposeLock = new object();
+        private readonly object DisposeLock = new();
         private bool IsDisposed;
 
         #endregion
@@ -33,9 +33,9 @@
             var frameTimeBase = new AVRational { num = frameRate.den, den = frameRate.num };
             var repeatFactor = 1d + (0.5d * frame->repeat_pict);
 
-            Duration = frame->pkt_duration <= 0 ?
+            Duration = frame->duration <= 0 ?
                 repeatFactor.ToTimeSpan(frameTimeBase) :
-                Convert.ToInt64(repeatFactor * frame->pkt_duration).ToTimeSpan(StreamTimeBase);
+                Convert.ToInt64(repeatFactor * frame->duration).ToTimeSpan(StreamTimeBase);
 
             // for video frames, we always get the best effort timestamp as dts and pts might
             // contain different times.
@@ -56,11 +56,12 @@
 
             // Picture Type, Number and SMTPE TimeCode
             PictureType = frame->pict_type;
-            DisplayPictureNumber = frame->display_picture_number == 0 ?
-                Utilities.ComputePictureNumber(component.StartTime, StartTime, frameRate) :
-                frame->display_picture_number;
+            DisplayPictureNumber = Utilities.ComputePictureNumber(component.StartTime, StartTime, frameRate);
 
-            CodedPictureNumber = frame->coded_picture_number;
+            // frame->display_picture_number == 0 ?
+            // Utilities.ComputePictureNumber(component.StartTime, StartTime, frameRate) :
+            // frame->display_picture_number;
+            CodedPictureNumber = DisplayPictureNumber; // frame->coded_picture_number;
             SmtpeTimeCode = Utilities.ComputeSmtpeTimeCode(DisplayPictureNumber, frameRate);
             IsHardwareFrame = component.IsUsingHardwareDecoding;
             HardwareAcceleratorName = component.HardwareAccelerator?.Name;

@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Common
 {
     using System;
-    using System.Runtime.Serialization;
 
     /// <inheritdoc cref="Exception"/>
     /// <summary>
@@ -38,17 +37,6 @@
         public MediaContainerException(string message, Exception innerException)
             : base(message, innerException)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MediaContainerException"/> class.
-        /// </summary>
-        /// <param name="info">The serialization info.</param>
-        /// <param name="context">The streaming context.</param>
-        protected MediaContainerException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            // placholder
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using FFmpeg.AutoGen;
     using System;
     using System.ComponentModel;
     using System.IO;
@@ -22,12 +21,6 @@
             // You can get the 64-bit binaries here: https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z
             Library.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
 
-            // You can pick which FFmpeg binaries are loaded. See issue #28
-            // For more specific control (issue #414) you can set Library.FFmpegLoadModeFlags to:
-            // FFmpegLoadMode.LibraryFlags["avcodec"] | FFmpegLoadMode.LibraryFlags["avfilter"] | ... etc.
-            // Full Features is already the default.
-            Library.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
-
             // Multi-threaded video enables the creation of independent
             // dispatcher threads to render video frames. This is an experimental feature
             // and might become deprecated in the future as no real performance enhancements
@@ -43,7 +36,7 @@
         /// <summary>
         /// Determines if the Application is in design mode.
         /// </summary>
-        public static bool IsInDesignMode => !(Current is App) ||
+        public static bool IsInDesignMode => Current is not App ||
             (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue;
 
         /// <summary>
