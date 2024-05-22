@@ -31,16 +31,16 @@
     <RepositoryType>GitHub</RepositoryType>
     <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
 
-    <Version>7.0.360</Version>
-    <AssemblyVersion>7.0.360.0</AssemblyVersion>
-    <FileVersion>7.0.360.0</FileVersion>
+    <Version>7.0.360-beta.1</Version>
+    <AssemblyVersion>7.0.360.1</AssemblyVersion>
+    <FileVersion>7.0.360.1</FileVersion>
     <LangVersion>preview</LangVersion>
 
     <Authors>Mario Di Vece, and Contributors to the FFME project</Authors>
     <Company>Unosquare SA de CV</Company>
     <Product>Unosquare FFME Reference Media Player</Product>
     <Description>Reference implementation of a media player using the FFME</Description>
-    <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2015-2020</Copyright>
+    <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2015-2024</Copyright>
     <PackageProjectUrl>https://github.com/unosquare/ffmediaelement</PackageProjectUrl>
     <ApplicationIcon>ffmpeg.ico</ApplicationIcon>
   </PropertyGroup>

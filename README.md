@@ -13,9 +13,9 @@
 
 ## Status Updates
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2021-06-05) - Release 4.4.350 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2024-05-21) - BETA 1 Release 7.0.360.1 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: <a href="https://ffmpeg.org/download.html">4.4</a> -- Make sure you download one built as a SHARED library and for your right architecture (typically x64)
+- FFmpeg Version: <a href="https://ffmpeg.org/download.html">7.0</a> -- Make sure you download one built as a SHARED library and for your right architecture (typically x64)
 - BREAKING CHANGE: Starting realease 4.1.320 the `Source` dependency property has been downgraded to a notification property. Please use the asynchronous `Open` and `Close` methods instead.
 - I have been learning a ton while writing this project. You can find my latest video and rendering experiments <a href="https://github.com/mariodivece/ffplaysharp">here (if you are curious)</a>
 
@@ -44,12 +44,10 @@
 * Downloading a compatible build 
 
   For a x64 build 
-  * the **dlls** are located here, [4.4 x64](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n4.4-latest-win64-gpl-shared-4.4.zip),
-  * and the **exes** and **dlls** here, [5.1 x64](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n5.1-latest-win64-gpl-shared-5.1.zip)
-
-   combine the contents of the bin folder of both downloaded folders into a separate folder e.g `c:\ffmpeg`.
+  * the **dlls** are located here, [7.0 x64](https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z),
+   combine the contents of the `bin` folder of both downloaded folders into a separate folder e.g `c:\ffmpeg\x64`.
  
-   *The resulting contents of the folder e.g `c:\ffmpeg` should be so*
+   *The resulting contents of the folder e.g `c:\ffmpeg\x64` should be so*
      - avcodec-59.dll
      - avdevice-59.dll
      - avfilter-8.dll
