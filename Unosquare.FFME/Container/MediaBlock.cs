@@ -16,9 +16,9 @@
     internal abstract class MediaBlock
         : IComparable<MediaBlock>, IComparable<TimeSpan>, IComparable<long>, IEquatable<MediaBlock>, IDisposable
     {
-        private readonly object SyncLock = new object();
+        private readonly object SyncLock = new();
         private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
-        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsDisposed = new(false);
         private IntPtr m_Buffer = IntPtr.Zero;
         private int m_BufferLength;
 

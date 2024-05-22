@@ -83,11 +83,8 @@ internal sealed unsafe class AudioComponent : MediaComponent
     public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, MediaBlock previousBlock)
     {
         if (output == null) output = new AudioBlock();
-        if (input is AudioFrame == false || output is AudioBlock == false)
+        if (input is not AudioFrame source || output is not AudioBlock target)
             throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
-
-        var source = (AudioFrame)input;
-        var target = (AudioBlock)output;
 
         // Create the source and target audio specs. We might need to scale from
         // the source to the target
@@ -95,7 +92,7 @@ internal sealed unsafe class AudioComponent : MediaComponent
         var targetSpec = FFAudioParams.CreateTarget(source.Pointer);
 
         // Initialize or update the audio scaler if required
-        if (Scaler == null || LastSourceSpec == null || FFAudioParams.AreCompatible(LastSourceSpec, sourceSpec) == false)
+        if (Scaler == null || LastSourceSpec == null || !FFAudioParams.AreCompatible(LastSourceSpec, sourceSpec))
         {
             fixed (SwrContext** scalerPointer = &Scaler)
             {
@@ -168,6 +165,7 @@ internal sealed unsafe class AudioComponent : MediaComponent
             target.EndTime = source.EndTime;
         }
 
+        target.CompressedSize = source.CompressedSize;
         target.SamplesBufferLength = outputBufferLength;
         target.ChannelCount = targetSpec.ChannelCount;
 

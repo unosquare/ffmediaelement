@@ -25,6 +25,10 @@
         protected MediaFrame(AVFrame* pointer, MediaComponent component, MediaType mediaType)
             : this((void*)pointer, component, mediaType)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
+            var packetSize = pointer->pkt_size;
+#pragma warning restore CS0618 // Type or member is obsolete
+            CompressedSize = packetSize > 0 ? packetSize : 0;
             PresentationTime = pointer->pts;
             DecodingTime = pointer->pkt_dts;
         }
@@ -37,6 +41,8 @@
         protected MediaFrame(AVSubtitle* pointer, MediaComponent component)
             : this(pointer, component, MediaType.Subtitle)
         {
+            // TODO: Compressed size is simply an estimate
+            CompressedSize = (int)pointer->num_rects * 256;
             PresentationTime = Convert.ToInt64(pointer->start_display_time);
             DecodingTime = pointer->pts;
         }
@@ -63,6 +69,11 @@
         /// Gets the type of the media.
         /// </summary>
         public MediaType MediaType { get; }
+
+        /// <summary>
+        /// Gets the size of the compressed packets that created this frame.
+        /// </summary>
+        public int CompressedSize { get; }
 
         /// <summary>
         /// Gets the unadjusted, original presentation timestamp (PTS) of the frame.

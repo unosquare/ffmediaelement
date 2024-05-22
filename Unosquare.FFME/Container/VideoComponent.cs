@@ -207,11 +207,8 @@ internal sealed unsafe class VideoComponent : MediaComponent
     public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, MediaBlock previousBlock)
     {
         if (output == null) output = new VideoBlock();
-        if (input is VideoFrame == false || output is VideoBlock == false)
+        if (input is not VideoFrame source || output is not VideoBlock target)
             throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
-
-        var source = (VideoFrame)input;
-        var target = (VideoBlock)output;
 
         // Retrieve a suitable scaler or create it on the fly
         var newScaler = ffmpeg.sws_getCachedContext(
@@ -304,6 +301,7 @@ internal sealed unsafe class VideoComponent : MediaComponent
         // Fill out other properties
         target.IsHardwareFrame = source.IsHardwareFrame;
         target.HardwareAcceleratorName = source.HardwareAcceleratorName;
+        target.CompressedSize = source.CompressedSize;
         target.CodedPictureNumber = source.CodedPictureNumber;
         target.StreamIndex = source.StreamIndex;
         target.ClosedCaptions = [.. source.ClosedCaptions];

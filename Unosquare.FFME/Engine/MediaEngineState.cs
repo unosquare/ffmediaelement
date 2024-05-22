@@ -17,25 +17,25 @@
         private static readonly IReadOnlyDictionary<string, string> EmptyDictionary = new Dictionary<string, string>(0);
 
         private readonly MediaEngine MediaCore;
-        private readonly AtomicInteger m_MediaState = new AtomicInteger((int)MediaPlaybackState.Close);
-        private readonly AtomicBoolean m_HasMediaEnded = new AtomicBoolean(default);
+        private readonly AtomicInteger m_MediaState = new((int)MediaPlaybackState.Close);
+        private readonly AtomicBoolean m_HasMediaEnded = new(default);
 
-        private readonly AtomicBoolean m_IsBuffering = new AtomicBoolean(default);
-        private readonly AtomicLong m_DecodingBitRate = new AtomicLong(default);
-        private readonly AtomicDouble m_BufferingProgress = new AtomicDouble(default);
-        private readonly AtomicDouble m_DownloadProgress = new AtomicDouble(default);
-        private readonly AtomicLong m_PacketBufferLength = new AtomicLong(default);
-        private readonly AtomicTimeSpan m_PacketBufferDuration = new AtomicTimeSpan(TimeSpan.MinValue);
-        private readonly AtomicInteger m_PacketBufferCount = new AtomicInteger(default);
+        private readonly AtomicBoolean m_IsBuffering = new(default);
+        private readonly AtomicLong m_DecodingBitRate = new(default);
+        private readonly AtomicDouble m_BufferingProgress = new(default);
+        private readonly AtomicDouble m_DownloadProgress = new(default);
+        private readonly AtomicLong m_PacketBufferLength = new(default);
+        private readonly AtomicTimeSpan m_PacketBufferDuration = new(TimeSpan.MinValue);
+        private readonly AtomicInteger m_PacketBufferCount = new(default);
 
-        private readonly AtomicTimeSpan m_FramePosition = new AtomicTimeSpan(default);
-        private readonly AtomicTimeSpan m_Position = new AtomicTimeSpan(default);
-        private readonly AtomicDouble m_SpeedRatio = new AtomicDouble(Constants.DefaultSpeedRatio);
-        private readonly AtomicDouble m_Volume = new AtomicDouble(Constants.DefaultVolume);
-        private readonly AtomicDouble m_Balance = new AtomicDouble(Constants.DefaultBalance);
-        private readonly AtomicBoolean m_IsMuted = new AtomicBoolean(false);
-        private readonly AtomicBoolean m_ScrubbingEnabled = new AtomicBoolean(true);
-        private readonly AtomicBoolean m_VerticalSyncEnabled = new AtomicBoolean(true);
+        private readonly AtomicTimeSpan m_FramePosition = new(default);
+        private readonly AtomicTimeSpan m_Position = new(default);
+        private readonly AtomicDouble m_SpeedRatio = new(Constants.DefaultSpeedRatio);
+        private readonly AtomicDouble m_Volume = new(Constants.DefaultVolume);
+        private readonly AtomicDouble m_Balance = new(Constants.DefaultBalance);
+        private readonly AtomicBoolean m_IsMuted = new(false);
+        private readonly AtomicBoolean m_ScrubbingEnabled = new(true);
+        private readonly AtomicBoolean m_VerticalSyncEnabled = new(true);
 
         private Uri m_Source;
         private bool m_IsOpen;
@@ -570,7 +570,7 @@
             IsLiveStream = MediaCore.Container?.IsLiveStream ?? default;
             IsNetworkStream = MediaCore.Container?.IsNetworkStream ?? default;
             IsSeekable = MediaCore.Container?.IsStreamSeekable ?? default;
-            CanPause = IsOpen ? !IsLiveStream : default;
+            CanPause = IsOpen && !IsLiveStream;
 
             var videoAspectWidth = MediaCore.Container?.Components.Video?.DisplayAspectWidth ?? default;
             var videoAspectHeight = MediaCore.Container?.Components.Video?.DisplayAspectHeight ?? default;

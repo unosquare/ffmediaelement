@@ -83,6 +83,10 @@ internal sealed unsafe class SubtitleComponent : MediaComponent
             }
         }
 
+        // TODO: CompressedSize is just an estimate.
+        // It would be better if we counted chars in all text lines.
+        target.CompressedSize = source.CompressedSize;
+
         return true;
     }
 

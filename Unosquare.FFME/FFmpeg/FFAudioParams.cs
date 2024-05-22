@@ -151,7 +151,7 @@
         {
             if (a.Format != b.Format) return false;
             if (a.ChannelCount != b.ChannelCount) return false;
-            if (a.ChannelLayout.order != b.ChannelLayout.order) return false;
+            if (a.ChannelLayout.u.mask != b.ChannelLayout.u.mask) return false;
             return a.SampleRate == b.SampleRate;
         }
 
