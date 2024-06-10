@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-
-namespace Unosquare.FFME.Windows.Sample
+﻿namespace Unosquare.FFME.Windows.Sample
 {
     using ClosedCaptions;
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
