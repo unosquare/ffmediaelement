@@ -682,9 +682,6 @@ internal sealed unsafe class MediaContainer : IDisposable, ILoggingSource
                     CustomInputStreamContext = ffmpeg.avio_alloc_context(
                         inputBuffer, CustomInputStream.ReadBufferLength, 0, null, CustomInputStreamRead, null, CustomInputStreamSeek);
 
-                    // Set the seekable flag based on the custom input stream implementation
-                    CustomInputStreamContext->seekable = CustomInputStream.CanSeek ? ffmpeg.AVIO_SEEKABLE_NORMAL : 0;
-
                     // Assign the AVIOContext to the input context
                     inputContextPtr->pb = CustomInputStreamContext;
                 }
