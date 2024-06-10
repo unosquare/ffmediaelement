@@ -167,7 +167,7 @@
                 codecOptions.SetCopyOpaque();
 
                 // Enable Hardware acceleration if requested
-                (this as VideoComponent)?.AttachHardwareDevice(container.MediaOptions.VideoHardwareDevice);
+                (this as VideoComponent)?.AttachHardwareDevice(container.MediaOptions.VideoHardwareDevices);
 
                 // Open the CodecContext. This requires exclusive FFmpeg access
                 lock (CodecLock)

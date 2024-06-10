@@ -157,37 +157,41 @@ internal sealed unsafe class VideoComponent : MediaComponent
     /// <summary>
     /// Attaches a hardware accelerator to this video component.
     /// </summary>
-    /// <param name="selectedConfig">The selected configuration.</param>
+    /// <param name="selectedConfigs">The selected configurations.</param>
     /// <returns>
     /// Whether or not the hardware accelerator was attached.
     /// </returns>
-    public bool AttachHardwareDevice(HardwareDeviceInfo selectedConfig)
+    public bool AttachHardwareDevice(HardwareDeviceInfo[] selectedConfigs)
     {
         // Check for no device selection
-        if (selectedConfig == null)
+        if (selectedConfigs == null || selectedConfigs.Length == 0)
             return false;
 
-        try
+        foreach (var selectedConfig in selectedConfigs)
         {
-            var accelerator = new HardwareAccelerator(this, selectedConfig);
+            try
+            {
+                AVBufferRef* devContextRef = null;
+                var initResultCode = ffmpeg.av_hwdevice_ctx_create(&devContextRef, selectedConfig.DeviceType, null, null, 0);
+                if (initResultCode < 0)
+                    continue;
 
-            AVBufferRef* devContextRef = null;
-            var initResultCode = ffmpeg.av_hwdevice_ctx_create(&devContextRef, accelerator.DeviceType, null, null, 0);
-            if (initResultCode < 0)
-                throw new MediaContainerException($"Unable to initialize hardware context for device {accelerator.Name}");
+                var accelerator = new HardwareAccelerator(this, selectedConfig);
+                HardwareDeviceContext = devContextRef;
+                HardwareAccelerator = accelerator;
+                CodecContext->hw_device_ctx = ffmpeg.av_buffer_ref(HardwareDeviceContext);
+                CodecContext->get_format = accelerator.GetFormatCallback;
 
-            HardwareDeviceContext = devContextRef;
-            HardwareAccelerator = accelerator;
-            CodecContext->hw_device_ctx = ffmpeg.av_buffer_ref(HardwareDeviceContext);
-            CodecContext->get_format = accelerator.GetFormatCallback;
-
-            return true;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.LogError(Aspects.Component, "Could not attach hardware decoder.", ex);
+            }
         }
-        catch (Exception ex)
-        {
-            this.LogError(Aspects.Component, "Could not attach hardware decoder.", ex);
-            return false;
-        }
+
+        this.LogError(Aspects.Component, "Could not attach any hardware decoder.");
+        return false;
     }
 
     /// <summary>
