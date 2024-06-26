@@ -13,7 +13,7 @@
 
 ## Status Updates
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2024-05-21) - BETA 1 Release 7.0.360.1 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2024-06-26) - BETA 1 Release 7.0.361.1 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="https://ffmpeg.org/download.html">7.0</a> -- Make sure you download one built as a SHARED library and for your right architecture (typically x64)
 - BREAKING CHANGE: Starting realease 4.1.320 the `Source` dependency property has been downgraded to a notification property. Please use the asynchronous `Open` and `Close` methods instead.

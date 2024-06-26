@@ -31,9 +31,9 @@
     <RepositoryType>GitHub</RepositoryType>
     <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
 
-    <Version>7.0.360-beta.1</Version>
-    <AssemblyVersion>7.0.360.1</AssemblyVersion>
-    <FileVersion>7.0.360.1</FileVersion>
+    <Version>7.0.361-beta.1</Version>
+    <AssemblyVersion>7.0.361.1</AssemblyVersion>
+    <FileVersion>7.0.361.1</FileVersion>
     <LangVersion>preview</LangVersion>
 
     <Authors>Mario Di Vece, and Contributors to the FFME project</Authors>
