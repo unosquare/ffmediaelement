@@ -3,6 +3,7 @@
     using ClosedCaptions;
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -286,16 +287,16 @@
                 // Hardware device selection
                 if (videoStream.FPS <= 30)
                 {
+                    var devices = new List<HardwareDeviceInfo>(deviceCandidates.Length);
                     foreach (var deviceType in deviceCandidates)
                     {
                         var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
                         if (accelerator == null) continue;
 
-                        if (Debugger.IsAttached)
-                            e.Options.VideoHardwareDevice = accelerator;
-
-                        break;
+                        devices.Add(accelerator);
                     }
+
+                    e.Options.VideoHardwareDevices = devices.ToArray();
                 }
 
                 // Start building a video filter

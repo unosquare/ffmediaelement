@@ -43,7 +43,7 @@
         /// Use Stream's HardwareDevices property to get a list of
         /// compatible hardware accelerators.
         /// </summary>
-        public HardwareDeviceInfo VideoHardwareDevice { get; set; }
+        public HardwareDeviceInfo[] VideoHardwareDevices { get; set; }
 
         /// <summary>
         /// Prevent reading from audio stream components.
